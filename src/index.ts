@@ -11,6 +11,9 @@ export * from "./types";
 // configurations
 export * from "./configurations";
 
+// events
+export * from "./events";
+
 // helpers
 export * from "./helpers";
 

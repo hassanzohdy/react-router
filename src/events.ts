@@ -3,7 +3,7 @@ import { routerEventType, RouterEventLocaleChangeCallback } from "./types";
 
 const routerEventsNamespace: string = "router.";
 
-const routerEvents = {
+export const routerEvents = {
   onLocaleCodeChange(
     callback: RouterEventLocaleChangeCallback
   ): EventSubscription {
@@ -20,5 +20,3 @@ const routerEvents = {
     events.trigger(routerEventsNamespace + eventName, ...args);
   },
 };
-
-export default routerEvents;

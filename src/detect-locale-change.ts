@@ -1,4 +1,4 @@
-import routerEvents from "./events";
+import { routerEvents } from "./events";
 import history from "./router-history";
 import { getLocaleCodes } from "./helpers";
 

@@ -1,4 +1,4 @@
-import routerEvents from "./events";
+import { routerEvents } from "./events";
 import { ltrim } from "@mongez/reinforcements";
 import {
   getAppPath,
