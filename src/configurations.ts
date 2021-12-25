@@ -1,12 +1,14 @@
 import { Obj } from "@mongez/reinforcements";
 import { RouterConfigurations } from "./types";
 
-export let currentConfigurations: RouterConfigurations = {};
+export let routerConfigurations: RouterConfigurations = {};
 
 export function setRouterConfigurations(configurations: RouterConfigurations) {
-  currentConfigurations = Obj.merge(currentConfigurations, configurations);
+  routerConfigurations = Obj.merge(routerConfigurations, configurations);
 }
 
-export function getRouterConfig(key: string, defaultValue?: any): any {
-  return Obj.get(currentConfigurations, key, defaultValue);
+export function getRouterConfig(key?: string, defaultValue?: any): any {
+  if (arguments.length === 0) return routerConfigurations;
+
+  return Obj.get(routerConfigurations, key, defaultValue);
 }
