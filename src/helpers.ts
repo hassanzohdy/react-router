@@ -63,7 +63,10 @@ export function baseUrl(): string {
  * @returns {string}
  */
 export function concatRoute(...segments: string[]) {
-  let path = segments.map((segment) => "/" + trim(segment, "/")).join("");
+  let path: string = segments
+    .filter((value) => value && String(value).length > 0)
+    .map((segment) => "/" + trim(String(segment), "/"))
+    .join("");
 
   return "/" + trim(path.replace(/(\/)+/g, "/"), "/");
 }

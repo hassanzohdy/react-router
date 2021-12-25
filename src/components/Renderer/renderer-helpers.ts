@@ -42,5 +42,5 @@ export function firstSegmentOfRoute(location: Location): string {
     setCurrentBseAppPath(firstSegment);
   }
 
-  return concatRoute(segment);
+  return segment ? concatRoute(segment) : "/";
 }
