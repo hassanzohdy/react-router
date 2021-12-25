@@ -6,15 +6,16 @@ import {
   GroupOptions,
   Layout,
   Route,
-  Wrapper,
+  LayoutComponent,
 } from "./types";
 
 /**
  * Default Full Page >> It Will be just a React Fragment
  */
-export const FULL_PAGE: Wrapper = ({ key, children }: BasicComponentProps) => (
-  <React.Fragment key={key} children={children} />
-);
+export const FULL_PAGE: LayoutComponent = ({
+  key,
+  children,
+}: BasicComponentProps) => <React.Fragment key={key} children={children} />;
 
 /**
  * Set all layouts that will wrap the application routes
@@ -50,7 +51,7 @@ export function addRouter(
  * @param  {React.Component} LayoutComponent
  * @param  {Array} routes
  */
-export function partOf(LayoutComponent: Wrapper, routes: Array<Route>) {
+export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
   let layout = layoutsList.find(
     (layout) => layout.LayoutComponent === LayoutComponent
   );
@@ -118,7 +119,7 @@ export function routesList() {
   return layoutsList.reduce((routes, layout) => {
     return routes.concat(
       layout.routes.map((route) => {
-        route["layout"] = layout.LayoutComponent;
+        route.layout = layout.LayoutComponent;
         return route;
       })
     );

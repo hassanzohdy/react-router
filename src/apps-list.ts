@@ -61,7 +61,8 @@ export function getCurrentAppName(): string {
  */
 export function setCurrentBseAppPath(path: string) {
   currentBaseAppPath = concatRoute(path);
-  currentAppName = allApps.find((app) => app.path === currentBaseAppPath)?.name;
+  currentAppName = allApps.find((app) => app.path === currentBaseAppPath)
+    ?.name as string;
 }
 
 /**

@@ -96,7 +96,7 @@ export type Middleware = React.ReactNode | React.ReactNode[];
  * Useful when many pages has same layout,
  * it will prevent re-rendering the layout wrapper from beginning each time
  */
-export type Wrapper = React.FunctionComponent<BasicComponentProps>;
+export type LayoutComponent = React.FunctionComponent<BasicComponentProps>;
 
 export type RedirectProps = {
   /**
@@ -179,6 +179,10 @@ export interface Route {
    * Route rendered component
    */
   component: React.FunctionComponent<BasicComponentProps>;
+  /**
+   * Route Layout
+   */
+  layout?: LayoutComponent;
 }
 
 /**
@@ -190,7 +194,7 @@ export type Layout = {
    */
   routes: Route[];
   routesList: string[];
-  LayoutComponent: Wrapper;
+  LayoutComponent: LayoutComponent;
 };
 
 /**
@@ -208,7 +212,7 @@ export type GroupOptions = {
   /**
    * Layout that will be rendered on top of all routes in the group
    */
-  layout?: Wrapper;
+  layout?: LayoutComponent;
   /**
    * Routes middleware, it will be merged with each route middleware(s) if provided
    */

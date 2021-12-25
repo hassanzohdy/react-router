@@ -74,7 +74,7 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
 
   otherLinkProps.to = path;
 
-  return <RouterLink {...otherLinkProps} ref={forwardedRef} />;
+  return <RouterLink ref={forwardedRef} {...otherLinkProps} />;
 });
 
 export default Link;
