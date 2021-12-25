@@ -153,8 +153,8 @@ export default function Renderer(props: any): any {
     (!moduleIsLoaded && isPartOfLazyModules(firstSegment)) ||
     isLoadingDynamicRoute
   ) {
-    const ProgressBar: any = currentConfigurations.preloader || React.Fragment;
-    return <ProgressBar />;
+    const PreLoader: any = getRouterConfig("preloader", React.Fragment);
+    return <PreLoader />;
   }
 
   currentRoute.routeInfo = null;
