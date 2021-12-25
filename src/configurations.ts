@@ -5,6 +5,7 @@ export let routerConfigurations: RouterConfigurations = {};
 
 export function setRouterConfigurations(configurations: RouterConfigurations) {
   routerConfigurations = Obj.merge(routerConfigurations, configurations);
+  console.log({ ...routerConfigurations });
 }
 
 export function getRouterConfig(key?: string, defaultValue?: any): any {
