@@ -648,6 +648,32 @@ import router from '@mongez/react-router';
 router.add('/login', LoginPage);
 ```
 
+### Route Path Structure
+
+Based on the app configurations, we've X route structures.
+
+1. `/`: The app root
+2. `/en`: The app root appended with locale code
+3. `/en/contact-us`: The contact us route prefixed with locale code.
+4. `/admin`: Admin app home path.
+5. `/en/admin`: Admin app home path with `en` locale code.
+6. `/en/admin/customers`: Admin app customers page with `en` locale code.
+7. `admin/customers`: Admin app customers page with default locale code.
+
+So our full route structure will be something like:
+
+`/localeCode(optional)/app-path/route`
+
+> When you define your route don't add the app path or locale code, for example:
+
+✅
+`router.add('/contact-us', ContactUs)`
+
+❌
+`router.add('/admin/contact-us', ContactUs)`
+`router.add('/en/contact-us', ContactUs)`
+`router.add('/en/admin/contact-us', ContactUs)`
+
 ## Router Configurations
 
 `MRR` doesn't require any configurations to be set, but its recommended to define some configurations such as the locale code used in the project.
@@ -798,7 +824,7 @@ Navigate to another app with a locale code
 
 ```tsx
 <Link to="/account" app="admin" localeCode="ar">Go To Account Page In Admin App With Arabic Locale Code</Link>
-// outputs: /admin/ar/account
+// outputs: /ar/admin/account
 ```
 
 > The app prop accepts the app name not the app path
@@ -1343,6 +1369,39 @@ import { baseUrl } from '@mongez/react-router';
 
 console.log(baseUrl()); // something like https://sitename.com/online-store where /online-store is the basePath of the project.
 ```
+
+## Get current page direction
+
+To get current page direction use `currentDirection` helper.
+
+`currentDirection(): string`
+
+```ts
+import { currentDirection } from '@mongez/react-router';
+
+console.log(currentDirection()); // ltr for example
+```
+
+Please note that this utility depends on `document.documentElement`'s `dir` property, if not set, then `ltr` will be returned as default.
+
+## Direction Is
+
+Check if current direction matches the given direction, using `directionIs` utility.
+
+`directionIs(direction: 'ltr' | 'rtl'): boolean`
+
+```ts
+import { directionIs } from '@mongez/react-router';
+
+console.log(directionIs('ltr')); // true
+console.log(directionIs('rtl')); // false
+```
+
+## Change Log
+
+- 1.0.16 (11 Jan 2022)
+  - Added [Get current page direction Utility](#get-current-page-direction)
+  - Added [Direction Is Utility](#direction-is)
 
 ## TODO
 

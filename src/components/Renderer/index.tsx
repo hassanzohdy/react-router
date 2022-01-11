@@ -5,7 +5,7 @@ import history from "./../../router-history";
 import { navigateTo } from "../../navigator";
 import { layoutsList, routesList } from "./../../routes-list";
 import { getCurrentBseAppPath } from "./../../apps-list";
-import { currentConfigurations, getRouterConfig } from "./../../configurations";
+import { getRouterConfig } from "./../../configurations";
 import { Layout, Route as ModuleRoute, Module } from "./../../types";
 import { Route, RouteComponentProps } from "react-router-dom";
 import { appDynamicRouteModule, modulesList } from "./../../apps-list";

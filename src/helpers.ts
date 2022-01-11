@@ -79,3 +79,22 @@ export function concatRoute(...segments: string[]) {
 export function getLocaleCodes(): string[] {
   return getRouterConfig("localeCodes", []);
 }
+
+/**
+ * Get current direction
+ *
+ * @returns {string}
+ */
+export function currentDirection(): string {
+  return document.documentElement.dir || "ltr";
+}
+
+/**
+ * Determine if current direction is matching the given direction
+ *
+ * @param   {string} direction
+ * @returns {boolean}
+ */
+export function directionIs(direction: "ltr" | "rtl"): boolean {
+  return currentDirection() === direction;
+}
