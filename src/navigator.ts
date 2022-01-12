@@ -146,6 +146,10 @@ export function fullRoute(): string {
 export function currentRoute(): string {
   let route = ltrim(fullRoute(), "/" + getCurrentLocaleCode()) || "/";
 
+  if (!route.startsWith("/")) {
+    route = "/" + route;
+  }
+
   route = ltrim(route, getCurrentBseAppPath());
 
   return concatRoute(route);
@@ -174,9 +178,8 @@ export function refresh() {
  * @param  {string} localeCode
  */
 export function switchLang(localeCode: string) {
-  routerEvents.trigger("localeCodeChange", localeCode);
-
   navigateTo(currentRoute(), localeCode);
+  routerEvents.trigger("localeCodeChange", localeCode);
 }
 
 /**
