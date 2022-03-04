@@ -10,5 +10,9 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
 export function getRouterConfig(key?: string, defaultValue?: any): any {
   if (arguments.length === 0) return routerConfigurations;
 
-  return Obj.get(routerConfigurations, key, defaultValue);
+  return Obj.get(routerConfigurations, key as string, defaultValue);
+}
+
+export function setRouterConfig(key: string, newValue?: any): any {
+  Obj.set(routerConfigurations, key, newValue);
 }

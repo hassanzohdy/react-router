@@ -9,6 +9,7 @@ import history, { hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
 import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
+import { getRouterConfig, setRouterConfig } from ".";
 
 export { objectToQueryString };
 
@@ -161,15 +162,25 @@ export function currentRoute(): string {
  * @returns {void}
  */
 export function refresh() {
-  // stackBuilder.remove(currentRoute());
   const route = fullRoute();
-  const queryParams = queryString().toString();
+  const queryParams = queryString().toString().replace("?", "");
   const hashString = hash();
+
+  // enable force refresh temporarily
+  const forceRefresh: boolean = getRouterConfig("forceRefresh");
+
+  setRouterConfig("forceRefresh", true);
+
   goTo(
     route +
       (queryParams ? "?" + queryParams : "") +
       (hashString ? "#" + hashString : "")
   );
+
+  // reset force refresh back after refreshing
+  setTimeout(() => {
+    setRouterConfig("forceRefresh", forceRefresh);
+  }, 0);
 }
 
 /**
