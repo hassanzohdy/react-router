@@ -1399,6 +1399,8 @@ console.log(directionIs('rtl')); // false
 
 ## Change Log
 
+- 1.0.20 (4 Mar 2022)
+  - Fixed Link Component for Relative, Mail to and tel props.
 - 1.0.16 (11 Jan 2022)
   - Added [Get current page direction Utility](#get-current-page-direction)
   - Added [Direction Is Utility](#direction-is)

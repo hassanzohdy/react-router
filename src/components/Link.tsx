@@ -30,11 +30,11 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
     }
 
     if (mailTo) {
-      to = "mailTo:" + mailTo;
+      return "mailto:" + mailTo;
     }
 
     if (tel) {
-      to = "tel:" + tel;
+      return "tel:" + tel;
     }
 
     if (Is.url(to)) {
@@ -43,9 +43,6 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
 
     // if not relative, then use the normal anchor tag
     if (!relative) {
-      if (!to.startsWith("http") && !to.startsWith("mailto")) {
-        to = "http://" + to;
-      }
       return to;
     }
 
@@ -72,9 +69,13 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
     otherLinkProps.target = "_blank";
   }
 
+  if (!relative || mailTo || tel) {
+    return <a {...otherLinkProps} href={path} ref={forwardedRef as any} />;
+  }
+
   otherLinkProps.to = path;
 
-  return <RouterLink ref={forwardedRef} {...otherLinkProps} />;
+  return <RouterLink to={path} ref={forwardedRef as any} {...otherLinkProps} />;
 });
 
 export default Link;
