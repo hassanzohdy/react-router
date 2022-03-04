@@ -172,6 +172,14 @@ export interface Route {
    */
   path: string;
   /**
+   * Original Path
+   */
+  originalPath?: string;
+  /**
+   * Route name
+   */
+  name?: string;
+  /**
    * Route middleware
    */
   middleware?: Middleware;

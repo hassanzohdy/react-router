@@ -74,6 +74,7 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
 
   routes = routes.map((route) => {
     // added optional localization
+    route.originalPath = route.path;
     route.path = concatRoute(
       gluedLocaleCodes ? `/:localeCode(${gluedLocaleCodes})?` : "",
       currentAppBasePath,

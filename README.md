@@ -1399,6 +1399,8 @@ console.log(directionIs('rtl')); // false
 
 ## Change Log
 
+- 1.0.22 (4 Mar 2022)
+- Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)
   - Forced refresh function when `forceRefresh` configuration is set to false.
 - 1.0.20 (4 Mar 2022)
