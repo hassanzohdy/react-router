@@ -33,7 +33,7 @@ Route structure is the one used in [React Router DOM](https://v5.reactrouter.com
 
 ## Installation
 
-`yarn add @mognez/react-router`
+`yarn add @mongez/react-router`
 
 Or
 
@@ -45,11 +45,11 @@ In your `src/index` file import the package and clear the `ReactDOM.render` sect
 
 ```tsx
 // src/index.ts
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
 // remove the following code from the file
 import ReactDOM from "react-dom";
-import App from './App';
+import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -63,10 +63,10 @@ Now let's add a route for our home page
 
 ```tsx
 // src/index.ts
-import router from '@mongez/react-router';
-import HomePage from './Home';
+import router from "@mongez/react-router";
+import HomePage from "./Home";
 
-router.add('/', HomePage);
+router.add("/", HomePage);
 
 // Start scanning for all of registered routes
 router.scan();
@@ -293,7 +293,7 @@ Now let's create a `src/shared/apps-list.ts` file to set our apps list.
         |-- front-office-modules.json
         |-- front-office-provider.ts
      |-- admin
-  |--- shared  
+  |--- shared
      |-- apps-list.ts
   |--- index.ts
 ```
@@ -301,13 +301,11 @@ Now let's create a `src/shared/apps-list.ts` file to set our apps list.
 ```ts
 // src/shared/apps-list.ts
 
-import { setApps } from '@mongez/react-router';
+import { setApps } from "@mongez/react-router";
 
-import frontOfficeApp from 'apps/front-office/front-office-modules.json';
+import frontOfficeApp from "apps/front-office/front-office-modules.json";
 
-setApps([
-  frontOfficeApp
-]);
+setApps([frontOfficeApp]);
 ```
 
 > We used the `apps/` alias directly as we already using path alias.
@@ -316,9 +314,9 @@ Now let's head back to our index file and import our `apps-list.ts` file.
 
 ```tsx
 // src/index.ts
-import './shared/apps-list';
+import "./shared/apps-list";
 
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
 router.scan();
 ```
@@ -336,7 +334,7 @@ In `src/apps/front-office/home` we should have two files: `provider.ts` and `rou
 ```ts
 // src/apps/front-office/home/provider.ts
 
-import './routes';
+import "./routes";
 ```
 
 We just imported our `routes.ts` file, now let's add our routes there.
@@ -344,10 +342,10 @@ We just imported our `routes.ts` file, now let's add our routes there.
 ```ts
 // src/apps/front-office/home/routes.ts
 
-import router from '@mongez/router';
-import HomePage from './components/HomePage';
+import router from "@mongez/router";
+import HomePage from "./components/HomePage";
 
-router.add('/', HomePage);
+router.add("/", HomePage);
 ```
 
 Now we'are ready to go as we're done with our setup.
@@ -360,18 +358,18 @@ In `src/apps/front-office/account/routes.ts` file we can define our routes as fo
 
 ```ts
 // src/apps/front-office/account/routes.ts
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
-import AccountDashboardPage from './components/DashboardPage';
-import EditProfilePage from './components/EditProfilePage';
-import OrderHistoryPage from './components/OrderHistoryPage';
-import SingleOrderHistoryPage from './components/SingleOrderHistoryPage';
-import Guardian from './middleware/Guardian';
+import AccountDashboardPage from "./components/DashboardPage";
+import EditProfilePage from "./components/EditProfilePage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
+import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
 
-router.add('/account', AccountDashboardPage, [Guardian]);
-router.add('/account/edit-profile', EditProfilePage), [Guardian];
-router.add('/account/order-history', OrderHistoryPage, [Guardian]);
-router.add('/account/order-history/:id', SingleOrderHistoryPage, [Guardian]);
+router.add("/account", AccountDashboardPage, [Guardian]);
+router.add("/account/edit-profile", EditProfilePage), [Guardian];
+router.add("/account/order-history", OrderHistoryPage, [Guardian]);
+router.add("/account/order-history/:id", SingleOrderHistoryPage, [Guardian]);
 ```
 
 Here we defined our routes, with a new argument in `router.add` which is an array of middleware that will be declared before navigating to our pages.
@@ -380,9 +378,9 @@ Now let's see our new Guardian middleware file.
 
 ```tsx
 // src/apps/front-office/account/middleware/Guardian.tsx
-import user from 'somewhere-in-the-app';
-import React from 'react';
-import { Redirect } from '@mongez/react-router';
+import user from "somewhere-in-the-app";
+import React from "react";
+import { Redirect } from "@mongez/react-router";
 
 export default function Guardian() {
   if (user.isNotLoggedIn()) {
@@ -403,14 +401,12 @@ So the middleware can look like:
 
 ```tsx
 // src/apps/front-office/account/middleware/Guardian.tsx
-import user from 'somewhere-in-the-app';
-import React from 'react';
+import user from "somewhere-in-the-app";
+import React from "react";
 
 export default function Guardian() {
   if (user.isNotLoggedIn()) {
-    return (
-      <h1>You do not have access to this page, please login first.</h1>
-    )
+    return <h1>You do not have access to this page, please login first.</h1>;
   }
 
   return null;
@@ -425,35 +421,35 @@ In our previous middleware example, we can see that all routes starts with `/acc
 
 ```ts
 // src/apps/front-office/account/routes.ts
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
-import AccountDashboardPage from './components/DashboardPage';
-import EditProfilePage from './components/EditProfilePage';
-import OrderHistoryPage from './components/OrderHistoryPage';
-import SingleOrderHistoryPage from './components/SingleOrderHistoryPage';
-import Guardian from './middleware/Guardian';
+import AccountDashboardPage from "./components/DashboardPage";
+import EditProfilePage from "./components/EditProfilePage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
+import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
 
 router.group({
-  path: '/account',
+  path: "/account",
   middleware: [Guardian],
   routes: [
     {
-      path: '/',
+      path: "/",
       component: AccountDashboardPage,
     },
     {
-      path: '/edit-profile',
+      path: "/edit-profile",
       component: EditProfilePage,
     },
     {
-      path: '/order-history',
+      path: "/order-history",
       component: OrderHistoryPage,
     },
     {
-      path: '/order-history/:id',
+      path: "/order-history/:id",
       component: SingleOrderHistoryPage,
     },
-  ]
+  ],
 });
 ```
 
@@ -472,18 +468,18 @@ This can be done easily with `MRR` by using `router.partOf` method.
 ```tsx
 // src/apps/front-office/components/BaseLayout.tsx
 
-import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
+import React from "react";
+import Header from "./Header";
+import Footer from "./Footer";
 
 export default function BaseLayout({ children }) {
   return (
     <>
       <Header />
-      <main>{ children }</main>    
-      <Footer />    
+      <main>{children}</main>
+      <Footer />
     </>
-  )
+  );
 }
 ```
 
@@ -492,15 +488,15 @@ Now let's add our New Base layout to our HomePage.
 ```ts
 // src/apps/front-office/home/routes.ts
 
-import router from '@mongez/router';
-import HomePage from './components/HomePage';
-import BaseLayout from 'apps/front-office/components/BaseLayout';
+import router from "@mongez/router";
+import HomePage from "./components/HomePage";
+import BaseLayout from "apps/front-office/components/BaseLayout";
 
 router.partOf(BaseLayout, [
   {
-    path: '/',
-    component: HomePage
-  }
+    path: "/",
+    component: HomePage,
+  },
 ]);
 ```
 
@@ -512,39 +508,38 @@ Let's head back to our account module.
 
 ```ts
 // src/apps/front-office/account/routes.ts
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
-import AccountDashboardPage from './components/DashboardPage';
-import EditProfilePage from './components/EditProfilePage';
-import OrderHistoryPage from './components/OrderHistoryPage';
-import SingleOrderHistoryPage from './components/SingleOrderHistoryPage';
-import Guardian from './middleware/Guardian';
+import AccountDashboardPage from "./components/DashboardPage";
+import EditProfilePage from "./components/EditProfilePage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
+import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
 
-import BaseLayout from 'apps/front-office/components/BaseLayout';
-
+import BaseLayout from "apps/front-office/components/BaseLayout";
 
 router.group({
-  path: '/account',
+  path: "/account",
   layout: BaseLayout,
   middleware: [Guardian],
   routes: [
     {
-      path: '/',
+      path: "/",
       component: AccountDashboardPage,
     },
     {
-      path: '/edit-profile',
+      path: "/edit-profile",
       component: EditProfilePage,
     },
     {
-      path: '/order-history',
+      path: "/order-history",
       component: OrderHistoryPage,
     },
     {
-      path: '/order-history/:id',
+      path: "/order-history/:id",
       component: SingleOrderHistoryPage,
     },
-  ]
+  ],
 });
 ```
 
@@ -556,22 +551,22 @@ Let's take another scenario that the account pages have a common sidebar between
 
 ```tsx
 // src/apps/front-office/account/components/AccountLayout.tsx
-import React from 'react';
-import Header from 'apps/front-office/components/Header';
-import Header from 'apps/front-office/components/Footer';
-import AccountSidebar from './AccountSidebar';
+import React from "react";
+import Header from "apps/front-office/components/Header";
+import Header from "apps/front-office/components/Footer";
+import AccountSidebar from "./AccountSidebar";
 
-export default function AccountLayout( {children} ) {
+export default function AccountLayout({ children }) {
   return (
     <>
       <Header />
       <main>
         <AccountSidebar />
-        <div>{ children }</div>
+        <div>{children}</div>
       </main>
       <Footer />
     </>
-  )
+  );
 }
 ```
 
@@ -579,38 +574,38 @@ Now let's our account routes again to use our new layout instead of the base lay
 
 ```ts
 // src/apps/front-office/account/routes.ts
-import router from '@mongez/react-router';
+import router from "@mongez/react-router";
 
-import AccountDashboardPage from './components/DashboardPage';
-import EditProfilePage from './components/EditProfilePage';
-import OrderHistoryPage from './components/OrderHistoryPage';
-import SingleOrderHistoryPage from './components/SingleOrderHistoryPage';
-import Guardian from './middleware/Guardian';
+import AccountDashboardPage from "./components/DashboardPage";
+import EditProfilePage from "./components/EditProfilePage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
+import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
 
-import AccountLayout from './components/AccountLayout';
+import AccountLayout from "./components/AccountLayout";
 
 router.group({
-  path: '/account',
+  path: "/account",
   layout: AccountLayout,
   middleware: [Guardian],
   routes: [
     {
-      path: '/',
+      path: "/",
       component: AccountDashboardPage,
     },
     {
-      path: '/edit-profile',
+      path: "/edit-profile",
       component: EditProfilePage,
     },
     {
-      path: '/order-history',
+      path: "/order-history",
       component: OrderHistoryPage,
     },
     {
-      path: '/order-history/:id',
+      path: "/order-history/:id",
       component: SingleOrderHistoryPage,
     },
-  ]
+  ],
 });
 ```
 
@@ -618,17 +613,17 @@ Now we're almost done, one more thing to do is to extend our base layout as we i
 
 ```tsx
 // src/apps/front-office/account/components/AccountLayout.tsx
-import React from 'react';
-import BaseLayout from 'apps/front-office/components/BaseLayout';
-import AccountSidebar from './AccountSidebar';
+import React from "react";
+import BaseLayout from "apps/front-office/components/BaseLayout";
+import AccountSidebar from "./AccountSidebar";
 
-export default function AccountLayout( {children} ) {
+export default function AccountLayout({ children }) {
   return (
     <BaseLayout>
-        <AccountSidebar />
-        <div>{ children }</div>
+      <AccountSidebar />
+      <div>{children}</div>
     </BaseLayout>
-  )
+  );
 }
 ```
 
@@ -641,11 +636,11 @@ All routes defined inside the `routes.ts` files in the lazy load mode, are prefi
 ```ts
 // src/apps/admin/administrators/routes.ts
 
-import LoginPage from './components';
-import router from '@mongez/react-router';
+import LoginPage from "./components";
+import router from "@mongez/react-router";
 
 // here we'll define the route as /login not /admin/login
-router.add('/login', LoginPage);
+router.add("/login", LoginPage);
 ```
 
 ### Route Path Structure
@@ -682,13 +677,13 @@ In `src/shared` directory let's create a new file `config.ts`
 
 ```ts
 // src/shared/config.ts
-import { setRouterConfigurations } from '@mongez/react-router';
+import { setRouterConfigurations } from "@mongez/react-router";
 
 setRouterConfigurations({
   // if your app is multilingual then define all locale codes in the app
-  localeCodes: ['en', 'ar'],
+  localeCodes: ["en", "ar"],
   // if the production build will be in a directory and not the root, then define the directory path in basePath
-  basePath: '/', 
+  basePath: "/",
 });
 ```
 
@@ -698,9 +693,9 @@ Now import the file in the index file.
 // src/index.ts
 
 // its important to import the config file before any route functions.
-import './shared/config';
-import './shared/apps-list';
-import router from '@mongez/react-router';
+import "./shared/config";
+import "./shared/apps-list";
+import router from "@mongez/react-router";
 
 router.scan();
 ```
@@ -784,15 +779,15 @@ Using `Link` component in react will provide some interesting features to make t
 
 ```tsx
 // src/apps/front-office/home/components/HomePage.tsx
-import React from 'react';
-import { Link } from '@mongez/react';
+import React from "react";
+import { Link } from "@mongez/react";
 
 export default function HomePage() {
   return (
     <div>
       <Link to="/account">Go To Account Page</Link>
     </div>
-  )
+  );
 }
 ```
 
@@ -801,7 +796,9 @@ Simply put, a simple navigation to route by using `to` or `href` prop.
 To navigate to route in a new tab:
 
 ```tsx
-<Link to="/account" newTab>Go To Account Page In New Tab</Link>
+<Link to="/account" newTab>
+  Go To Account Page In New Tab
+</Link>
 // outputs: <a href="/account" target="_blank" rel="noopener noreferrer">
 ```
 
@@ -810,20 +807,26 @@ To navigate to route in another locale code:
 To navigate to route in another app:
 
 ```tsx
-<Link to="/customers/100" app="admin">Go To Customer page in admin app.</Link>
+<Link to="/customers/100" app="admin">
+  Go To Customer page in admin app.
+</Link>
 
 // outputs: /admin/customers/100
 ```
 
 ```tsx
-<Link to="/account" localeCode="ar">Go To Account Page With Arabic Locale Code</Link>
+<Link to="/account" localeCode="ar">
+  Go To Account Page With Arabic Locale Code
+</Link>
 // outputs: /ar/account
 ```
 
 Navigate to another app with a locale code
 
 ```tsx
-<Link to="/account" app="admin" localeCode="ar">Go To Account Page In Admin App With Arabic Locale Code</Link>
+<Link to="/account" app="admin" localeCode="ar">
+  Go To Account Page In Admin App With Arabic Locale Code
+</Link>
 // outputs: /ar/admin/account
 ```
 
@@ -857,9 +860,9 @@ This component usually used with middleware as mentioned earlier in the [Middlew
 
 ```tsx
 // src/apps/admin/account/middleware/Guardian.tsx
-import user from 'somewhere-in-the-app';
-import React from 'react';
-import { Redirect } from '@mongez/react-router';
+import user from "somewhere-in-the-app";
+import React from "react";
+import { Redirect } from "@mongez/react-router";
 
 export default function Guardian() {
   if (user.isNotLoggedIn()) {
@@ -892,10 +895,10 @@ This route path is defined as `/customers/:id`.
 ```ts
 // src/apps/admin/customers/routes.ts
 
-import router from '@mongez/react-router';
-import CustomerPage from './components/CustomerPage';
+import router from "@mongez/react-router";
+import CustomerPage from "./components/CustomerPage";
 
-router.add('/customers/:id', CustomerPage);
+router.add("/customers/:id", CustomerPage);
 ```
 
 Now let's head to our `CustomerPage` component.
@@ -903,18 +906,14 @@ Now let's head to our `CustomerPage` component.
 ```tsx
 // src/apps/admin/customers/components/CustomerPage.tsx
 
-import React from 'react'
+import React from "react";
 
 export default function CustomerPage({ params }) {
   const { localeCode, id } = params;
   console.log(localeCode); // en
   console.log(id); // 101
 
-  return (
-    <div>
-      // component content
-    </div>
-  )
+  return <div>// component content</div>;
 }
 ```
 
@@ -935,10 +934,10 @@ To get the dynamic route we can use wildcards.
 ```ts
 // src/apps/front-office/categories/routes.ts
 
-import router from '@mongez/react-router';
-import CategoryPage from './components/CategoryPage';
+import router from "@mongez/react-router";
+import CategoryPage from "./components/CategoryPage";
 
-router.add('/categories/:slug(.+)', CategoryPage);
+router.add("/categories/:slug(.+)", CategoryPage);
 ```
 
 In our `CategoryPage` component
@@ -946,17 +945,13 @@ In our `CategoryPage` component
 ```tsx
 // src/apps/front-office/categories/components/CategoryPage.tsx
 
-import React from 'react'
+import React from "react";
 
 export default function CategoryPage({ params }) {
   const { slug } = params;
   console.log(slug); // /electronics/smart-phones
 
-  return (
-    <div>
-      // component content
-    </div>
-  )
+  return <div>// component content</div>;
 }
 ```
 
@@ -965,10 +960,10 @@ You can also use the `dynamicSegment` helper for more readability.
 ```ts
 // src/apps/front-office/categories/routes.ts
 
-import router, { dynamicSegment } from '@mongez/react-router';
-import CategoryPage from './components/CategoryPage';
+import router, { dynamicSegment } from "@mongez/react-router";
+import CategoryPage from "./components/CategoryPage";
 
-router.add('/categories/' + dynamicSegment('slug'), CategoryPage);
+router.add("/categories/" + dynamicSegment("slug"), CategoryPage);
 ```
 
 Will achieve the same result.
@@ -980,10 +975,10 @@ Sometimes, segments such as `:id` is usually integers only, so we can define a r
 ```ts
 // src/apps/admin/customers/routes.ts
 
-import router, { integerSegment } from '@mongez/react-router';
-import CustomerPage from './components/CustomerPage';
+import router, { integerSegment } from "@mongez/react-router";
+import CustomerPage from "./components/CustomerPage";
 
-router.add('/customers/' + integerSegment('id'), CustomerPage);
+router.add("/customers/" + integerSegment("id"), CustomerPage);
 ```
 
 Now if the user hits `/customers/some-text` he/she will be redirected automatically to not found page, a `/customers/101` route will be valid though.
@@ -1017,15 +1012,15 @@ export default function Header() {
 The `navigateTo` function is one of the most powered functions that allows you to navigate to another page.
 
 ```tsx
-import { navigateTo } from '@mongez/react-router';
+import { navigateTo } from "@mongez/react-router";
 
-import React from 'react';
+import React from "react";
 
 export default function CreateAccountPage() {
-  const createAccount = e => {
-    axios.post('/register', {email, password}).then(response => {
-      navigateTo('/home');
-    })
+  const createAccount = (e) => {
+    axios.post("/register", { email, password }).then((response) => {
+      navigateTo("/home");
+    });
   };
 
   return (
@@ -1035,20 +1030,20 @@ export default function CreateAccountPage() {
         <button>Create a new account</button>
       </form>
     </div>
-  )
+  );
 }
 ```
 
 Navigate to with locale code
 
 ```ts
-navigateTo('/login', 'en'); // /en/login
+navigateTo("/login", "en"); // /en/login
 ```
 
 Navigate to route with locale code and app.
 
 ```ts
-navigateTo('/login', 'en', 'admin'); // /admin/en/login
+navigateTo("/login", "en", "admin"); // /admin/en/login
 ```
 
 > Please note that the third argument accepts the app name not the app path, if you'd like to use the app path, just add it to the first argument.
@@ -1057,15 +1052,15 @@ navigateTo('/login', 'en', 'admin'); // /admin/en/login
 ## Navigate Back
 
 ```tsx
-import { navigateBack } from '@mongez/react-router';
+import { navigateBack } from "@mongez/react-router";
 
-import React from 'react';
+import React from "react";
 
 export default function LoginPage() {
-  const login = e => {
-    axios.post('/login', {email, password}).then(response => {
+  const login = (e) => {
+    axios.post("/login", { email, password }).then((response) => {
       navigateBack();
-    })
+    });
   };
 
   return (
@@ -1075,7 +1070,7 @@ export default function LoginPage() {
         <button>Login</button>
       </form>
     </div>
-  )
+  );
 }
 ```
 
@@ -1109,7 +1104,7 @@ To get current page route, we can use `currentRoute` function.
 
 ```tsx
 // src/apps/front-office/front-office-provider.ts
-import { currentRoute } from '@mongez/react-router'; 
+import { currentRoute } from "@mongez/react-router";
 
 // detect current route
 console.log(currentRoute()); // will be something like /login or /account
@@ -1121,7 +1116,7 @@ To get full page path, we can use `url` function.
 
 ```tsx
 // src/apps/front-office/front-office-provider.ts
-import { url } from '@mongez/react-router'; 
+import { url } from "@mongez/react-router";
 
 // detect current route
 console.log(url()); // will be something like https://sitename.com/online-store/account
@@ -1132,13 +1127,13 @@ console.log(url()); // will be something like https://sitename.com/online-store/
 Sometimes you may need to concat multiple routes in one route, for example adding a route from a variable with another variable to generate a brand new route, luckily you can use `concatRoute` helper function to do it for you.
 
 ```ts
-import { concatRoute } from '@mongez/react-router';
+import { concatRoute } from "@mongez/react-router";
 
-const localeCode = 'ar';
+const localeCode = "ar";
 
-const route = 'login';
+const route = "login";
 
-const appPath = '/admin';
+const appPath = "/admin";
 
 const fullRoutePath = concatRoute(appPath, localeCode, route); // /admin/ar/login
 ```
@@ -1146,11 +1141,11 @@ const fullRoutePath = concatRoute(appPath, localeCode, route); // /admin/ar/logi
 Each argument can start with/without a trailing slash, also any doubled slashes will be converted into one slash and if there is any ending slashed will be trimmed as well.
 
 ```ts
-import { concatRoute } from '@mongez/react-router';
+import { concatRoute } from "@mongez/react-router";
 
-const localeCode = 'ar';
+const localeCode = "ar";
 
-const route = '//login//';
+const route = "//login//";
 
 console.log(localeCode, route); // /ar/login
 ```
@@ -1160,21 +1155,21 @@ console.log(localeCode, route); // /ar/login
 We can also update query string in the url with/without navigating to the route with the new query string by using `updateQueryString` helper function, this can be useful for cases such as filtering as we can only update the route without a full new re-render to the page.
 
 ```tsx
-import { updateQueryString } from '@mongez/react-router';
+import { updateQueryString } from "@mongez/react-router";
 
 export default function FilterData() {
-  const filter = e => {
+  const filter = (e) => {
     // Just dummy data for demo only
     const filterData = {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
       age: 0,
       published: true,
     };
 
-    axios.get('/filter', filterData).then(response => {
+    axios.get("/filter", filterData).then((response) => {
       updateQueryString(filterData);
-    })
+    });
   };
 
   return (
@@ -1184,28 +1179,28 @@ export default function FilterData() {
         <button>Filter</button>
       </form>
     </div>
-  )
+  );
 }
 ```
 
 If we would like to navigate to the same page with the updated query string, we can set the second argument to true.
 
 ```tsx
-import { updateQueryString } from '@mongez/react-router';
+import { updateQueryString } from "@mongez/react-router";
 
 export default function FilterData() {
-  const filter = e => {
+  const filter = (e) => {
     // Just dummy data for demo only
     const filterData = {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
       age: 0,
       published: true,
     };
 
-    axios.get('/filter', filterData).then(response => {
+    axios.get("/filter", filterData).then((response) => {
       updateQueryString(filterData, true); // update and navigate
-    })
+    });
   };
 
   return (
@@ -1215,7 +1210,7 @@ export default function FilterData() {
         <button>Filter</button>
       </form>
     </div>
-  )
+  );
 }
 ```
 
@@ -1224,7 +1219,7 @@ export default function FilterData() {
 If the url has a `#hash` value we can get it using `hash` helper function.
 
 ```ts
-import { hash } from '@mongez/react-router';
+import { hash } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products/10#comments
 
@@ -1234,7 +1229,7 @@ console.log(hash()); // comments
 To get the value with the hash, pass an argument with true value to the function.
 
 ```ts
-import { hash } from '@mongez/react-router';
+import { hash } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products/10#comments
 
@@ -1248,50 +1243,46 @@ To get a value from query string, we can use the `queryString` helper function, 
 To get a key value from query string, we can use `get` method:
 
 ```ts
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
-console.log(
-  queryString().get('sortBy')
-); // price
+console.log(queryString().get("sortBy")); // price
 
-console.log(
-  queryString().get('categoryId')
-); // 10
+console.log(queryString().get("categoryId")); // 10
 ```
 
 Please note that if you're going to get multiple values from query string, initiate the `queryString()` in a variable then use the variable instead.
 
 ```ts
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
 const params = queryString();
 
-console.log(params.get('sortBy')); // price
-console.log(params.get('categoryId')); // 10
+console.log(params.get("sortBy")); // price
+console.log(params.get("categoryId")); // 10
 ```
 
 You can also get a default value if the query param does not exist in the url.
 
 ```ts
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
 const params = queryString();
 
-console.log(params.get('sortBy')); // price
+console.log(params.get("sortBy")); // price
 
-console.log(params.get('sortDirection', 'desc')); // desc
+console.log(params.get("sortDirection", "desc")); // desc
 ```
 
 To get all query string params in object, we can use the `all` method.
 
 ```ts
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
@@ -1301,7 +1292,7 @@ console.log(queryString().all()); // {sortBy: price, categoryId: 10}
 To get it as a string use `toString` method.
 
 ```ts
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
@@ -1314,25 +1305,21 @@ console.log(queryString().toString()); // sortBy=price&categoryId=10
 
 ```ts
 // src/front-office/products/components/ProductsListPage.tsx
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
 console.log(queryString().toString()); // sortBy=price&categoryId=10
-import React from 'react'
+import React from "react";
 
 export default function ProductsListPage() {
- const params = queryString(); 
+  const params = queryString();
 
- console.log(params.get('sortBy')); // price
+  console.log(params.get("sortBy")); // price
 
   // Or you can cache its value when navigating to the products list each time
   const params = React.useMemo(() => queryString(), []);
-  return (
-    <div>
-      //
-    </div>
-  )
+  return <div>//</div>;
 }
 ```
 
@@ -1340,23 +1327,19 @@ export default function ProductsListPage() {
 
 ```ts
 // src/front-office/products/components/ProductsListPage.tsx
-import { queryString } from '@mongez/react-router';
+import { queryString } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
 
 console.log(queryString().toString()); // sortBy=price&categoryId=10
-import React from 'react'
+import React from "react";
 
 const params = queryString();
 
 export default function ProductsListPage() {
- console.log(params.get('sortBy')); // empty string
+  console.log(params.get("sortBy")); // empty string
 
-  return (
-    <div>
-      //
-    </div>
-  )
+  return <div>//</div>;
 }
 ```
 
@@ -1365,7 +1348,7 @@ export default function ProductsListPage() {
 To get the base url, import `baseUrl` helper function, this will get the domain path suffixed with `basePath` that is defined in [the router configurations section](#router-configurations).
 
 ```ts
-import { baseUrl } from '@mongez/react-router';
+import { baseUrl } from "@mongez/react-router";
 
 console.log(baseUrl()); // something like https://sitename.com/online-store where /online-store is the basePath of the project.
 ```
@@ -1377,7 +1360,7 @@ To get current page direction use `currentDirection` helper.
 `currentDirection(): string`
 
 ```ts
-import { currentDirection } from '@mongez/react-router';
+import { currentDirection } from "@mongez/react-router";
 
 console.log(currentDirection()); // ltr for example
 ```
@@ -1391,14 +1374,17 @@ Check if current direction matches the given direction, using `directionIs` util
 `directionIs(direction: 'ltr' | 'rtl'): boolean`
 
 ```ts
-import { directionIs } from '@mongez/react-router';
+import { directionIs } from "@mongez/react-router";
 
-console.log(directionIs('ltr')); // true
-console.log(directionIs('rtl')); // false
+console.log(directionIs("ltr")); // true
+console.log(directionIs("rtl")); // false
 ```
 
 ## Change Log
 
+- 1.0.23 (1 Apr 2022)
+  - Updated Package to work with React 18.
+  - Added `ReactDOM.createRoot` for React 18 and maintained `ReactDOM.render` for versions less than 18.
 - 1.0.22 (4 Mar 2022)
 - Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)
