@@ -838,10 +838,19 @@ To navigate to a url, just set the url :p.
 <Link to="https://google.com">Go To Google</Link>
 ```
 
-Make the link email:
+Make the link as email:
 
 ```tsx
 <Link mailTo="hassanzohdy@gmail.com">Email As Link</Link>
+// outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
+```
+
+or using `MailLink` component directly
+
+```tsx
+import { MailLink } from "@mongez/react-router";
+
+<MailLink to="hassanzohdy@gmail.com">Email As Link</MailLink>
 // outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
 ```
 
@@ -852,7 +861,34 @@ Make the link as a telephone number:
 // outputs: <a href="tel:+201002221122" .. />
 ```
 
+or using `MailLink` component directly
+
+```tsx
+import { TelLink } from "@mongez/react-router";
+
+<TelLink to="+201002221122">Phone Number As Link</TelLink>
+// outputs: <a href="tel:+201002221122" .. />
+```
+
 Of course you can send any other html props such as `className`, `id` and so on.
+
+Use External Link
+
+```tsx
+import { ExternalLink } from "@mongez/react-router";
+
+<ExternalLink to="https://google.com">Google</ExternalLink>
+// outputs: <a href="https://google.com">Google</a>
+```
+
+Open it in a new tab
+
+```tsx
+import { ExternalLink } from "@mongez/react-router";
+
+<ExternalLink newTab to="https://google.com">Google</ExternalLink>
+// outputs: <a target="_blank" rel="noopener noreferrer" href="https://google.com">Google</a>
+```
 
 ## Redirect Component
 
@@ -1382,9 +1418,8 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
-- 1.0.23 (1 Apr 2022)
-  - Updated Package to work with React 18.
-  - Added `ReactDOM.createRoot` for React 18 and maintained `ReactDOM.render` for versions less than 18.
+- 1.0.26 (1 Apr 2022)
+  - Adddd `ExternalLink` `MailLink` and `TelLink`
 - 1.0.22 (4 Mar 2022)
 - Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)

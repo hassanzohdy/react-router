@@ -158,21 +158,8 @@ export default function Renderer(props: any): any {
   }
 
   currentRoute.routeInfo = null;
-
   return layoutsList.map((layout: Layout) => {
     const { LayoutComponent, routes, routesList } = layout;
-
-    // list of routes
-    let layoutRoutes = routes.map((route) => {
-      return (
-        <Route
-          path={route.path}
-          exact
-          key={route.path}
-          render={(props: RouteComponentProps) => renderRoute(props, route)}
-        />
-      );
-    });
 
     return (
       <Route
@@ -202,6 +189,20 @@ export default function Renderer(props: any): any {
               }
             }
           }
+
+          // list of routes
+          let layoutRoutes = routes.map((route) => {
+            return (
+              <Route
+                path={route.path}
+                exact
+                key={route.path}
+                render={(props: RouteComponentProps) =>
+                  renderRoute(props, route)
+                }
+              />
+            );
+          });
 
           return <LayoutComponent {...props}>{layoutRoutes}</LayoutComponent>;
         }}

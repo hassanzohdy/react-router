@@ -1,9 +1,10 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import initiateNavigator from "./navigator";
 import RouterWrapper from "./components/RouterWrapper";
 import { addRouter, partOf, group, routesList } from "./routes-list";
 import detectLocaleCodeChange from "./detect-locale-change";
+import ReactDOM from "react-dom";
 
 let isScanned = false;
 
@@ -24,6 +25,13 @@ function scan() {
     </React.StrictMode>,
     document.getElementById("root")
   );
+
+  // const root = createRoot(document.getElementById("root") as HTMLElement);
+  // root.render(
+  //   <React.StrictMode>
+  //     <RouterWrapper />
+  //   </React.StrictMode>
+  // );
 
   isScanned = true;
 }

@@ -59,14 +59,14 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
     return concatRoute(path);
   }, [to, href, mailTo, tel, relative, app, localeCode]);
 
+  if (newTab) {
+    otherLinkProps.target = "_blank";
+  }
+
   // Using target="_blank" without rel="noopener noreferrer" is a security risk:
   // @see https://mathiasbynens.github.io/rel-noopener  react/jsx-no-target-blank
   if (otherLinkProps.target) {
     otherLinkProps.rel = "noopener noreferrer";
-  }
-
-  if (newTab) {
-    otherLinkProps.target = "_blank";
   }
 
   if (!relative || mailTo || tel) {
@@ -77,5 +77,17 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
 
   return <RouterLink to={path} ref={forwardedRef as any} {...otherLinkProps} />;
 });
+
+export const MailLink = ({ to, ...props }: LinkProps) => (
+  <Link {...props} mailTo={to} />
+);
+
+export const TelLink = ({ to, ...props }: LinkProps) => (
+  <Link {...props} tel={to} />
+);
+
+export const ExternalLink = (props: LinkProps) => (
+  <Link {...props} relative={false} />
+);
 
 export default Link;
