@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import initiateNavigator from "./navigator";
 import RouterWrapper from "./components/RouterWrapper";
 import { addRouter, partOf, group, routesList } from "./routes-list";
@@ -18,23 +18,12 @@ function scan() {
   detectLocaleCodeChange();
   initiateNavigator();
 
-  const reactVersion: number = Number(React.version.split(".")[0]);
-
-  if (reactVersion < 18) {
-    ReactDOM.render(
-      <React.StrictMode>
-        <RouterWrapper />
-      </React.StrictMode>,
-      document.getElementById("root")
-    );
-  } else {
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(
-      <React.StrictMode>
-        <RouterWrapper />
-      </React.StrictMode>
-    );
-  }
+  const root = createRoot(document.getElementById("root"));
+  root.render(
+    <React.StrictMode>
+      <RouterWrapper />
+    </React.StrictMode>
+  );
 
   isScanned = true;
 }

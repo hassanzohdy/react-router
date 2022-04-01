@@ -1382,9 +1382,8 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
-- 1.0.23 (1 Apr 2022)
+- 1.0.24 (1 Apr 2022)
   - Updated Package to work with React 18.
-  - Added `ReactDOM.createRoot` for React 18 and maintained `ReactDOM.render` for versions less than 18.
 - 1.0.22 (4 Mar 2022)
 - Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)
