@@ -1418,6 +1418,8 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
+- 1.0.27 (1 Apr 2022)
+  - Adddd `getCurrentRouteData` to get current route details.
 - 1.0.26 (1 Apr 2022)
   - Adddd `ExternalLink` `MailLink` and `TelLink`
 - 1.0.22 (4 Mar 2022)

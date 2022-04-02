@@ -10,6 +10,7 @@ import { Layout, Route as ModuleRoute, Module } from "./../../types";
 import { Route, RouteComponentProps } from "react-router-dom";
 import { appDynamicRouteModule, modulesList } from "./../../apps-list";
 import { firstSegmentOfRoute, isPartOfLazyModules } from "./renderer-helpers";
+import { setCurrentRouteData } from "../..";
 
 interface CurrentRouteHolder {
   routeInfo: null | ModuleRoute;
@@ -23,6 +24,8 @@ const renderRoute = (routeData: RouteComponentProps, route: ModuleRoute) => {
   if (currentRoute.routeInfo) return null;
 
   currentRoute.routeInfo = route;
+
+  setCurrentRouteData(route);
 
   // timestamp
   // When forceRefresh flag is set to true

@@ -10,12 +10,29 @@ import { getCurrentLocaleCode } from "./detect-locale-change";
 import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
 import { getRouterConfig, setRouterConfig } from ".";
+import { Route } from "./types";
 
 export { objectToQueryString };
 
 let currentFullRoute: string, fullRouteWithoutLocaleCode: string;
 
 let previousRoute: string = "/";
+
+let currentRouteData: Route;
+
+/**
+ * Set current route data
+ */
+export function setCurrentRouteData(routeData: Route) {
+  currentRouteData = routeData;
+}
+
+/**
+ * Get current route data
+ */
+export function getCurrentRouteData(): Route {
+  return currentRouteData;
+}
 
 /**
  * General full url for the given route
