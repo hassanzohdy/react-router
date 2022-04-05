@@ -1,12 +1,28 @@
 import { baseName } from "./helpers";
 import { QueryString } from "./types";
 import queryStringParser from "query-string";
-import { createBrowserHistory } from "history";
+import { createBrowserHistory, BrowserHistory } from "history";
 import { Obj, ltrim, rtrim } from "@mongez/reinforcements";
 
-const history: any = createBrowserHistory({
-  basename: baseName(),
-});
+let history: BrowserHistory;
+
+/**
+ * Create browser history
+ */
+export function createHistory() {
+  history = createBrowserHistory({
+    basename: baseName(),
+  });
+}
+
+/**
+ * Get history instance
+ */
+export function getHistory(): BrowserHistory {
+  if (! history) createHistory();
+
+  return history;
+}
 
 /**
  * Get has value if provided
