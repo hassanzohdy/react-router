@@ -5,7 +5,7 @@ import {
   getCurrentAppName,
   getCurrentBseAppPath,
 } from "./apps-list";
-import history, { hash, queryString } from "./router-history";
+import {getHistory, hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
 import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
@@ -144,7 +144,7 @@ export function navigateTo(
  */
 function goTo(path: string) {
   // stackBuilder.add();
-  history.push(path);
+  getHistory().push(path);
 }
 
 /**
@@ -153,7 +153,7 @@ function goTo(path: string) {
  * @returns {string}
  */
 export function fullRoute(): string {
-  return history.location.pathname;
+  return getHistory().location.pathname;
 }
 
 /**
@@ -218,11 +218,11 @@ export default function initiateNavigator() {
    * Listen to any router navigation to update current full route
    * and current route without locale codes
    */
-  history.listen((location: Location) => {
+   getHistory().listen((location: Location) => {
     updateFullRoute(location.pathname);
   });
 
-  updateFullRoute(history.location.pathname || "/");
+  updateFullRoute(getHistory().location.pathname || "/");
 }
 
 /**
