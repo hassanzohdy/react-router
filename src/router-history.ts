@@ -19,7 +19,7 @@ export function createHistory() {
  * Get history instance
  */
 export function getHistory(): BrowserHistory {
-  if (! history) createHistory();
+  if (!history) createHistory();
 
   return history;
 }
@@ -48,6 +48,14 @@ export function queryString(): QueryString {
     parseBooleans: true,
     arrayFormat: "bracket",
   });
+
+  for (let key in queryString) {
+    if (key.endsWith("[]")) {
+      const oldKey = key;
+      key = rtrim(key, "[]");
+      queryString[key] = queryString[oldKey];
+    }
+  }
 
   return {
     get(key: string, defaultValue: any = null): any {
