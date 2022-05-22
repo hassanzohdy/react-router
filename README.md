@@ -850,7 +850,7 @@ or using `MailLink` component directly
 ```tsx
 import { MailLink } from "@mongez/react-router";
 
-<MailLink to="hassanzohdy@gmail.com">Email As Link</MailLink>
+<MailLink to="hassanzohdy@gmail.com">Email As Link</MailLink>;
 // outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
 ```
 
@@ -866,7 +866,7 @@ or using `MailLink` component directly
 ```tsx
 import { TelLink } from "@mongez/react-router";
 
-<TelLink to="+201002221122">Phone Number As Link</TelLink>
+<TelLink to="+201002221122">Phone Number As Link</TelLink>;
 // outputs: <a href="tel:+201002221122" .. />
 ```
 
@@ -877,7 +877,7 @@ Use External Link
 ```tsx
 import { ExternalLink } from "@mongez/react-router";
 
-<ExternalLink to="https://google.com">Google</ExternalLink>
+<ExternalLink to="https://google.com">Google</ExternalLink>;
 // outputs: <a href="https://google.com">Google</a>
 ```
 
@@ -886,7 +886,9 @@ Open it in a new tab
 ```tsx
 import { ExternalLink } from "@mongez/react-router";
 
-<ExternalLink newTab to="https://google.com">Google</ExternalLink>
+<ExternalLink newTab to="https://google.com">
+  Google
+</ExternalLink>;
 // outputs: <a target="_blank" rel="noopener noreferrer" href="https://google.com">Google</a>
 ```
 
@@ -1418,10 +1420,12 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
+- 1.0.38 (22 May 2022)
+  - Fixed middleware type.
 - 1.0.27 (1 Apr 2022)
-  - Adddd `getCurrentRouteData` to get current route details.
+  - Added `getCurrentRouteData` to get current route details.
 - 1.0.26 (1 Apr 2022)
-  - Adddd `ExternalLink` `MailLink` and `TelLink`
+  - Added `ExternalLink` `MailLink` and `TelLink`
 - 1.0.22 (4 Mar 2022)
 - Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)

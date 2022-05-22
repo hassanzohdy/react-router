@@ -89,7 +89,7 @@ export type BasicComponentProps = {
  * Middleware type
  * It can be a react node | function or an array of single middleware
  */
-export type Middleware = React.ReactNode | React.ReactNode[];
+export type Middleware = React.ComponentType | React.ComponentType[];
 
 /**
  * Page component wrapper
