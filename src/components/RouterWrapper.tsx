@@ -11,12 +11,12 @@ export default function RouterWrapper() {
   const RootComponent = getRouterConfig("rootComponent", React.Fragment);
 
   return (
-    <Router history={getHistory()}>
-      <Switch>
-        <RootComponent>
+    <RootComponent>
+      <Router history={getHistory()}>
+        <Switch>
           <Renderer />
-        </RootComponent>
-      </Switch>
-    </Router>
+        </Switch>
+      </Router>
+    </RootComponent>
   );
 }

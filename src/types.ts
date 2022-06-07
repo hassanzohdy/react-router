@@ -284,6 +284,7 @@ export type RouterConfigurations = {
    * Top Root component that will wrap the entire application regardless the lazy module
    */
   rootComponent?: React.ComponentType;
+  
   /**
    * NotFound Options
    */

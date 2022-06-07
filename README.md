@@ -1430,7 +1430,7 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
-- 1.0.39 (22 May 2022)
+- 1.0.40 (22 May 2022)
   - Added [Root Component](#root-component) feature.
 - 1.0.38 (22 May 2022)
   - Fixed middleware type.

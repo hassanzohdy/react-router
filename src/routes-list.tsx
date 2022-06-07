@@ -34,7 +34,7 @@ export const layoutsList: Array<Layout> = [];
 export function addRouter(
   path: string,
   component: React.FunctionComponent<BasicComponentProps>,
-  middleware = null
+  middleware?: undefined
 ) {
   return partOf(FULL_PAGE, [
     {
