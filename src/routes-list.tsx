@@ -7,6 +7,7 @@ import {
   Layout,
   Route,
   LayoutComponent,
+  Middleware,
 } from "./types";
 
 /**
@@ -34,7 +35,7 @@ export const layoutsList: Array<Layout> = [];
 export function addRouter(
   path: string,
   component: React.FunctionComponent<BasicComponentProps>,
-  middleware?: undefined
+  middleware?: Middleware
 ) {
   return partOf(FULL_PAGE, [
     {
