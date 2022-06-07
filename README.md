@@ -742,6 +742,10 @@ type RouterConfigurations = {
    */
   scrollTop?: boolean;
   /**
+   * Top Root component that will wrap the entire application regardless the lazy module
+   */
+  rootComponent?: React.ComponentType;
+  /**
    * NotFound Options
    */
   notFound?: {
@@ -772,6 +776,12 @@ type RouterConfigurations = {
   };
 };
 ```
+
+## Root Component
+
+The root component will wrap the entire application regardless wether current route is being lazy loaded or not.
+
+> Root Component does not receive any props at all.
 
 ## Link Navigation
 
@@ -1420,6 +1430,8 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
+- 1.0.39 (22 May 2022)
+  - Added [Root Component](#root-component) feature.
 - 1.0.38 (22 May 2022)
   - Fixed middleware type.
 - 1.0.27 (1 Apr 2022)
