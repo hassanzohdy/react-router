@@ -8,15 +8,13 @@ import { getRouterConfig } from "../configurations";
  * App routes renderer wrapper
  */
 export default function RouterWrapper() {
-  const RootComponent = getRouterConfig("rootComponent", React.Fragment);
-
   return (
-    <RootComponent>
+    <>
       <Router history={getHistory()}>
         <Switch>
           <Renderer />
         </Switch>
       </Router>
-    </RootComponent>
+    </>
   );
 }

@@ -1430,6 +1430,8 @@ console.log(directionIs("rtl")); // false
 
 ## Change Log
 
+- 1.0.42 (07 Jun 2022)
+  - Added strict mode as `scan` argument, default to `true`.
 - 1.0.41 (07 Jun 2022)
   - Added [Root Component](#root-component) feature.
 - 1.0.38 (22 May 2022)

@@ -5,6 +5,7 @@ import RouterWrapper from "./components/RouterWrapper";
 import { addRouter, partOf, group, routesList } from "./routes-list";
 import detectLocaleCodeChange from "./detect-locale-change";
 import ReactDOM from "react-dom";
+import { getRouterConfig } from "./configurations";
 
 let isScanned = false;
 
@@ -13,16 +14,22 @@ let isScanned = false;
  *
  * @returns {void}
  */
-function scan() {
+function scan(strictMode: boolean = true) {
   if (isScanned) return;
 
   detectLocaleCodeChange();
   initiateNavigator();
 
+  const RootComponent = getRouterConfig("rootComponent", React.Fragment);
+
+  const StrictWrapper = strictMode ? React.StrictMode : React.Fragment;
+
   ReactDOM.render(
-    <React.StrictMode>
-      <RouterWrapper />
-    </React.StrictMode>,
+    <StrictWrapper>
+      <RootComponent>
+        <RouterWrapper />
+      </RootComponent>
+    </StrictWrapper>,
     document.getElementById("root")
   );
 
