@@ -1,6 +1,6 @@
 import React from "react";
 
-export type routerEventType = "localeCodeChange" | "navigating" | "navigation";
+export type routerEventType = "localeCodeChange" | "change";
 
 export type RouterEventLocaleChangeCallback = (
   newLocaleCode: string,
@@ -284,7 +284,7 @@ export type RouterConfigurations = {
    * Top Root component that will wrap the entire application regardless the lazy module
    */
   rootComponent?: React.ComponentType;
-  
+
   /**
    * NotFound Options
    */

@@ -5,7 +5,7 @@ import {
   getCurrentAppName,
   getCurrentBseAppPath,
 } from "./apps-list";
-import {getHistory, hash, queryString } from "./router-history";
+import { getHistory, hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
 import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
@@ -16,7 +16,7 @@ export { objectToQueryString };
 
 let currentFullRoute: string, fullRouteWithoutLocaleCode: string;
 
-let previousRoute: string = "/";
+let _previousRoute: string = currentRoute();
 
 let currentRouteData: Route;
 
@@ -49,11 +49,11 @@ export function url(path: string): string {
  * @returns {void}
  */
 export function navigateBack(defaultRoute: string = "") {
-  if (!previousRoute) {
+  if (!_previousRoute) {
     return navigateTo(defaultRoute);
   }
 
-  goTo(previousRoute);
+  goTo(_previousRoute);
 }
 
 /**
@@ -63,7 +63,9 @@ export function navigateBack(defaultRoute: string = "") {
  * @returns {void}
  */
 function updateFullRoute(route: string) {
-  previousRoute = currentFullRoute;
+  if (currentFullRoute) {
+    _previousRoute = currentFullRoute;
+  }
   // /en/users
   currentFullRoute = route;
   // remove any possible locale code
@@ -164,13 +166,14 @@ export function fullRoute(): string {
 export function currentRoute(): string {
   let route = ltrim(fullRoute(), "/" + getCurrentLocaleCode()) || "/";
 
-  if (!route.startsWith("/")) {
-    route = "/" + route;
-  }
+  return concatRoute(ltrim(route, getCurrentBseAppPath()));
+}
 
-  route = ltrim(route, getCurrentBseAppPath());
-
-  return concatRoute(route);
+/**
+ * Get previous route
+ */
+export function previousRoute(): string {
+  return _previousRoute;
 }
 
 /**
@@ -218,8 +221,10 @@ export default function initiateNavigator() {
    * Listen to any router navigation to update current full route
    * and current route without locale codes
    */
-   getHistory().listen((location: Location) => {
+  getHistory().listen((location: Location) => {
     updateFullRoute(location.pathname);
+
+    routerEvents.trigger("change");
   });
 
   updateFullRoute(getHistory().location.pathname || "/");

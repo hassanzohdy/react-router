@@ -1428,8 +1428,39 @@ console.log(directionIs("ltr")); // true
 console.log(directionIs("rtl")); // false
 ```
 
+## Get Previous Route
+
+> Added in v1.0.43
+
+To get previous route use `previousRoute` function.
+
+```ts
+import { previousRoute, navigateTo } from "@mongez/react-router";
+navigateTo("/login");
+console.log(previousRoute()); // /
+navigateTo("/");
+console.log(previousRoute()); // /login
+```
+
+## Router Events
+
+> Added in v1.0.43
+
+You may listen to any router change based on the navigation link change.
+
+```ts
+import { routerEvents } from "@mongez/react-router";
+
+routerEvents.onChange(() => {
+  // route changed
+});
+```
+
 ## Change Log
 
+- 1.0.43 (07 Jun 2022)
+  - Added `onChange` event for router navigation.
+  - Added `previousRoute` utility
 - 1.0.42 (07 Jun 2022)
   - Added strict mode as `scan` argument, default to `true`.
 - 1.0.41 (07 Jun 2022)
