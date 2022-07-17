@@ -1458,7 +1458,7 @@ routerEvents.onChange(() => {
 
 ## Change Log
 
-- 1.0.43 (07 Jun 2022)
+- 1.0.44 (07 Jun 2022)
   - Added `onChange` event for router navigation.
   - Added `previousRoute` utility
 - 1.0.42 (07 Jun 2022)

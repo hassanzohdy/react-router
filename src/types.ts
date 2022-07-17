@@ -232,12 +232,10 @@ export type QueryString = {
    * Get a value from query string params, if the key does not exist, return default value
    */
   get(key: string, defaultValue?: any): any;
-
   /**
    * Get all query params
    */
   all(): object;
-
   /**
    * Return query string as string with & as concat parameter
    */
@@ -257,7 +255,7 @@ export type RouterConfigurations = {
    *
    * @default React.Fragment
    */
-  preloader?: React.ReactNode;
+  preloader?: React.ComponentType;
   /**
    * App base path in production
    *
@@ -284,7 +282,6 @@ export type RouterConfigurations = {
    * Top Root component that will wrap the entire application regardless the lazy module
    */
   rootComponent?: React.ComponentType;
-
   /**
    * NotFound Options
    */
@@ -312,7 +309,7 @@ export type RouterConfigurations = {
      *
      * @default: React.Fragment
      */
-    component?: React.ReactNode;
+    component?: React.ComponentType;
   };
 };
 
