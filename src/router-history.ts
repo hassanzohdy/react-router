@@ -21,6 +21,9 @@ export function createHistory() {
 export function getHistory(): BrowserHistory {
   if (!history) createHistory();
 
+  // Enforce base name for production
+  history.location.pathname = baseName();
+
   return history;
 }
 
