@@ -6,8 +6,7 @@ import { addRouter, partOf, group, routesList } from "./routes-list";
 import detectLocaleCodeChange from "./detect-locale-change";
 import ReactDOM from "react-dom";
 import { getRouterConfig } from "./configurations";
-
-let isScanned = false;
+import { isScanned, markAsScanned } from "./is-scanned";
 
 /**
  * Scan the entire routes list
@@ -15,7 +14,7 @@ let isScanned = false;
  * @returns {void}
  */
 function scan(strictMode: boolean = true) {
-  if (isScanned) return;
+  if (isScanned()) return;
 
   detectLocaleCodeChange();
   initiateNavigator();
@@ -40,7 +39,7 @@ function scan(strictMode: boolean = true) {
   //   </React.StrictMode>
   // );
 
-  isScanned = true;
+  markAsScanned();
 }
 
 const router = {

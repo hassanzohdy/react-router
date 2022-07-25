@@ -11,6 +11,7 @@ import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
 import { getRouterConfig, setRouterConfig } from ".";
 import { Route } from "./types";
+import { isScanned } from "./is-scanned";
 
 export { objectToQueryString };
 
@@ -155,7 +156,7 @@ function goTo(path: string) {
  * @returns {string}
  */
 export function fullRoute(): string {
-  return getHistory().location.pathname;
+  return window.location.pathname;
 }
 
 /**
