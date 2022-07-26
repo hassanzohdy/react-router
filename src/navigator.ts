@@ -7,7 +7,7 @@ import {
 } from "./apps-list";
 import { getHistory, hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
-import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
+import { concatRoute, getLocaleCodes, baseUrl, basePath } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
 import { getRouterConfig, setRouterConfig } from ".";
 import { Route } from "./types";
@@ -183,7 +183,7 @@ export function previousRoute(): string {
  * @returns {void}
  */
 export function refresh() {
-  const route = fullRoute();
+  const route = fullRoute().replace(basePath(), "");
   const queryParams = queryString().toString().replace("?", "");
   const hashString = hash();
 
@@ -193,7 +193,7 @@ export function refresh() {
   setRouterConfig("forceRefresh", true);
 
   goTo(
-    route +
+    concatRoute(route) +
       (queryParams ? "?" + queryParams : "") +
       (hashString ? "#" + hashString : "")
   );
