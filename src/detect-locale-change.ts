@@ -16,10 +16,17 @@ export default function detectLocaleCodeChange() {
     .location.pathname.replace(/^\//, "")
     .split("/");
 
+  let newLocaleCode;
+
   if (getLocaleCodes().includes(localeCode)) {
-    currentLocale = localeCode;
+    newLocaleCode = localeCode;
   } else if (getRouterConfig("defaultLocaleCode")) {
-    currentLocale = getRouterConfig("defaultLocaleCode");
+    newLocaleCode = getRouterConfig("defaultLocaleCode");
+  }
+
+  if (newLocaleCode !== currentLocale) {
+    routerEvents.trigger("localeCodeChange", localeCode, currentLocale);
+    currentLocale = newLocaleCode;
   }
 
   routerEvents.onLocaleCodeChange((newLocaleCode: string) => {

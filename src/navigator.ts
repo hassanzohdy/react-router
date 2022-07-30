@@ -70,7 +70,7 @@ function updateFullRoute(route: string) {
   // /en/users
   currentFullRoute = route;
   // remove any possible locale code
-  let regex = new RegExp(`^/(${getLocaleCodes().join("|")})/`);
+  let regex = new RegExp(`^/(${getLocaleCodes().join("|")})`);
 
   fullRouteWithoutLocaleCode = currentFullRoute.replace(
     regex,
