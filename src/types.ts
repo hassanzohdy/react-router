@@ -247,6 +247,10 @@ export type QueryString = {
  */
 export type RouterConfigurations = {
   /**
+   * Default locale code
+   */
+  defaultLocaleCode?: string;
+  /**
    * Locale codes list
    */
   localeCodes?: string[];

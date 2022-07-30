@@ -11,13 +11,12 @@ import { concatRoute, getLocaleCodes, baseUrl, basePath } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
 import { getRouterConfig, setRouterConfig } from ".";
 import { Route } from "./types";
-import { isScanned } from "./is-scanned";
 
 export { objectToQueryString };
 
 let currentFullRoute: string, fullRouteWithoutLocaleCode: string;
 
-let _previousRoute: string = currentRoute();
+let _previousRoute: string = "/";
 
 let currentRouteData: Route;
 
@@ -67,6 +66,7 @@ function updateFullRoute(route: string) {
   if (currentFullRoute) {
     _previousRoute = currentFullRoute;
   }
+
   // /en/users
   currentFullRoute = route;
   // remove any possible locale code
@@ -111,6 +111,13 @@ export function updateQueryString(
     const [route] = currentRoute().split("?");
     navigateTo(route + withQueryString);
   }
+}
+
+/**
+ * Get full url of current page
+ */
+export function fullUrl(): string {
+  return baseUrl() + currentRoute();
 }
 
 /**
@@ -165,9 +172,16 @@ export function fullRoute(): string {
  * @returns  {string}
  */
 export function currentRoute(): string {
-  let route = ltrim(fullRoute(), "/" + getCurrentLocaleCode()) || "/";
+  const projectBasePath = basePath();
+  const currentApp = getCurrentBseAppPath();
+  const localeCode = getCurrentLocaleCode();
+  const gluedAppUriWithoutRoute = concatRoute(
+    projectBasePath,
+    currentApp,
+    localeCode
+  );
 
-  return concatRoute(ltrim(route, getCurrentBseAppPath()));
+  return fullRoute().replace(gluedAppUriWithoutRoute, "");
 }
 
 /**
@@ -175,6 +189,13 @@ export function currentRoute(): string {
  */
 export function previousRoute(): string {
   return _previousRoute;
+}
+
+/**
+ * Set previous route
+ */
+export function setPreviousRoute(route: string) {
+  _previousRoute = route;
 }
 
 /**
@@ -210,7 +231,14 @@ export function refresh() {
  * @param  {string} localeCode
  */
 export function switchLang(localeCode: string) {
-  navigateTo(currentRoute(), localeCode);
+  const queryParams = queryString().toString().replace("?", "");
+  const hashString = hash();
+  navigateTo(
+    currentRoute() +
+      (queryParams ? "?" + queryParams : "") +
+      (hashString ? "#" + hashString : ""),
+    localeCode
+  );
   routerEvents.trigger("localeCodeChange", localeCode);
 }
 
