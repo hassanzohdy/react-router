@@ -24,8 +24,8 @@ export default function detectLocaleCodeChange() {
     newLocaleCode = getRouterConfig("defaultLocaleCode");
   }
 
-  if (newLocaleCode !== currentLocale) {
-    routerEvents.trigger("localeCodeChange", localeCode, currentLocale);
+  if (newLocaleCode && newLocaleCode !== currentLocale) {
+    routerEvents.trigger("localeCodeChange", newLocaleCode, currentLocale);
     currentLocale = newLocaleCode;
   }
 

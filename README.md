@@ -1458,6 +1458,8 @@ routerEvents.onChange(() => {
 
 ## Change Log
 
+- 1.0.52 (01 Aug 2022)
+  - Fixed router locale.
 - 1.0.44 (07 Jun 2022)
   - Added `onChange` event for router navigation.
   - Added `previousRoute` utility
