@@ -96,7 +96,7 @@ export type Middleware = React.ComponentType | React.ComponentType[];
  * Useful when many pages has same layout,
  * it will prevent re-rendering the layout wrapper from beginning each time
  */
-export type LayoutComponent = React.FunctionComponent<BasicComponentProps>;
+export type LayoutComponent = React.ComponentType<BasicComponentProps>;
 
 export type RedirectProps = {
   /**
@@ -186,7 +186,7 @@ export interface Route {
   /**
    * Route rendered component
    */
-  component: React.FunctionComponent<BasicComponentProps>;
+  component: React.ComponentType<BasicComponentProps>;
   /**
    * Route Layout
    */
