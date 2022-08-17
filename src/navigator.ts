@@ -181,7 +181,7 @@ export function currentRoute(): string {
     localeCode
   );
 
-  return fullRoute().replace(gluedAppUriWithoutRoute, "");
+  return concatRoute(fullRoute().replace(gluedAppUriWithoutRoute, ""));
 }
 
 /**

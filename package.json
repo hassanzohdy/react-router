@@ -1,6 +1,6 @@
 {
     "name": "@mongez/react-router",
-    "version": "1.0.54",
+    "version": "1.0.55",
     "description": "A Simple powerful react router system",
     "main": "src/index.ts",
     "dependencies": {
