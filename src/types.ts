@@ -261,6 +261,13 @@ export type RouterConfigurations = {
    */
   preloader?: React.ComponentType;
   /**
+   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
+   * Please note the of the base layout and the preloader will have position `relative`
+   *
+   * @default true
+   */
+  preloadOverlay?: boolean;
+  /**
    * App base path in production
    *
    * @default: /
