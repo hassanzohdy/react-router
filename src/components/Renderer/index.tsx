@@ -1,16 +1,19 @@
 import React from "react";
-import Middleware from "./Middleware";
+import { Route, RouteComponentProps } from "react-router-dom";
+import { setCurrentRouteData } from "../..";
+import { navigateTo } from "../../navigator";
+import {
+  appDynamicRouteModule,
+  getCurrentBseAppPath,
+  modulesList,
+} from "./../../apps-list";
+import { getRouterConfig } from "./../../configurations";
 import { concatRoute } from "./../../helpers";
 import history from "./../../router-history";
-import { navigateTo } from "../../navigator";
 import { layoutsList, routesList } from "./../../routes-list";
-import { getCurrentBseAppPath } from "./../../apps-list";
-import { getRouterConfig } from "./../../configurations";
-import { Layout, Route as ModuleRoute, Module } from "./../../types";
-import { Route, RouteComponentProps } from "react-router-dom";
-import { appDynamicRouteModule, modulesList } from "./../../apps-list";
+import { Layout, Module, Route as ModuleRoute } from "./../../types";
+import Middleware from "./Middleware";
 import { firstSegmentOfRoute, isPartOfLazyModules } from "./renderer-helpers";
-import { setCurrentRouteData } from "../..";
 
 interface CurrentRouteHolder {
   routeInfo: null | ModuleRoute;
@@ -156,7 +159,7 @@ export default function Renderer(props: any): any {
     (!moduleIsLoaded && isPartOfLazyModules(firstSegment)) ||
     isLoadingDynamicRoute;
 
-  const preloadOverlay = getRouterConfig("preloadOverlay", true);
+  const preloadOverlay = getRouterConfig("preloadOverlay", false);
 
   let preload;
 

@@ -263,8 +263,9 @@ export type RouterConfigurations = {
   /**
    * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
    * Please note the of the base layout and the preloader will have position `relative`
-   *
-   * @default true
+   * This feature is still experimental and can be changed in future versions
+   * @experimental
+   * @default false
    */
   preloadOverlay?: boolean;
   /**
