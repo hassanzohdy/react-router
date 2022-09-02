@@ -710,21 +710,33 @@ Here is the full list of available configurations
  */
 type RouterConfigurations = {
   /**
+   * Default locale code
+   */
+  defaultLocaleCode?: string;
+  /**
    * Locale codes list
    */
   localeCodes?: string[];
+  /**
+   * Router preloader that will be displayed until the module is loaded
+   *
+   * @default React.Fragment
+   */
+  preloader?: React.ComponentType<any>;
+  /**
+   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
+   * Please note the of the base layout and the preloader will have position `relative`
+   * This feature is still experimental and can be changed in future versions
+   * @experimental
+   * @default false
+   */
+  preloadOverlay?: boolean;
   /**
    * App base path in production
    *
    * @default: /
    */
   basePath?: string;
-  /**
-   * Router preloader that will be displayed until the module is loaded
-   *
-   * @default React.Fragment
-   */
-  preloader?: React.ReactNode;
   /**
    * Determine whether to re-render the page
    * When navigating to any page, even same current page
@@ -744,7 +756,7 @@ type RouterConfigurations = {
   /**
    * Top Root component that will wrap the entire application regardless the lazy module
    */
-  rootComponent?: React.ComponentType;
+  rootComponent?: React.ComponentType<any>;
   /**
    * NotFound Options
    */
@@ -772,7 +784,7 @@ type RouterConfigurations = {
      *
      * @default: React.Fragment
      */
-    component?: React.ReactNode;
+    component?: React.ComponentType<any>;
   };
 };
 ```
