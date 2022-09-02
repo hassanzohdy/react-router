@@ -21,14 +21,6 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
   } = props;
 
   const path = React.useMemo(() => {
-    if (!to && href) {
-      to = href;
-    }
-
-    if (!to) {
-      to = "";
-    }
-
     if (mailTo) {
       return "mailto:" + mailTo;
     }
@@ -37,20 +29,22 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
       return "tel:" + tel;
     }
 
-    if (Is.url(to)) {
+    let anchorHref = href || to || "";
+
+    if (Is.url(anchorHref)) {
       relative = false;
     }
 
     // if not relative, then use the normal anchor tag
     if (!relative) {
-      return to;
+      return anchorHref;
     }
 
     if (!localeCode && hasInitialLocaleCode()) {
       localeCode = getCurrentLocaleCode();
     }
 
-    let path = concatRoute(getAppPath(app), to);
+    let path = concatRoute(getAppPath(app), anchorHref);
 
     if (localeCode) {
       path = concatRoute(localeCode, path);
@@ -59,14 +53,14 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
     return concatRoute(path);
   }, [to, href, mailTo, tel, relative, app, localeCode]);
 
-  // Using target="_blank" without rel="noopener noreferrer" is a security risk:
-  // @see https://mathiasbynens.github.io/rel-noopener  react/jsx-no-target-blank
-  if (otherLinkProps.target) {
-    otherLinkProps.rel = "noopener noreferrer";
-  }
-
   if (newTab) {
     otherLinkProps.target = "_blank";
+  }
+
+  // Using target="_blank" without rel="noopener noreferrer" is a security risk:
+  // @see https://mathiasbynens.github.io/rel-noopener  react/jsx-no-target-blank
+  if (otherLinkProps.target === "_blank") {
+    otherLinkProps.rel = "noopener noreferrer";
   }
 
   if (!relative || mailTo || tel) {
@@ -77,5 +71,17 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
 
   return <RouterLink to={path} ref={forwardedRef as any} {...otherLinkProps} />;
 });
+
+export const MailLink = ({ to, ...props }: LinkProps) => (
+  <Link {...props} mailTo={to} />
+);
+
+export const TelLink = ({ to, ...props }: LinkProps) => (
+  <Link {...props} tel={to} />
+);
+
+export const ExternalLink = (props: LinkProps) => (
+  <Link {...props} relative={false} />
+);
 
 export default Link;

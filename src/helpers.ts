@@ -37,7 +37,9 @@ export function floatSegment(segmentName: string): string {
  * @return  {string}
  */
 export function basePath(): string {
-  return getRouterConfig("basePath", "/");
+  return process.env.NODE_ENV === "development"
+    ? "/"
+    : getRouterConfig("basePath", "/");
 }
 
 /**

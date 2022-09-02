@@ -1,6 +1,6 @@
 import React from "react";
 
-export type routerEventType = "localeCodeChange" | "navigating" | "navigation";
+export type routerEventType = "localeCodeChange" | "change";
 
 export type RouterEventLocaleChangeCallback = (
   newLocaleCode: string,
@@ -89,14 +89,14 @@ export type BasicComponentProps = {
  * Middleware type
  * It can be a react node | function or an array of single middleware
  */
-export type Middleware = React.ReactNode | React.ReactNode[];
+export type Middleware = React.ComponentType<any> | React.ComponentType<any>[];
 
 /**
  * Page component wrapper
  * Useful when many pages has same layout,
  * it will prevent re-rendering the layout wrapper from beginning each time
  */
-export type LayoutComponent = React.FunctionComponent<BasicComponentProps>;
+export type LayoutComponent = React.ComponentType<any>;
 
 export type RedirectProps = {
   /**
@@ -186,7 +186,7 @@ export interface Route {
   /**
    * Route rendered component
    */
-  component: React.FunctionComponent<BasicComponentProps>;
+  component: React.ComponentType<any>;
   /**
    * Route Layout
    */
@@ -232,12 +232,10 @@ export type QueryString = {
    * Get a value from query string params, if the key does not exist, return default value
    */
   get(key: string, defaultValue?: any): any;
-
   /**
    * Get all query params
    */
   all(): object;
-
   /**
    * Return query string as string with & as concat parameter
    */
@@ -249,6 +247,10 @@ export type QueryString = {
  */
 export type RouterConfigurations = {
   /**
+   * Default locale code
+   */
+  defaultLocaleCode?: string;
+  /**
    * Locale codes list
    */
   localeCodes?: string[];
@@ -257,7 +259,15 @@ export type RouterConfigurations = {
    *
    * @default React.Fragment
    */
-  preloader?: React.ReactNode;
+  preloader?: React.ComponentType<any>;
+  /**
+   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
+   * Please note the of the base layout and the preloader will have position `relative`
+   * This feature is still experimental and can be changed in future versions
+   * @experimental
+   * @default false
+   */
+  preloadOverlay?: boolean;
   /**
    * App base path in production
    *
@@ -280,6 +290,10 @@ export type RouterConfigurations = {
    * @default true
    */
   scrollTop?: boolean;
+  /**
+   * Top Root component that will wrap the entire application regardless the lazy module
+   */
+  rootComponent?: React.ComponentType<any>;
   /**
    * NotFound Options
    */
@@ -307,7 +321,7 @@ export type RouterConfigurations = {
      *
      * @default: React.Fragment
      */
-    component?: React.ReactNode;
+    component?: React.ComponentType<any>;
   };
 };
 

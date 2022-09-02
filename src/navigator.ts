@@ -5,17 +5,34 @@ import {
   getCurrentAppName,
   getCurrentBseAppPath,
 } from "./apps-list";
-import history, { hash, queryString } from "./router-history";
+import { getHistory, hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
-import { concatRoute, getLocaleCodes, baseUrl } from "./helpers";
+import { concatRoute, getLocaleCodes, baseUrl, basePath } from "./helpers";
 import { queryString as objectToQueryString } from "object-query-string";
 import { getRouterConfig, setRouterConfig } from ".";
+import { Route } from "./types";
 
 export { objectToQueryString };
 
 let currentFullRoute: string, fullRouteWithoutLocaleCode: string;
 
-let previousRoute: string = "/";
+let _previousRoute: string = "/";
+
+let currentRouteData: Route;
+
+/**
+ * Set current route data
+ */
+export function setCurrentRouteData(routeData: Route) {
+  currentRouteData = routeData;
+}
+
+/**
+ * Get current route data
+ */
+export function getCurrentRouteData(): Route {
+  return currentRouteData;
+}
 
 /**
  * General full url for the given route
@@ -32,11 +49,11 @@ export function url(path: string): string {
  * @returns {void}
  */
 export function navigateBack(defaultRoute: string = "") {
-  if (!previousRoute) {
+  if (!_previousRoute) {
     return navigateTo(defaultRoute);
   }
 
-  goTo(previousRoute);
+  goTo(_previousRoute);
 }
 
 /**
@@ -46,11 +63,14 @@ export function navigateBack(defaultRoute: string = "") {
  * @returns {void}
  */
 function updateFullRoute(route: string) {
-  previousRoute = currentFullRoute;
+  if (currentFullRoute) {
+    _previousRoute = currentFullRoute;
+  }
+
   // /en/users
   currentFullRoute = route;
   // remove any possible locale code
-  let regex = new RegExp(`^/(${getLocaleCodes().join("|")})/`);
+  let regex = new RegExp(`^/(${getLocaleCodes().join("|")})`);
 
   fullRouteWithoutLocaleCode = currentFullRoute.replace(
     regex,
@@ -94,6 +114,13 @@ export function updateQueryString(
 }
 
 /**
+ * Get full url of current page
+ */
+export function fullUrl(): string {
+  return baseUrl() + currentRoute();
+}
+
+/**
  * navigate to the given path
  *
  * @param  {string} path
@@ -127,7 +154,7 @@ export function navigateTo(
  */
 function goTo(path: string) {
   // stackBuilder.add();
-  history.push(path);
+  getHistory().push(path);
 }
 
 /**
@@ -136,7 +163,7 @@ function goTo(path: string) {
  * @returns {string}
  */
 export function fullRoute(): string {
-  return history.location.pathname;
+  return window.location.pathname;
 }
 
 /**
@@ -145,15 +172,30 @@ export function fullRoute(): string {
  * @returns  {string}
  */
 export function currentRoute(): string {
-  let route = ltrim(fullRoute(), "/" + getCurrentLocaleCode()) || "/";
+  const projectBasePath = basePath();
+  const currentApp = getCurrentBseAppPath();
+  const localeCode = getCurrentLocaleCode();
+  const gluedAppUriWithoutRoute = concatRoute(
+    projectBasePath,
+    currentApp,
+    localeCode
+  );
 
-  if (!route.startsWith("/")) {
-    route = "/" + route;
-  }
+  return concatRoute(fullRoute().replace(gluedAppUriWithoutRoute, ""));
+}
 
-  route = ltrim(route, getCurrentBseAppPath());
+/**
+ * Get previous route
+ */
+export function previousRoute(): string {
+  return _previousRoute;
+}
 
-  return concatRoute(route);
+/**
+ * Set previous route
+ */
+export function setPreviousRoute(route: string) {
+  _previousRoute = route;
 }
 
 /**
@@ -162,7 +204,7 @@ export function currentRoute(): string {
  * @returns {void}
  */
 export function refresh() {
-  const route = fullRoute();
+  const route = fullRoute().replace(basePath(), "");
   const queryParams = queryString().toString().replace("?", "");
   const hashString = hash();
 
@@ -172,7 +214,7 @@ export function refresh() {
   setRouterConfig("forceRefresh", true);
 
   goTo(
-    route +
+    concatRoute(route) +
       (queryParams ? "?" + queryParams : "") +
       (hashString ? "#" + hashString : "")
   );
@@ -189,7 +231,14 @@ export function refresh() {
  * @param  {string} localeCode
  */
 export function switchLang(localeCode: string) {
-  navigateTo(currentRoute(), localeCode);
+  const queryParams = queryString().toString().replace("?", "");
+  const hashString = hash();
+  navigateTo(
+    currentRoute() +
+      (queryParams ? "?" + queryParams : "") +
+      (hashString ? "#" + hashString : ""),
+    localeCode
+  );
   routerEvents.trigger("localeCodeChange", localeCode);
 }
 
@@ -201,11 +250,13 @@ export default function initiateNavigator() {
    * Listen to any router navigation to update current full route
    * and current route without locale codes
    */
-  history.listen((location: Location) => {
+  getHistory().listen((location: Location) => {
     updateFullRoute(location.pathname);
+
+    routerEvents.trigger("change");
   });
 
-  updateFullRoute(history.location.pathname || "/");
+  updateFullRoute(getHistory().location.pathname || "/");
 }
 
 /**

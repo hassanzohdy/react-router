@@ -1,31 +1,45 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
-import initiateNavigator from "./navigator";
+import ReactDOM from "react-dom";
 import RouterWrapper from "./components/RouterWrapper";
-import { addRouter, partOf, group, routesList } from "./routes-list";
+import { getRouterConfig } from "./configurations";
 import detectLocaleCodeChange from "./detect-locale-change";
-
-let isScanned = false;
+import { isScanned, markAsScanned } from "./is-scanned";
+import initiateNavigator, { currentRoute, setPreviousRoute } from "./navigator";
+import { addRouter, group, partOf, routesList } from "./routes-list";
 
 /**
  * Scan the entire routes list
  *
  * @returns {void}
  */
-function scan() {
-  if (isScanned) return;
+function scan(strictMode: boolean = true) {
+  if (isScanned()) return;
 
   detectLocaleCodeChange();
   initiateNavigator();
+  setPreviousRoute(currentRoute());
 
-  const root = createRoot(document.getElementById("root"));
-  root.render(
-    <React.StrictMode>
-      <RouterWrapper />
-    </React.StrictMode>
+  const RootComponent = getRouterConfig("rootComponent", React.Fragment);
+
+  const StrictWrapper = strictMode ? React.StrictMode : React.Fragment;
+
+  ReactDOM.render(
+    <StrictWrapper>
+      <RootComponent>
+        <RouterWrapper />
+      </RootComponent>
+    </StrictWrapper>,
+    document.getElementById("root")
   );
 
-  isScanned = true;
+  // const root = createRoot(document.getElementById("root") as HTMLElement);
+  // root.render(
+  //   <React.StrictMode>
+  //     <RouterWrapper />
+  //   </React.StrictMode>
+  // );
+
+  markAsScanned();
 }
 
 const router = {

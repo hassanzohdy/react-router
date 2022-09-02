@@ -710,21 +710,33 @@ Here is the full list of available configurations
  */
 type RouterConfigurations = {
   /**
+   * Default locale code
+   */
+  defaultLocaleCode?: string;
+  /**
    * Locale codes list
    */
   localeCodes?: string[];
+  /**
+   * Router preloader that will be displayed until the module is loaded
+   *
+   * @default React.Fragment
+   */
+  preloader?: React.ComponentType<any>;
+  /**
+   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
+   * Please note the of the base layout and the preloader will have position `relative`
+   * This feature is still experimental and can be changed in future versions
+   * @experimental
+   * @default false
+   */
+  preloadOverlay?: boolean;
   /**
    * App base path in production
    *
    * @default: /
    */
   basePath?: string;
-  /**
-   * Router preloader that will be displayed until the module is loaded
-   *
-   * @default React.Fragment
-   */
-  preloader?: React.ReactNode;
   /**
    * Determine whether to re-render the page
    * When navigating to any page, even same current page
@@ -741,6 +753,10 @@ type RouterConfigurations = {
    * @default true
    */
   scrollTop?: boolean;
+  /**
+   * Top Root component that will wrap the entire application regardless the lazy module
+   */
+  rootComponent?: React.ComponentType<any>;
   /**
    * NotFound Options
    */
@@ -768,10 +784,16 @@ type RouterConfigurations = {
      *
      * @default: React.Fragment
      */
-    component?: React.ReactNode;
+    component?: React.ComponentType<any>;
   };
 };
 ```
+
+## Root Component
+
+The root component will wrap the entire application regardless wether current route is being lazy loaded or not.
+
+> Root Component does not receive any props at all.
 
 ## Link Navigation
 
@@ -838,10 +860,19 @@ To navigate to a url, just set the url :p.
 <Link to="https://google.com">Go To Google</Link>
 ```
 
-Make the link email:
+Make the link as email:
 
 ```tsx
 <Link mailTo="hassanzohdy@gmail.com">Email As Link</Link>
+// outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
+```
+
+or using `MailLink` component directly
+
+```tsx
+import { MailLink } from "@mongez/react-router";
+
+<MailLink to="hassanzohdy@gmail.com">Email As Link</MailLink>;
 // outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
 ```
 
@@ -852,7 +883,36 @@ Make the link as a telephone number:
 // outputs: <a href="tel:+201002221122" .. />
 ```
 
+or using `MailLink` component directly
+
+```tsx
+import { TelLink } from "@mongez/react-router";
+
+<TelLink to="+201002221122">Phone Number As Link</TelLink>;
+// outputs: <a href="tel:+201002221122" .. />
+```
+
 Of course you can send any other html props such as `className`, `id` and so on.
+
+Use External Link
+
+```tsx
+import { ExternalLink } from "@mongez/react-router";
+
+<ExternalLink to="https://google.com">Google</ExternalLink>;
+// outputs: <a href="https://google.com">Google</a>
+```
+
+Open it in a new tab
+
+```tsx
+import { ExternalLink } from "@mongez/react-router";
+
+<ExternalLink newTab to="https://google.com">
+  Google
+</ExternalLink>;
+// outputs: <a target="_blank" rel="noopener noreferrer" href="https://google.com">Google</a>
+```
 
 ## Redirect Component
 
@@ -1380,10 +1440,53 @@ console.log(directionIs("ltr")); // true
 console.log(directionIs("rtl")); // false
 ```
 
+## Get Previous Route
+
+> Added in v1.0.43
+
+To get previous route use `previousRoute` function.
+
+```ts
+import { previousRoute, navigateTo } from "@mongez/react-router";
+navigateTo("/login");
+console.log(previousRoute()); // /
+navigateTo("/");
+console.log(previousRoute()); // /login
+```
+
+## Router Events
+
+> Added in v1.0.43
+
+You may listen to any router change based on the navigation link change.
+
+```ts
+import { routerEvents } from "@mongez/react-router";
+
+routerEvents.onChange(() => {
+  // route changed
+});
+```
+
 ## Change Log
 
-- 1.0.24 (1 Apr 2022)
-  - Updated Package to work with React 18.
+- 1.0.55 (18 Aug 2022)
+  - Fixed returned current route.
+- 1.0.52 (01 Aug 2022)
+  - Fixed router locale.
+- 1.0.44 (07 Jun 2022)
+  - Added `onChange` event for router navigation.
+  - Added `previousRoute` utility
+- 1.0.42 (07 Jun 2022)
+  - Added strict mode as `scan` argument, default to `true`.
+- 1.0.41 (07 Jun 2022)
+  - Added [Root Component](#root-component) feature.
+- 1.0.38 (22 May 2022)
+  - Fixed middleware type.
+- 1.0.27 (1 Apr 2022)
+  - Added `getCurrentRouteData` to get current route details.
+- 1.0.26 (1 Apr 2022)
+  - Added `ExternalLink` `MailLink` and `TelLink`
 - 1.0.22 (4 Mar 2022)
 - Added Route name amd route original path.
 - 1.0.21 (4 Mar 2022)

@@ -1,16 +1,16 @@
 {
     "name": "@mongez/react-router",
-    "version": "1.0.24",
+    "version": "1.0.59",
     "description": "A Simple powerful react router system",
     "main": "src/index.ts",
     "dependencies": {
-        "history": "^4.1.0",
-        "query-string": "^7.0.1",
-        "object-query-string": "^1.2.0",
         "@mongez/events": "^1.0.x",
-        "react-router-dom": "^5.2.0",
+        "@mongez/reinforcements": "^1.0.x",
         "@mongez/supportive-is": "^1.0.x",
-        "@mongez/reinforcements": "^1.0.x"
+        "history": "^4.1.0",
+        "object-query-string": "^1.2.0",
+        "query-string": "^7.0.1",
+        "react-router-dom": "^5.2.0"
     },
     "repository": {
         "type": "git",

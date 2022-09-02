@@ -1,6 +1,6 @@
 import React from "react";
 import Renderer from "./Renderer";
-import history from "./../router-history";
+import { getHistory } from "./../router-history";
 import { Router, Switch } from "react-router-dom";
 
 /**
@@ -8,10 +8,12 @@ import { Router, Switch } from "react-router-dom";
  */
 export default function RouterWrapper() {
   return (
-    <Router history={history}>
-      <Switch>
-        <Renderer />
-      </Switch>
-    </Router>
+    <>
+      <Router history={getHistory()}>
+        <Switch>
+          <Renderer />
+        </Switch>
+      </Router>
+    </>
   );
 }

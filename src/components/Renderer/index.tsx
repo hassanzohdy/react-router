@@ -1,14 +1,18 @@
 import React from "react";
-import Middleware from "./Middleware";
+import { Route, RouteComponentProps } from "react-router-dom";
+import { setCurrentRouteData } from "../..";
+import { navigateTo } from "../../navigator";
+import {
+  appDynamicRouteModule,
+  getCurrentBseAppPath,
+  modulesList,
+} from "./../../apps-list";
+import { getRouterConfig } from "./../../configurations";
 import { concatRoute } from "./../../helpers";
 import history from "./../../router-history";
-import { navigateTo } from "../../navigator";
 import { layoutsList, routesList } from "./../../routes-list";
-import { getCurrentBseAppPath } from "./../../apps-list";
-import { getRouterConfig } from "./../../configurations";
-import { Layout, Route as ModuleRoute, Module } from "./../../types";
-import { Route, RouteComponentProps } from "react-router-dom";
-import { appDynamicRouteModule, modulesList } from "./../../apps-list";
+import { Layout, Module, Route as ModuleRoute } from "./../../types";
+import Middleware from "./Middleware";
 import { firstSegmentOfRoute, isPartOfLazyModules } from "./renderer-helpers";
 
 interface CurrentRouteHolder {
@@ -23,6 +27,8 @@ const renderRoute = (routeData: RouteComponentProps, route: ModuleRoute) => {
   if (currentRoute.routeInfo) return null;
 
   currentRoute.routeInfo = route;
+
+  setCurrentRouteData(route);
 
   // timestamp
   // When forceRefresh flag is set to true
@@ -149,63 +155,84 @@ export default function Renderer(props: any): any {
   // if the first segment is not in the
   // loadedModules and
   // the first segment is part of modules list that will be loaded
-  if (
+  const performPreLoading =
     (!moduleIsLoaded && isPartOfLazyModules(firstSegment)) ||
-    isLoadingDynamicRoute
-  ) {
+    isLoadingDynamicRoute;
+
+  const preloadOverlay = getRouterConfig("preloadOverlay", false);
+
+  let preload;
+
+  const parentProps: any = {};
+
+  if (performPreLoading) {
     const PreLoader: any = getRouterConfig("preloader", React.Fragment);
-    return <PreLoader />;
+    preload = <PreLoader />;
+
+    if (preloadOverlay === false) return preload;
+
+    parentProps.style = {
+      position: "relative",
+    };
   }
 
   currentRoute.routeInfo = null;
+  return (
+    <div {...parentProps}>
+      {preload}
+      {layoutsList.map((layout: Layout) => {
+        const { LayoutComponent, routes, routesList } = layout;
 
-  return layoutsList.map((layout: Layout) => {
-    const { LayoutComponent, routes, routesList } = layout;
-
-    // list of routes
-    let layoutRoutes = routes.map((route) => {
-      return (
-        <Route
-          path={route.path}
-          exact
-          key={route.path}
-          render={(props: RouteComponentProps) => renderRoute(props, route)}
-        />
-      );
-    });
-
-    return (
-      <Route
-        key={routesList.join("_")}
-        exact
-        path={routesList}
-        render={(props: RouteComponentProps) => {
-          const currentRoute = routes.find(
-            (route) => route.path === props.match.path
-          );
-
-          if (currentRoute && currentRoute.middleware) {
-            let middlewareList = currentRoute.middleware;
-            if (!Array.isArray(middlewareList)) {
-              middlewareList = [middlewareList];
-            }
-
-            for (let middleware of middlewareList as Function[]) {
-              let output = middleware(
-                currentRoute,
-                history,
-                props.match.params
+        return (
+          <Route
+            key={routesList.join("_")}
+            exact
+            path={routesList}
+            render={(props: RouteComponentProps) => {
+              const currentRoute = routes.find(
+                (route) => route.path === props.match.path
               );
 
-              if (output) {
-                return output;
-              }
-            }
-          }
+              if (currentRoute && currentRoute.middleware) {
+                let middlewareList = currentRoute.middleware;
+                if (!Array.isArray(middlewareList)) {
+                  middlewareList = [middlewareList];
+                }
 
-          return <LayoutComponent {...props}>{layoutRoutes}</LayoutComponent>;
-        }}
-      />
-    );
-  });
+                for (let middleware of middlewareList as Function[]) {
+                  let output = middleware(
+                    currentRoute,
+                    history,
+                    props.match.params
+                  );
+
+                  if (output) {
+                    return output;
+                  }
+                }
+              }
+
+              // list of routes
+              let layoutRoutes = routes.map((route) => {
+                return (
+                  <Route
+                    path={route.path}
+                    exact
+                    key={route.path}
+                    render={(props: RouteComponentProps) =>
+                      renderRoute(props, route)
+                    }
+                  />
+                );
+              });
+
+              return (
+                <LayoutComponent {...props}>{layoutRoutes}</LayoutComponent>
+              );
+            }}
+          />
+        );
+      })}
+    </div>
+  );
 }
