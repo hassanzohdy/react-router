@@ -89,7 +89,7 @@ export type BasicComponentProps = {
  * Middleware type
  * It can be a react node | function or an array of single middleware
  */
-export type Middleware = React.ComponentType | React.ComponentType[];
+export type Middleware = React.ComponentType<any> | React.ComponentType<any>[];
 
 /**
  * Page component wrapper
@@ -259,7 +259,7 @@ export type RouterConfigurations = {
    *
    * @default React.Fragment
    */
-  preloader?: React.ComponentType;
+  preloader?: React.ComponentType<any>;
   /**
    * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
    * Please note the of the base layout and the preloader will have position `relative`
@@ -293,7 +293,7 @@ export type RouterConfigurations = {
   /**
    * Top Root component that will wrap the entire application regardless the lazy module
    */
-  rootComponent?: React.ComponentType;
+  rootComponent?: React.ComponentType<any>;
   /**
    * NotFound Options
    */
@@ -321,7 +321,7 @@ export type RouterConfigurations = {
      *
      * @default: React.Fragment
      */
-    component?: React.ComponentType;
+    component?: React.ComponentType<any>;
   };
 };
 
