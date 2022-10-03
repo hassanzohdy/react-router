@@ -1519,7 +1519,8 @@ router.group({
     },
     {
       path: "/edit-profile",
-      component: getProfile, // load the profile data before opening the edit profile page
+      component: EditProfilePage,
+      preload: getProfile, // will not load the profile again if the user opened the profile page first, the response will be cached
     },
     {
       path: "/order-history",
@@ -1538,6 +1539,8 @@ router.group({
 Amazing, right! this is how you can preload data before the page is loaded, it will show the loading indicator until the data is loaded, if there is an error it will be shown instead of rendering the page component, on success, the page will be loaded.
 
 The callback of the preload receives the same props that are sent to the normal route component, so you can use them in the preload callback, see the order **details history route**.
+
+You can receive the response in `response` prop along with all other page component props.
 
 ### Multiple Requests Preloaded
 
@@ -1671,6 +1674,7 @@ router.group({
   - Added `preload` feature.
   - Updated `switchLang` to make hard reload instead of soft reload.
   - Added `updateRoute` utility to update the route without navigating to it.
+  - Enhanced `Link` props definition for autocomplete.
 - 1.0.55 (18 Aug 2022)
   - Fixed returned current route.
 - 1.0.52 (01 Aug 2022)
