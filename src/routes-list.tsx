@@ -1,13 +1,15 @@
+import { preload, PreloadConfigurations } from "@mongez/react-utils";
 import React from "react";
-import { concatRoute, getLocaleCodes } from "./helpers";
 import { getCurrentBseAppPath } from "./apps-list";
+import { getRouterConfig } from "./configurations";
+import { concatRoute, getLocaleCodes } from "./helpers";
 import {
   BasicComponentProps,
   GroupOptions,
   Layout,
-  Route,
   LayoutComponent,
   Middleware,
+  Route,
 } from "./types";
 
 /**
@@ -27,30 +29,25 @@ export const layoutsList: Array<Layout> = [];
 
 /**
  * Add new route to the routes list of full page
- *
- * @param {string} path
- * @param {React.Component} component
- * @param {Function|Array|null} middleware
  */
 export function addRouter(
   path: string,
   component: React.FunctionComponent<BasicComponentProps>,
-  middleware?: Middleware
+  middleware?: Middleware,
+  otherRouteConfigurations: Partial<Route> = {}
 ) {
   return partOf(FULL_PAGE, [
     {
       path,
       component,
       middleware,
+      ...otherRouteConfigurations,
     },
   ]);
 }
 
 /**
  * Add the given routes as part of the given layout
- *
- * @param  {React.Component} LayoutComponent
- * @param  {Array} routes
  */
 export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
   let layout = layoutsList.find(
@@ -82,6 +79,33 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
       route.path
     );
 
+    if (route.preload) {
+      const cache: boolean =
+        route.preloadConfig?.cache !== undefined
+          ? route.preloadConfig?.cache
+          : getRouterConfig("preload.cache");
+
+      const loadingErrorComponent =
+        route.preloadConfig?.loadingErrorComponent ||
+        getRouterConfig("preload.loadingErrorComponent");
+
+      const preloadConfigurations: PreloadConfigurations = {};
+
+      if (cache) {
+        preloadConfigurations.cache = cache;
+      }
+
+      if (loadingErrorComponent) {
+        preloadConfigurations.loadingErrorComponent = loadingErrorComponent;
+      }
+
+      route.component = preload(
+        route.component,
+        route.preload,
+        preloadConfigurations
+      );
+    }
+
     (layout as Layout).routesList.push(route.path);
 
     return route;
@@ -92,8 +116,6 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
 
 /**
  * Group the given routes with the given options
- *
- * @param  object groupOptions
  */
 export function group(groupOptions: GroupOptions) {
   const { routes = [], path, middleware, layout = FULL_PAGE } = groupOptions;

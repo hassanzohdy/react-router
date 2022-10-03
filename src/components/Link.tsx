@@ -1,13 +1,16 @@
-import React from "react";
 import Is from "@mongez/supportive-is";
-import { LinkProps } from "./../types";
-import { concatRoute } from "./../helpers";
+import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { getAppPath, getCurrentAppName } from "./../apps-list";
-import { hasInitialLocaleCode } from "./../navigator";
 import { getCurrentLocaleCode } from "./../detect-locale-change";
+import { concatRoute } from "./../helpers";
+import { hasInitialLocaleCode } from "./../navigator";
+import { LinkProps } from "./../types";
 
-const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
+const Link: React.FC<LinkProps> = React.forwardRef(function (
+  props: LinkProps,
+  forwardedRef
+) {
   let {
     to,
     href,
@@ -15,43 +18,40 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
     localeCode,
     mailTo,
     tel,
-    relative = true,
+    relative: incomingRelative = true,
     app = getCurrentAppName(),
     ...otherLinkProps
   } = props;
 
-  const path = React.useMemo(() => {
+  const [path, relative] = React.useMemo(() => {
+    let currentLocaleCode = localeCode;
+
     if (mailTo) {
-      return "mailto:" + mailTo;
+      return ["mailto:" + mailTo, false];
     }
 
     if (tel) {
-      return "tel:" + tel;
+      return ["tel:" + tel, false];
     }
 
     let anchorHref = href || to || "";
 
     if (Is.url(anchorHref)) {
-      relative = false;
+      return [anchorHref, false];
     }
 
-    // if not relative, then use the normal anchor tag
-    if (!relative) {
-      return anchorHref;
-    }
-
-    if (!localeCode && hasInitialLocaleCode()) {
-      localeCode = getCurrentLocaleCode();
+    if (!currentLocaleCode && hasInitialLocaleCode()) {
+      currentLocaleCode = getCurrentLocaleCode();
     }
 
     let path = concatRoute(getAppPath(app), anchorHref);
 
-    if (localeCode) {
-      path = concatRoute(localeCode, path);
+    if (currentLocaleCode) {
+      path = concatRoute(currentLocaleCode, path);
     }
 
-    return concatRoute(path);
-  }, [to, href, mailTo, tel, relative, app, localeCode]);
+    return [concatRoute(path), incomingRelative];
+  }, [to, href, mailTo, tel, incomingRelative, app, localeCode]);
 
   if (newTab) {
     otherLinkProps.target = "_blank";
@@ -64,6 +64,7 @@ const Link = React.forwardRef(function (props: LinkProps, forwardedRef) {
   }
 
   if (!relative || mailTo || tel) {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
     return <a {...otherLinkProps} href={path} ref={forwardedRef as any} />;
   }
 
@@ -81,7 +82,7 @@ export const TelLink = ({ to, ...props }: LinkProps) => (
 );
 
 export const ExternalLink = (props: LinkProps) => (
-  <Link {...props} relative={false} />
+  <Link newTa {...props} relative={false} />
 );
 
 export default Link;

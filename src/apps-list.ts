@@ -1,5 +1,5 @@
-import { App, Module } from "./types";
 import { concatRoute } from "./helpers";
+import { App, Module } from "./types";
 
 let currentBaseAppPath = "/";
 

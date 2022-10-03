@@ -23,6 +23,7 @@ So the main purpose is to make routing is more readable, reusable from everywher
 - ✅ Base layout to set common components in one place such as Header and Footer of the page.
 - ✅ Page Refreshing when navigating to the same route, as an option.
 - ✅ Many helpers to navigate between routes using functions.
+- ✅ Preload the request data API before rendering the page component.
 - ❌ No ugly writing for routes in components.
 
 ## Before going on
@@ -645,10 +646,12 @@ router.add("/login", LoginPage);
 
 ### Route Path Structure
 
-Based on the app configurations, we've X route structures.
+Based on the app configurations, we've `7` route structures.
 
-1. `/`: The app root
-2. `/en`: The app root appended with locale code
+The full route structure is: `/basePath/appPath/(localeCode?)/routePath`
+
+1. `/`: The app path
+2. `/en`: The app path appended with locale code
 3. `/en/contact-us`: The contact us route prefixed with locale code.
 4. `/admin`: Admin app home path.
 5. `/en/admin`: Admin app home path with `en` locale code.
@@ -786,6 +789,10 @@ type RouterConfigurations = {
      */
     component?: React.ComponentType<any>;
   };
+  /**
+   * Api data request preload configurations
+   */
+  preload?: PreloadConfigurations;
 };
 ```
 
@@ -1049,6 +1056,8 @@ Another helper function `floatSegment` can be used for float values.
 
 We can switch to another locale code by using `switchLang` function
 
+> Starting from v1.0.60 it will make a full page reload instead of rerendering due to issues with switching navigation styles.
+
 ```tsx
 import { switchLang } from '@mongez/react-router';
 
@@ -1274,6 +1283,21 @@ export default function FilterData() {
 }
 ```
 
+## Updating route without navigation
+
+> Added in v1.0.60
+
+Sometimes you might need to update the route but without navigating to it, this can be done using `updateRoute` helper function.
+
+```tsx
+import { updateRoute } from "@mongez/react-router";
+
+
+setTimeout(() => {
+  updateRoute('/home'); // update the route but do not navigate to it
+}, 3000);
+```
+
 ## Get current hash value in url
 
 If the url has a `#hash` value we can get it using `hash` helper function.
@@ -1468,8 +1492,185 @@ routerEvents.onChange(() => {
 });
 ```
 
+## Request Api Preload
+
+> Added in v1.0.60
+
+Another powerful feature that comes with the router is the ability to [preload data](https://github.com/hassanzohdy/mongez-react-utils#preload) before the page is loaded, this is useful when you want to load data before the page is loaded, for example, you want to load the current user data before the page is loaded, you can do that by setting `preload` property to your api request.
+
+```ts
+import router from "@mongez/react-router";
+
+import AccountDashboardPage from "./components/DashboardPage";
+import EditProfilePage from "./components/EditProfilePage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
+import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
+import { getProfile, getOrders, getOrder } from "./services/profile";
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+      preload: getProfile,
+    },
+    {
+      path: "/edit-profile",
+      component: getProfile, // load the profile data before opening the edit profile page
+    },
+    {
+      path: "/order-history",
+      component: OrderHistoryPage,
+      preload: getOrders,
+    },
+    {
+      path: "/order-history/:id",
+      component: SingleOrderHistoryPage,
+      preload: ({ params }) => getOrder(params.id),
+    },
+  ],
+});
+```
+
+Amazing, right! this is how you can preload data before the page is loaded, it will show the loading indicator until the data is loaded, if there is an error it will be shown instead of rendering the page component, on success, the page will be loaded.
+
+The callback of the preload receives the same props that are sent to the normal route component, so you can use them in the preload callback, see the order **details history route**.
+
+### Multiple Requests Preloaded
+
+You can also load multiple requests at the same time, just pass an array of requests to the `preload` property.
+
+```ts
+import router from "@mongez/react-router";
+import AccountDashboardPage from "./components/DashboardPage";
+import { getProfile, getOrdersStats } from "./services/profile";
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+      preload: [getProfile, getOrdersStats],
+    },
+  ],
+});
+```
+
+The page will not be rendered until all the requests are loaded successfully, if one of them fails, the error will be shown instead of the page.
+
+### Dependant Requests
+
+Sometimes you want to load a request based on the result of another request, for example, you want to load the cart data but needs to load the `app configurations` request that loads some configurations of the cart, for instance getting reward points value ratio (to be converted to money amount), in that sense, we can use [pipeline](https://github.com/hassanzohdy/mongez-react-utils#dependant-requests).
+
+```tsx
+import { pipeline } from '@mongez/react-utils';
+import router from "@mongez/react-router";
+import CartPage from "./components/CartPage";
+import { getCart, getAppConfigurations } from "./services/cart";
+
+router.group({
+  path: "/cart",
+  routes: [
+    {
+      path: "/",
+      component: CartPage,
+      preload: pipeline(getAppConfigurations, getCart),
+  ],
+});
+```
+
+As mentioned in the [docs](https://github.com/hassanzohdy/mongez-react-utils#dependant-requests) each request receives the params sent to the props along with the previous loaded response and all loaded responses.
+
+### Preload Caching Response
+
+By default, `preload` will cache the response of any request, this will decrease multiple calls of the same api in the application, for example, if you have a profile page that loads the current user data, and you have edit profile page that loads the same data, the second page will not make a request to the server, instead, it will use the cached response of the first page and vice versa.
+
+You can override this behavior by setting `cache` property to `false` in the `preloadConfig` property.
+
+```tsx
+import router from "@mongez/react-router";
+import AccountDashboardPage from "./components/DashboardPage";
+import { getProfile } from "./services/profile";
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+      preload: getProfile,
+      preloadConfig: {
+        cache: false,
+      },
+    },
+  ],
+});
+```
+
+`preloadConfig` will receive any configuration that can be passed to `payload` function, you can also set the general configurations of the preload in the router configurations list under `preload` property.
+
+### Loading And Error Component
+
+The preload requires to pass a component that should be rendered during the loading phase or if there is an error occurred while loading the request, this can also be set in `preloadConfig` key in the route object or in the router configurations list under `preload.loadingErrorComponent` property.
+
+```tsx
+import router from "@mongez/react-router";
+import AccountDashboardPage from "./components/DashboardPage";
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+      preload: getProfile,
+      preloadConfig: {
+        loadingErrorComponent: LoadingErrorComponent,
+      },
+    },
+  ],
+});
+```
+
+Or in the router configurations list:
+
+```tsx
+import router, { setRouterConfigurations } from "@mongez/react-router";
+import AccountDashboardPage from "./components/DashboardPage";
+import LoadingErrorComponent from "./components/LoadingErrorComponent";
+
+setRouterConfigurations({
+  preload: {
+    loadingErrorComponent: LoadingErrorComponent,
+  },
+});
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+      preload: getProfile,
+    },
+  ],
+});
+```
+
 ## Change Log
 
+- 1.0.60 (02 Oct 2022)
+  - Added `preload` feature.
+  - Updated `switchLang` to make hard reload instead of soft reload.
+  - Added `updateRoute` utility to update the route without navigating to it.
 - 1.0.55 (18 Aug 2022)
   - Fixed returned current route.
 - 1.0.52 (01 Aug 2022)

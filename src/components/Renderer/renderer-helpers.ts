@@ -1,7 +1,7 @@
-import { Module } from "../../types";
-import { concatRoute, getLocaleCodes } from "../../helpers";
-import { modulesList, appsList, setCurrentBseAppPath } from "./../../apps-list";
 import { routerConfigurations } from "../../configurations";
+import { concatRoute, getLocaleCodes } from "../../helpers";
+import { Module } from "../../types";
+import { appsList, modulesList, setCurrentBseAppPath } from "./../../apps-list";
 
 /**
  * Check if the given firstSegment is part of modules list
@@ -21,7 +21,7 @@ export function isPartOfLazyModules(firstSegment: string): Module {
  */
 export function firstSegmentOfRoute(location: Location): string {
   let [firstSegment, secondSegment, thirdSegment] = location.pathname
-    .replace(new RegExp(`^${routerConfigurations.basePath || '/'}`), "")
+    .replace(new RegExp(`^${routerConfigurations.basePath || "/"}`), "")
     .replace(/^\//, "")
     .split("/");
   let segment = firstSegment;

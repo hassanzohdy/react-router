@@ -1,15 +1,15 @@
-import { routerEvents } from "./events";
 import { ltrim } from "@mongez/reinforcements";
+import { queryString as objectToQueryString } from "object-query-string";
+import { getRouterConfig, setRouterConfig } from ".";
 import {
   getAppPath,
   getCurrentAppName,
   getCurrentBseAppPath,
 } from "./apps-list";
-import { getHistory, hash, queryString } from "./router-history";
 import { getCurrentLocaleCode } from "./detect-locale-change";
-import { concatRoute, getLocaleCodes, baseUrl, basePath } from "./helpers";
-import { queryString as objectToQueryString } from "object-query-string";
-import { getRouterConfig, setRouterConfig } from ".";
+import { routerEvents } from "./events";
+import { basePath, baseUrl, concatRoute, getLocaleCodes } from "./helpers";
+import { getHistory, hash, queryString } from "./router-history";
 import { Route } from "./types";
 
 export { objectToQueryString };
@@ -36,9 +36,6 @@ export function getCurrentRouteData(): Route {
 
 /**
  * General full url for the given route
- *
- * @param {string} route
- * @returns {string}
  */
 export function url(path: string): string {
   return concatRoute(baseUrl(), path);
@@ -46,7 +43,6 @@ export function url(path: string): string {
 
 /**
  * Navigate back to the previous route
- * @returns {void}
  */
 export function navigateBack(defaultRoute: string = "") {
   if (!_previousRoute) {
@@ -58,9 +54,6 @@ export function navigateBack(defaultRoute: string = "") {
 
 /**
  * Set the full current route and the current route without the locale code
- *
- * @param   {string} route
- * @returns {void}
  */
 function updateFullRoute(route: string) {
   if (currentFullRoute) {
@@ -86,10 +79,6 @@ function updateFullRoute(route: string) {
  * This method will not trigger router change
  *
  * If navigate is set to true, then navigate to the current route with the updated query string
- *
- * @param  {string|object} queryString
- * @param  {boolean} navigate
- * @returns {void}
  */
 export function updateQueryString(
   queryString: string | any,
@@ -122,11 +111,6 @@ export function fullUrl(): string {
 
 /**
  * navigate to the given path
- *
- * @param  {string} path
- * @param  {string|null} localeCode
- * @param  {string} app
- * @returns {void}
  */
 export function navigateTo(
   path: string,
@@ -149,8 +133,6 @@ export function navigateTo(
 
 /**
  * Go to the given full path
- *
- * @param  {string} path
  */
 function goTo(path: string) {
   // stackBuilder.add();
@@ -158,9 +140,7 @@ function goTo(path: string) {
 }
 
 /**
- * Get current route
- *
- * @returns {string}
+ * Get current route that has the directory path, app path, locale code and route
  */
 export function fullRoute(): string {
   return window.location.pathname;
@@ -168,8 +148,6 @@ export function fullRoute(): string {
 
 /**
  * Get the route without the locale code
- *
- * @returns  {string}
  */
 export function currentRoute(): string {
   const projectBasePath = basePath();
@@ -182,6 +160,17 @@ export function currentRoute(): string {
   );
 
   return concatRoute(fullRoute().replace(gluedAppUriWithoutRoute, ""));
+}
+
+/**
+ * Update current route without rendering the page
+ */
+export function updateRoute(newRoute: string, app = getCurrentBseAppPath()) {
+  window.history.pushState(
+    null,
+    "",
+    concatRoute(basePath(), app, getCurrentLocaleCode(), newRoute)
+  );
 }
 
 /**
@@ -227,19 +216,20 @@ export function refresh() {
 
 /**
  * Navigate to current location and switch language
- *
- * @param  {string} localeCode
+ * This will reload the entire pag
  */
 export function switchLang(localeCode: string) {
   const queryParams = queryString().toString().replace("?", "");
   const hashString = hash();
-  navigateTo(
+
+  window.location.pathname = concatRoute(
+    basePath(),
+    getCurrentBseAppPath(),
+    localeCode,
     currentRoute() +
       (queryParams ? "?" + queryParams : "") +
-      (hashString ? "#" + hashString : ""),
-    localeCode
+      (hashString ? "#" + hashString : "")
   );
-  routerEvents.trigger("localeCodeChange", localeCode);
 }
 
 /**
@@ -262,8 +252,6 @@ export default function initiateNavigator() {
 /**
  * Check if current route has a locale code
  * By comparing the currentFullRoute with fullRouteWithoutLocaleCode
- *
- * @returns  {boolean}
  */
 export function hasInitialLocaleCode(): boolean {
   return currentFullRoute !== fullRouteWithoutLocaleCode;

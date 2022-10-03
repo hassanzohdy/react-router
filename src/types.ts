@@ -1,3 +1,4 @@
+import { PreloadConfigurations } from "@mongez/react-utils";
 import React from "react";
 
 export type routerEventType = "localeCodeChange" | "change";
@@ -191,6 +192,18 @@ export interface Route {
    * Route Layout
    */
   layout?: LayoutComponent;
+  /**
+   * Preload the given data before rendering the component
+   * @see https://github.com/hassanzohdy/mongez-react-utils#preload
+   *
+   * Pipelines are available also
+   * @see https://github.com/hassanzohdy/mongez-react-utils#dependant-requests
+   */
+  preload?: any;
+  /**
+   * Preload Configurations
+   */
+  preloadConfig?: PreloadConfigurations;
 }
 
 /**
@@ -201,7 +214,13 @@ export type Layout = {
    * Routes list
    */
   routes: Route[];
+  /**
+   * Routes list as a map of strings
+   */
   routesList: string[];
+  /**
+   * Layout Component
+   */
   LayoutComponent: LayoutComponent;
 };
 
@@ -323,6 +342,10 @@ export type RouterConfigurations = {
      */
     component?: React.ComponentType<any>;
   };
+  /**
+   * Api data request preload configurations
+   */
+  preload?: PreloadConfigurations;
 };
 
 export type RouterConfigKey = keyof RouterConfigurations;
