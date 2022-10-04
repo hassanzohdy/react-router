@@ -28,9 +28,6 @@ export function addBaseAppPath(path: string) {
 
 /**
  * Get app path
- *
- * @param  {string} appName
- * @returns {string}
  */
 export function getAppPath(appName: string): string {
   return allApps.find((app) => app.name === appName)?.path || "";
@@ -38,26 +35,20 @@ export function getAppPath(appName: string): string {
 
 /**
  * Get all apps
- *
- * @returns {App[]}
  */
-export function getAppsList(): App[] {
+export function getAppsList() {
   return allApps;
 }
 
 /**
  * Get current app name
- *
- * @returns {string}
  */
-export function getCurrentAppName(): string {
+export function getCurrentAppName() {
   return currentAppName;
 }
 
 /**
  * Set current base App path
- *
- * @param  {string} path
  */
 export function setCurrentBseAppPath(path: string) {
   currentBaseAppPath = concatRoute(path);
@@ -67,8 +58,6 @@ export function setCurrentBseAppPath(path: string) {
 
 /**
  * Get current base app path
- *
- * @returns {string}
  */
 export function getCurrentBseAppPath() {
   return currentBaseAppPath;
@@ -76,9 +65,6 @@ export function getCurrentBseAppPath() {
 
 /**
  * Create modules list for all available applications
- *
- * @param  {array} modules
- * @returns {void}
  */
 export function setApps(apps: App[]) {
   allApps = apps;
@@ -109,9 +95,6 @@ export function setApps(apps: App[]) {
 
 /**
  * Set module loaders
- *
- * @param   {Module} moduleInfo
- * @returns {void}
  */
 function setModuleLoaders(moduleInfo: Module) {
   const app = moduleInfo.app;
@@ -122,8 +105,6 @@ function setModuleLoaders(moduleInfo: Module) {
 
 /**
  * Get the dynamic route module for current application
- *
- * @returns {object|null}
  */
 export function appDynamicRouteModule(): Module | null {
   const currentBaseApp = getCurrentBseAppPath();

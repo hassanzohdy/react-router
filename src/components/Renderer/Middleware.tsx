@@ -1,3 +1,4 @@
+import React from "react";
 import { MiddlewareProps } from "./../../types";
 
 export default function Middleware(props: MiddlewareProps) {
