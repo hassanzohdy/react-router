@@ -314,6 +314,14 @@ export type RouterConfigurations = {
    */
   rootComponent?: React.ComponentType<any>;
   /**
+   * Determine the reload mode when switching language
+   * It can be either `soft` which will trigger the `onLanguageChange` event and will not reload the page but will re-render the same page
+   * Or `hard` which will reload the page
+   *
+   * @default: hard
+   */
+  switchLanguageReloadMode: "soft" | "hard";
+  /**
    * NotFound Options
    */
   notFound?: {

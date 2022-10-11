@@ -761,6 +761,14 @@ type RouterConfigurations = {
    */
   rootComponent?: React.ComponentType<any>;
   /**
+   * Determine the reload mode when switching language
+   * It can be either `soft` which will trigger the `onLanguageChange` event and will not reload the page but will re-render the same page
+   * Or `hard` which will reload the page
+   * 
+   * @default: hard
+   */
+  switchLanguageReloadMode: "soft" | "hard";
+  /**
    * NotFound Options
    */
   notFound?: {
@@ -1075,6 +1083,29 @@ export default function Header() {
   )
 }
 ```
+
+> Starting from v1.0.62 you can determine whether to be hard reload (default) or soft reload by passing `reloadMode`
+
+```tsx
+import { switchLang } from '@mongez/react-router';
+
+import React from 'react'
+
+export default function Header() {
+  const onClick = e => {
+    switchLang('ar', 'soft'); // refreshes the page and changes the locale code without reloading the page
+    switchLang('ar', 'hard'); // Reload the page
+  };
+
+  return (
+    <div>
+      <button onClick={changeLocaleCode}>Switch To Arabic<button>
+    </div>
+  )
+}
+```
+
+Also you may set the default it in the router configurations by `switchLanguageReloadMode`
 
 ## Navigating to route
 
@@ -1670,6 +1701,8 @@ router.group({
 
 ## Change Log
 
+- 1.0.62 (11 Oct 2022)
+  - Added `reloadMode` to switch lang to reload the page or not.
 - 1.0.60 (02 Oct 2022)
   - Added `preload` feature.
   - Updated `switchLang` to make hard reload instead of soft reload.

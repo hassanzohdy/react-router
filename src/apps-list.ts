@@ -10,7 +10,7 @@ export const appsList: string[] = [];
 export let currentAppName: string;
 
 // all apps with its entire data
-export let allApps: App[] = [];
+let allApps: App[] = [];
 
 /**
  * All modules list
@@ -77,7 +77,7 @@ export function setApps(apps: App[]) {
     }
 
     // spread all entries into object
-    for (let moduleInfo of modules) {
+    for (const moduleInfo of modules) {
       moduleInfo.app = name;
       setModuleLoaders(moduleInfo);
 
@@ -86,7 +86,7 @@ export function setApps(apps: App[]) {
       );
 
       // loop over the entry array
-      for (let entryRoute of moduleInfo.entry) {
+      for (const entryRoute of moduleInfo.entry) {
         modulesList[entryRoute] = moduleInfo;
       }
     }

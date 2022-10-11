@@ -218,7 +218,26 @@ export function refresh() {
  * Navigate to current location and switch language
  * This will reload the entire pag
  */
-export function switchLang(localeCode: string) {
+export function switchLang(
+  localeCode: string,
+  reloadMode: "soft" | "hard" = getRouterConfig("switchLangReloadMode", "hard")
+) {
+  if (reloadMode === "soft") {
+    const queryParams = queryString().toString().replace("?", "");
+    const hashString = hash();
+
+    navigateTo(
+      currentRoute() +
+        (queryParams ? "?" + queryParams : "") +
+        (hashString ? "#" + hashString : ""),
+      localeCode
+    );
+
+    routerEvents.trigger("localeCodeChange", localeCode);
+
+    return;
+  }
+
   const queryParams = queryString().toString().replace("?", "");
   const hashString = hash();
 
