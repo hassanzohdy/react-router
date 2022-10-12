@@ -320,7 +320,7 @@ export type RouterConfigurations = {
    *
    * @default: hard
    */
-  switchLanguageReloadMode: "soft" | "hard";
+  switchLanguageReloadMode?: "soft" | "hard";
   /**
    * NotFound Options
    */
