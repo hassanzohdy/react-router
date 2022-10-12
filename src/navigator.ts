@@ -155,8 +155,8 @@ export function currentRoute(): string {
   const localeCode = getCurrentLocaleCode();
   const gluedAppUriWithoutRoute = concatRoute(
     projectBasePath,
-    currentApp,
-    localeCode
+    localeCode,
+    currentApp
   );
 
   return concatRoute(fullRoute().replace(gluedAppUriWithoutRoute, ""));
@@ -243,8 +243,8 @@ export function switchLang(
 
   window.location.pathname = concatRoute(
     basePath(),
-    getCurrentBseAppPath(),
     localeCode,
+    getCurrentBseAppPath(),
     currentRoute() +
       (queryParams ? "?" + queryParams : "") +
       (hashString ? "#" + hashString : "")
