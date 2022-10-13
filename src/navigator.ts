@@ -220,7 +220,10 @@ export function refresh() {
  */
 export function switchLang(
   localeCode: string,
-  reloadMode: "soft" | "hard" = getRouterConfig("switchLangReloadMode", "hard")
+  reloadMode: "soft" | "hard" = getRouterConfig(
+    "switchLanguageReloadMode",
+    "hard"
+  )
 ) {
   if (reloadMode === "soft") {
     const queryParams = queryString().toString().replace("?", "");
