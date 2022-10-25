@@ -1,3 +1,4 @@
+import { getRouterConfig } from "./configurations";
 import { concatRoute } from "./helpers";
 import { App, Module } from "./types";
 
@@ -98,9 +99,22 @@ export function setApps(apps: App[]) {
  */
 function setModuleLoaders(moduleInfo: Module) {
   const app = moduleInfo.app;
-  moduleInfo.loadModule = () =>
-    import(`apps/${app}/${moduleInfo.module}/provider`); // module/provider
-  moduleInfo.loadApp = () => import(`apps/${app}/${app}-provider`); // apps/app-name/app-name-provider
+  const appLoader = getRouterConfig("loadApp");
+
+  const moduleLoader = getRouterConfig("loadModule");
+
+  if (appLoader) {
+    moduleInfo.loadApp = () => appLoader(app);
+  } else {
+    moduleInfo.loadApp = () => import(`apps/${app}/${app}-provider`); // apps/app-name/app-name-provider
+  }
+
+  if (moduleLoader) {
+    moduleInfo.loadModule = () => moduleLoader(app, moduleInfo.module);
+  } else {
+    moduleInfo.loadModule = () =>
+      import(`apps/${app}/${moduleInfo.module}/provider`); // module/provider
+  }
 }
 
 /**

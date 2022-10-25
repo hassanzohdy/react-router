@@ -274,6 +274,14 @@ export type RouterConfigurations = {
    */
   localeCodes?: string[];
   /**
+   * Load app handler
+   */
+  loadApp?: (app: string) => Promise<any>;
+  /**
+   * Load module handler
+   */
+  loadModule?: (app: string, module: string) => Promise<any>;
+  /**
    * Router preloader that will be displayed until the module is loaded
    *
    * @default React.Fragment
