@@ -1701,6 +1701,8 @@ router.group({
 
 ## Change Log
 
+- 1.0.68 (27 Oct 2022)
+  - Added preload cache feature.
 - 1.0.62 (11 Oct 2022)
   - Added `reloadMode` to switch lang to reload the page or not.
 - 1.0.60 (02 Oct 2022)

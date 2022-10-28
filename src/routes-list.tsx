@@ -93,6 +93,10 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
 
       if (cache) {
         preloadConfigurations.cache = cache;
+
+        if (!preloadConfigurations.cache.key) {
+          preloadConfigurations.cache.key = (props) => JSON.stringify(props);
+        }
       }
 
       if (loadingErrorComponent) {
