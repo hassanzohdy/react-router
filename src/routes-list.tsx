@@ -82,7 +82,10 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
     if (route.preload) {
       const cache: boolean =
         route.preloadConfig?.cache !== undefined
-          ? route.preloadConfig?.cache
+          ? {
+              ...getRouterConfig("preload.cache", {}),
+              ...route.preloadConfig?.cache,
+            }
           : getRouterConfig("preload.cache");
 
       const loadingErrorComponent =
@@ -95,7 +98,8 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
         preloadConfigurations.cache = cache;
 
         if (!preloadConfigurations.cache.key) {
-          preloadConfigurations.cache.key = (props) => JSON.stringify(props);
+          preloadConfigurations.cache.key = (props) =>
+            JSON.stringify(props) + window.location.search;
         }
       }
 
