@@ -1,7 +1,10 @@
-import { preload, PreloadConfigurations } from "@mongez/react-utils";
+import {
+  getPreloadConfigurations,
+  preload,
+  PreloadConfigurations,
+} from "@mongez/react-utils";
 import React from "react";
 import { getCurrentBseAppPath } from "./apps-list";
-import { getRouterConfig } from "./configurations";
 import { concatRoute, getLocaleCodes } from "./helpers";
 import {
   BasicComponentProps,
@@ -80,31 +83,12 @@ export function partOf(LayoutComponent: LayoutComponent, routes: Array<Route>) {
     );
 
     if (route.preload) {
-      const cache: boolean =
-        route.preloadConfig?.cache !== undefined
-          ? {
-              ...getRouterConfig("preload.cache", {}),
-              ...route.preloadConfig?.cache,
-            }
-          : getRouterConfig("preload.cache");
+      const preloadConfigurations: PreloadConfigurations =
+        route.preloadConfig || getPreloadConfigurations();
 
-      const loadingErrorComponent =
-        route.preloadConfig?.loadingErrorComponent ||
-        getRouterConfig("preload.loadingErrorComponent");
-
-      const preloadConfigurations: PreloadConfigurations = {};
-
-      if (cache) {
-        preloadConfigurations.cache = cache;
-
-        if (!preloadConfigurations.cache.key) {
-          preloadConfigurations.cache.key = (props) =>
-            JSON.stringify(props) + window.location.search;
-        }
-      }
-
-      if (loadingErrorComponent) {
-        preloadConfigurations.loadingErrorComponent = loadingErrorComponent;
+      if (preloadConfigurations.cache && !preloadConfigurations.cache.key) {
+        preloadConfigurations.cache.key = ({ params }) =>
+          JSON.stringify(params) + window.location.search;
       }
 
       route.component = preload(

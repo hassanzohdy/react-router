@@ -797,10 +797,6 @@ type RouterConfigurations = {
      */
     component?: React.ComponentType<any>;
   };
-  /**
-   * Api data request preload configurations
-   */
-  preload?: PreloadConfigurations;
 };
 ```
 
@@ -1673,17 +1669,16 @@ router.group({
 });
 ```
 
-Or in the router configurations list:
+If you want to set global configurations for preload, use `setRouterConfigurations` directly from `@mongez/react-utils` package.
 
 ```tsx
-import router, { setRouterConfigurations } from "@mongez/react-router";
+import { setRouterConfigurations } from "@mongez/react-utils";
+import router from "@mongez/react-router";
 import AccountDashboardPage from "./components/DashboardPage";
 import LoadingErrorComponent from "./components/LoadingErrorComponent";
 
-setRouterConfigurations({
-  preload: {
-    loadingErrorComponent: LoadingErrorComponent,
-  },
+setPreloadConfiguration({
+  loadingErrorComponent: LoadingErrorComponent,
 });
 
 router.group({
