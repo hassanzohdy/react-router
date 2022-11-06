@@ -200,10 +200,6 @@ export interface Route {
    * @see https://github.com/hassanzohdy/mongez-react-utils#dependant-requests
    */
   preload?: any;
-  /**
-   * Preload Configurations
-   */
-  preloadConfig?: PreloadConfigurations;
 }
 
 /**

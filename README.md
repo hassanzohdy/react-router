@@ -1609,7 +1609,10 @@ router.group({
     {
       path: "/",
       component: CartPage,
-      preload: pipeline(getAppConfigurations, getCart),
+      preload: pipeline([
+        getAppConfigurations, 
+        getCart
+      ]),
   ],
 });
 ```
