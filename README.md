@@ -1017,6 +1017,16 @@ Let's see these configurations in details
 
 > If you're using [Mongez React](https://github.com/hassanzohdy/react), it can be part of the entire application configurations.
 
+## Not Found Pages
+
+You can decide what happens if a route is not found, you can either redirect the user to a specific page or render a custom component.
+
+If you're lazy enough to not make a not found page, you can use [NotFound Component](https://github.com/hassanzohdy/react-components#not-found-component) directly, it does not have any dependencies.
+
+It looks like this:
+
+![Not Found Page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5llfh3np2th1xu4oowj2.png)
+
 ## Root Component
 
 The root component will wrap the entire application regardless wether current route is being lazy loaded or not.
