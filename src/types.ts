@@ -1,128 +1,338 @@
-import { PreloadConfigurations } from "@mongez/react-utils";
-import React from "react";
+export type ObjectType = Record<string, any>;
 
-export type routerEventType = "localeCodeChange" | "change";
+export type Component = React.FC<any> | React.ComponentType<any>;
 
-export type RouterEventLocaleChangeCallback = (
-  newLocaleCode: string,
-  currentLocaleCode?: string
-) => void;
-
-export type MiddlewareProps = {
-  route: Route;
-  key?: any;
-  history: History;
-  location: Location | any;
-  component?: React.ReactNode;
-  match?: {
-    [key: string]: string;
-  };
+/**
+ * Url Matcher handler
+ */
+export type UrlMatcher = (pattern: string) => {
+  regexp: RegExp;
+  keys: { name: string }[];
 };
 
 /**
- * App Module Interface
+ * Not found configurations
+ */
+export type NotFoundConfigurations = {
+  /**
+   * Mode Type
+   * If set to `render`, then the 404 component will be rendered.
+   * Which requires you to define the 404 component.
+   *
+   * If set to `redirect`, then the user will be redirected to the defined path.
+   * Which requires you to define the redirect path (/404 by default).
+   */
+  mode?: "render" | "redirect";
+  /**
+   * 404 Component
+   *
+   * @default Internal404
+   */
+  component?: Component;
+  /**
+   * 404 Redirect Path
+   *
+   * @default /404
+   */
+  path?: string;
+};
+
+/**
+ * Change languages Mode options
+ */
+export enum ChangeLanguageReloadModeOptions {
+  hard = "hard",
+  soft = "soft",
+}
+
+/**
+ * Change languages Mode
+ */
+export type ChangeLanguageReloadMode = "soft" | "hard";
+
+/**
+ * Lazy loading options
+ */
+export type LazyLoadingOptions = {
+  /**
+   * Loaders Options
+   */
+  loaders: Loaders;
+  /**
+   * Preload Component which will be displayed while the app/module is being loading
+   */
+  loadingComponent?: Component;
+  /**
+   * Whether to render only the loader or render the loader over the current page
+   *
+   * If set to `true` then the loader will be rendered over the current page
+   * By rendering the loader before the page component, no styling will
+   * be applied to the page, you can use this to show a loading screen in your loader
+   */
+  renderOverPage?: boolean;
+};
+
+/**
+ * Localization Options
+ */
+export type LocalizationOptions = {
+  /**
+   * Change Language reload mode
+   * Used when calling `changeLocaleCode` function
+   *
+   *  If st to `soft` then it will update the url with the new locale code
+   * and re-render the current page.
+   *
+   * If set to `hard` then it will reload the page with the new locale code.
+   * @default soft
+   */
+  changeLanguageReloadMode?: ChangeLanguageReloadMode;
+  /**
+   * Default locale code
+   *
+   * @default en
+   */
+  defaultLocaleCode?: string;
+  /**
+   * Project localeCodes
+   *
+   * @default ["en"]
+   */
+  localeCodes?: string[];
+};
+
+/**
+ * Query String Options
+ */
+export type QueryStringOptions = {
+  /**
+   * Query String Object to String parser
+   */
+  objectParser?: (queryString: string) => ObjectType;
+  /**
+   * Query String Object to String parser
+   */
+  stringParser?: (queryObject: ObjectType) => string;
+};
+
+/**
+ * Grouped routes options
+ */
+export type GroupedRoutesOptions = {
+  /**
+   * Grouped routes
+   */
+  routes: PublicRouteOptions[];
+  /**
+   * Prefix path for all routes
+   */
+  path?: string;
+  /**
+   * Middleware
+   */
+  middleware?: Middleware;
+  /**
+   * Layout
+   */
+  layout?: Component;
+};
+
+/**
+ * Link component options
+ */
+export type LinkOptions = {
+  /**
+   * Component to be used as a link
+   *
+   * @default 'a'
+   */
+  component?: Component | string;
+};
+
+/**
+ * Router Configurations
+ */
+export type RouterConfigurations = {
+  /**
+   * Project Base Path
+   * Its recommended to set it with production check like this:
+   * process.env.NODE_ENV === "production" ? "/project-name" : "/"
+   * @default "/"
+   */
+  basePath?: string;
+  /**
+   * Localization settings
+   */
+  localization?: LocalizationOptions;
+  /**
+   * Enable force refresh,
+   * If set to true, when the user navigates to the same page,
+   * it will re-render the page again.
+   *
+   *  @default true
+   */
+  forceRefresh?: boolean;
+  /**
+   * Url Matcher
+   * This can be used to allow more dynamic url matching.
+   */
+  urlMatcher?: UrlMatcher;
+  /**
+   * Query string options
+   */
+  queryString?: QueryStringOptions;
+  /**
+   * Whether to enable strict mode
+   *
+   * @default false
+   */
+  strict?: boolean;
+  /**
+   * Root component that will be used to wrap all the pages
+   * This component will be rendered only once.
+   */
+  rootComponent?: Component;
+  /**
+   * App And Module Loading Options
+   */
+  lazyLoading?: LazyLoadingOptions;
+  /**
+   * Not Found Page Settings
+   */
+  notFound?: NotFoundConfigurations;
+  /**
+   * Link component options
+   */
+  link?: LinkOptions;
+};
+
+/**
+ * Module structure
  */
 export type Module = {
   /**
    * Module name
    */
-  module: string;
+  name: string;
   /**
-   * Module possible entry list
+   * Module entry paths
    */
-  entry?: string[];
-  /**
-   * App name
-   */
-  app?: string;
-  /**
-   * Module loader function
-   */
-  loadModule?: Function;
-  /**
-   * Module App loader function
-   */
-  loadApp?: Function;
+  entry: string[];
 };
 
 /**
- * App data interface
+ * App structure
  */
 export type App = {
   /**
-   * Application name
-   * The application name must be the same as its directory name
+   * App name
    */
   name: string;
   /**
-   * Application starting path
+   * App Path
    */
   path: string;
   /**
-   * Defines the module name that has a dynamic route
-   */
-  dynamicRouteModule?: string;
-  /**
-   * Application modules list
+   * App modules list
    */
   modules: Module[];
+  /**
+   * Is Loaded App
+   */
+  isLoaded?: boolean;
+};
+
+export type PublicApp = Omit<App, "isLoaded">;
+
+/**
+ * Router Loaders
+ */
+export type Loaders = {
+  /**
+   * App loader
+   * It receives the app name, and return a promise that
+   * should use dynamic import to load the app provider
+   */
+  app: (app: string) => Promise<any>;
+  /**
+   * Module loader
+   * It receives the app name and the module name, and return a promise that
+   * should use dynamic import to load the module provider
+   */
+  module: (appName: string, moduleName: string) => Promise<any>;
 };
 
 /**
- * Basic component props
+ * Route middleware type
  */
-export type BasicComponentProps = {
+export type Middleware = Component[];
+
+/**
+ * Route structure
+ */
+export type RouteOptions = {
   /**
-   * Component key
+   * Route path
+   */
+  path: string;
+  /**
+   * Route component
+   */
+  component: React.ComponentType<any>;
+  /**
+   * Route middleware
+   */
+  middleware?: Middleware;
+  /**
+   * Route Base Layout
+   */
+  layout?: React.ComponentType<any>;
+  /**
+   * Route path Unique key
+   * Used for force refreshing the route
    */
   key?: string;
-  /**
-   * Children list of the component
-   */
-  children?: React.ReactNode;
-  /**
-   * Any other props
-   */
-  [key: string]: any;
 };
 
 /**
- * Middleware type
- * It can be a react node | function or an array of single middleware
+ * Public route options that will be used by developers
  */
-export type Middleware = React.ComponentType<any> | React.ComponentType<any>[];
+export type PublicRouteOptions = Required<
+  Pick<RouteOptions, "component" | "path">
+> &
+  Pick<RouteOptions, "layout" | "middleware">;
 
 /**
- * Page component wrapper
- * Useful when many pages has same layout,
- * it will prevent re-rendering the layout wrapper from beginning each time
+ * Navigation modes
  */
-export type LayoutComponent = React.ComponentType<any>;
+export enum NavigationMode {
+  /**
+   * Triggered when route is changed normally
+   */
+  navigation = "navigation",
+  /**
+   * Triggered when calling the `changeLocaleCode`
+   */
+  changeLocaleCode = "changeLocaleCode",
+  /**
+   * Triggered when route is changed by history.back() or history.forward()
+   */
+  swinging = "swinging",
+  /**
+   * Triggered when the user navigates to the same route or when calling `refresh` function
+   */
+  refresh = "refresh",
+}
 
-export type RedirectProps = {
-  /**
-   * The location that will be redirected into
-   */
-  to: string;
-  /**
-   * Set locale code for the redirection
-   *
-   * @default: auto
-   */
-  localeCode?: string;
-  /**
-   * App name
-   *
-   * @default: auto
-   */
-  app?: string;
-};
-
-export type LinkProps = {
+export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   /**
    * Link Path
    */
   to?: string;
+  /**
+   * Set link component type
+   */
+  component?: React.ComponentType<any> | string;
   /**
    * Alias to `to` prop
    */
@@ -130,7 +340,7 @@ export type LinkProps = {
   /**
    * Set the link as a mail link
    */
-  mailTo?: string;
+  email?: string;
   /**
    * Set the link as a telephone link
    */
@@ -145,219 +355,11 @@ export type LinkProps = {
    *
    * @default current app bath
    */
-  apps?: string;
+  app?: string;
   /**
    * Determine whether the link should be opened in a new tab
    *
    * @default: false
    */
   newTab?: boolean;
-  /**
-   * Determine whether the current link is relative to our application
-   *
-   * @default true
-   */
-  relative?: boolean;
-  /**
-   * Other props
-   */
-  [id: string]: any;
 };
-
-/**
- * Route options
- */
-export interface Route {
-  /**
-   * Route path
-   */
-  path: string;
-  /**
-   * Original Path
-   */
-  originalPath?: string;
-  /**
-   * Route name
-   */
-  name?: string;
-  /**
-   * Route middleware
-   */
-  middleware?: Middleware;
-  /**
-   * Route rendered component
-   */
-  component: React.ComponentType<any>;
-  /**
-   * Route Layout
-   */
-  layout?: LayoutComponent;
-  /**
-   * Preload the given data before rendering the component
-   * @see https://github.com/hassanzohdy/mongez-react-utils#preload
-   *
-   * Pipelines are available also
-   * @see https://github.com/hassanzohdy/mongez-react-utils#dependant-requests
-   */
-  preload?: any;
-}
-
-/**
- * Layout options
- */
-export type Layout = {
-  /**
-   * Routes list
-   */
-  routes: Route[];
-  /**
-   * Routes list as a map of strings
-   */
-  routesList: string[];
-  /**
-   * Layout Component
-   */
-  LayoutComponent: LayoutComponent;
-};
-
-/**
- * Router group options
- */
-export type GroupOptions = {
-  /**
-   * routes base path
-   */
-  path?: string;
-  /**
-   * Grouped routes list
-   */
-  routes?: Route[];
-  /**
-   * Layout that will be rendered on top of all routes in the group
-   */
-  layout?: LayoutComponent;
-  /**
-   * Routes middleware, it will be merged with each route middleware(s) if provided
-   */
-  middleware?: Middleware;
-};
-
-export type QueryString = {
-  /**
-   * Get a value from query string params, if the key does not exist, return default value
-   */
-  get(key: string, defaultValue?: any): any;
-  /**
-   * Get all query params
-   */
-  all(): object;
-  /**
-   * Return query string as string with & as concat parameter
-   */
-  toString(): string;
-};
-
-/**
- * Router configuration options list
- */
-export type RouterConfigurations = {
-  /**
-   * Default locale code
-   */
-  defaultLocaleCode?: string;
-  /**
-   * Locale codes list
-   */
-  localeCodes?: string[];
-  /**
-   * Load app handler
-   */
-  loadApp?: (app: string) => Promise<any>;
-  /**
-   * Load module handler
-   */
-  loadModule?: (app: string, module: string) => Promise<any>;
-  /**
-   * Router preloader that will be displayed until the module is loaded
-   *
-   * @default React.Fragment
-   */
-  preloader?: React.ComponentType<any>;
-  /**
-   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
-   * Please note the of the base layout and the preloader will have position `relative`
-   * This feature is still experimental and can be changed in future versions
-   * @experimental
-   * @default false
-   */
-  preloadOverlay?: boolean;
-  /**
-   * App base path in production
-   *
-   * @default: /
-   */
-  basePath?: string;
-  /**
-   * Determine whether to re-render the page
-   * When navigating to any page, even same current page
-   *
-   * Please note that can not be changed during the application is running
-   * as its value is cached at the application bootstrap
-   *
-   * @default: true
-   */
-  forceRefresh?: boolean;
-  /**
-   * Scroll to top of the page when rendering new page
-   *
-   * @default true
-   */
-  scrollTop?: boolean;
-  /**
-   * Top Root component that will wrap the entire application regardless the lazy module
-   */
-  rootComponent?: React.ComponentType<any>;
-  /**
-   * Determine the reload mode when switching language
-   * It can be either `soft` which will trigger the `onLanguageChange` event and will not reload the page but will re-render the same page
-   * Or `hard` which will reload the page
-   *
-   * @default: hard
-   */
-  switchLanguageReloadMode?: "soft" | "hard";
-  /**
-   * NotFound Options
-   */
-  notFound?: {
-    /**
-     * Not found mode
-     * The redirect mode will redirect the client to the path
-     *
-     * Please note that can not be changed during the application is running
-     * as its value is cached at the application bootstrap
-     *
-     * @default: render
-     */
-    mode?: "redirect" | "render";
-    /**
-     * The route that will be redirected when the page is not found
-     * Works only when the mode is set to redirect
-     *
-     * @default: /404
-     */
-    route?: string;
-    /**
-     * The component that will be rendered when the page is not found
-     * Works only when the mode is set to render
-     *
-     * @default: React.Fragment
-     */
-    component?: React.ComponentType<any>;
-  };
-  /**
-   * Api data request preload configurations
-   */
-  preload?: PreloadConfigurations;
-};
-
-export type RouterConfigKey = keyof RouterConfigurations;

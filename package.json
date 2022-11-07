@@ -1,17 +1,12 @@
 {
     "name": "@mongez/react-router",
-    "version": "1.0.72",
-    "description": "A Simple powerful react router system",
+    "version": "2.0.0",
+    "description": "A powerful react router system with lazy loading",
     "main": "src/index.ts",
     "dependencies": {
-        "@mongez/events": "^1.0.x",
-        "@mongez/reinforcements": "^2.x.x",
-        "@mongez/supportive-is": "^1.0.x",
-        "@mongez/react-utils": "^1.0.x",
-        "history": "^4.1.0",
-        "object-query-string": "^1.2.0",
-        "query-string": "^7.0.1",
-        "react-router-dom": "^5.2.0"
+        "@mongez/concat-route": "^1.x.x",
+        "@mongez/events": "^1.x.x",
+        "@mongez/supportive-is": "^1.x.x"
     },
     "repository": {
         "type": "git",

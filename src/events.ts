@@ -1,43 +1,79 @@
 import events, { EventSubscription } from "@mongez/events";
-import { routerEventType, RouterEventLocaleChangeCallback } from "./types";
+import { NavigationMode } from "./types";
+export type RouterEvents = {
+  /**
+   * Callback when the router is about to change the current route
+   */
+  onNavigating: (
+    callback: (
+      route: string,
+      navigationType: NavigationMode,
+      previousRoute: string
+    ) => void
+  ) => EventSubscription;
+  //   /**
+  //    * Callback when the router has changed the current route
+  //    */
+  //   onNavigated: (
+  //     callback: (route: string, navigationType: NavigationMode) => void
+  //   ) => EventSubscription;
+  /**
+   * Triggered when locale code is about to change
+   */
+  onLocaleChanging: (
+    callback: (localeCode: string, oldLocaleCode: string) => void
+  ) => EventSubscription;
+  /**
+   * Triggered when locale code is changed
+   */
+  onLocaleChanged: (
+    callback: (newLocaleCode: string, oldLocaleCode: string) => void
+  ) => EventSubscription;
+  /**
+   * Triggered when page is about to be rendered
+   */
+  onRendering: (
+    callback: (route: string, navigationType: NavigationMode) => void
+  ) => EventSubscription;
+  /**
+   * Triggered on page is rendered
+   */
+  onPageRendered: (
+    callback: (route: string, navigationType: NavigationMode) => void
+  ) => EventSubscription;
+};
 
-const routerEventsNamespace: string = "router.";
-
-const routerChangeEvent = `${routerEventsNamespace}change`;
-
-// const history = window.history;
-
-// const pushState = history.pushState;
-// history.pushState = function () {
-//   pushState.apply(history, arguments as any);
-
-//   events.trigger(routerChangeEvent);
-// };
-
-// const replaceState = history.replaceState;
-// history.replaceState = function () {
-//   replaceState.apply(history, arguments as any);
-
-//   events.trigger(routerChangeEvent);
-// };
-
-// window.onpopstate = (e) => {
-//   events.trigger(routerChangeEvent, e.state);
-// };
-
-export const routerEvents = {
-  onLocaleCodeChange(
-    callback: RouterEventLocaleChangeCallback
-  ): EventSubscription {
-    return events.subscribe(
-      routerEventsNamespace + "localeCodeChange",
-      callback
-    );
+const routerEvents: RouterEvents = {
+  onNavigating: (callback) => {
+    return events.subscribe(`router.navigating`, callback);
   },
-  onChange(callback: any) {
-    return events.subscribe(routerChangeEvent, callback);
+  //   onNavigated: (callback) => {
+  //     return events.subscribe(`router.navigated`, callback);
+  //   },
+  onLocaleChanging: (callback) => {
+    return events.subscribe(`router.localeCodeChanging`, callback);
   },
-  trigger(eventName: routerEventType, ...args: any[]): void {
-    events.trigger(routerEventsNamespace + eventName, ...args);
+  onLocaleChanged: (callback) => {
+    return events.subscribe(`router.localeChanged`, callback);
+  },
+  onRendering: (callback) => {
+    return events.subscribe(`router.rendering`, callback);
+  },
+  onPageRendered: (callback) => {
+    return events.subscribe(`router.rendered`, callback);
   },
 };
+
+export type RouterEventType =
+  | "navigating"
+  //   | "navigated"
+  | "rendering"
+  | "rendered"
+  | "localeCodeChanging"
+  | "localeChanged";
+
+export function triggerEvent(eventName: RouterEventType, ...args: any[]) {
+  events.trigger("router." + eventName, ...args);
+}
+
+export default routerEvents;
