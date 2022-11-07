@@ -3,9 +3,7 @@ import { setQueryStringOptions } from "./query-string";
 import router from "./router";
 import { RouterConfigurations } from "./types";
 
-export default function setRouterConfigurations(
-  configurations: RouterConfigurations
-) {
+export function setRouterConfigurations(configurations: RouterConfigurations) {
   if (configurations.basePath) {
     router.setBasePath(configurations.basePath);
   }
