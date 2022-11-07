@@ -1,3 +1,4 @@
+import React from "react";
 export type ObjectType = Record<string, any>;
 
 export type Component = React.FC<any> | React.ComponentType<any>;

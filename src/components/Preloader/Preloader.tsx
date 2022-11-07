@@ -7,8 +7,6 @@ export default function Preloader({ loading }: { loading: boolean }) {
   const progressRef = useRef<any>();
 
   useEffect(() => {
-    console.log(loading);
-
     if (!loading) {
       progressRef.current.style.display = "none";
       progressRef.current.style.width = "0";
