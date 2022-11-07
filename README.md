@@ -1,14 +1,6 @@
 # Mongez React Router (MRR)
 
-A powerful react router system.
-
-> This package for its current version relies on [React Router DOM](https://v5.reactrouter.com/web/guides/quick-start) and it is part of its dependencies so you don't need to install React Router DOM.
-
-## Why
-
-The main reason for using this package instead of using `React Router DOM` directly is that React Router DOM manages routes in a component syntax, which is really...sucks.
-
-So the main purpose is to make routing is more readable, reusable from everywhere with more features.
+A powerful react router system to manage React Js App routes.
 
 > For illustrations only, this documentation page will work as with typescript project, but this can be done in javascript projects as well.
 
@@ -23,8 +15,8 @@ So the main purpose is to make routing is more readable, reusable from everywher
 - ✅ Base layout to set common components in one place such as Header and Footer of the page.
 - ✅ Page Refreshing when navigating to the same route, as an option.
 - ✅ Many helpers to navigate between routes using functions.
-- ✅ Preload the request data API before rendering the page component.
 - ❌ No ugly writing for routes in components.
+- ✅ Many helpers to navigate between routes using functions.
 
 ## Before going on
 
