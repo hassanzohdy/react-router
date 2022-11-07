@@ -1,8 +1,6 @@
 import concatRoute from "@mongez/concat-route";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import NotFound from "./components/NotFound";
-import Preloader from "./components/Preloader";
 import RouterWrapper from "./components/RouterWrapper";
 import routerEvents, { triggerEvent } from "./events";
 import matchUrl, { urlPatternMatcher } from "./matcher";
@@ -50,7 +48,6 @@ export class Router {
    */
   public notFound: NotFoundConfigurations = {
     mode: "render",
-    component: NotFound,
   };
 
   /**
@@ -98,7 +95,6 @@ export class Router {
    * Lazy loading options
    */
   public lazyLoading?: Partial<LazyLoadingOptions> = {
-    loadingComponent: Preloader,
     renderOverPage: true,
   };
 

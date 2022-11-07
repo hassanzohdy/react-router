@@ -59,7 +59,13 @@ export default function RouterWrapper() {
     if (router.notFound.mode === "redirect") {
       return navigateTo(router.notFound.path! || "/404");
     } else {
-      const NotFoundComponent = router.notFound.component!;
+      const NotFoundComponent =
+        router.notFound.component! ||
+        (() => (
+          <>
+            <h1>Not Found Page</h1>
+          </>
+        ));
 
       setContent(<NotFoundComponent />);
     }
