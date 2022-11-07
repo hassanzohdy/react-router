@@ -1,0 +1,14 @@
+{
+  "name": "front-office",
+  "path": "/",
+  "modules": [
+    {
+      "entry": ["/"],
+      "name": "home"
+    },
+    {
+      "entry": ["/users"],
+      "name": "users"
+    }
+  ]
+}

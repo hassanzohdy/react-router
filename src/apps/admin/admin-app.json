@@ -1,0 +1,14 @@
+{
+  "name": "admin",
+  "path": "/admin",
+  "modules": [
+    {
+      "entry": ["/"],
+      "name": "home"
+    },
+    {
+      "entry": ["/login", "/users"],
+      "name": "users"
+    }
+  ]
+}

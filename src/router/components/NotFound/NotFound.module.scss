@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300&display=swap");
 
-.not-found-wrapper {
+.root {
     min-width: 100vw;
     min-height: 100vh;
     display: flex;
@@ -122,7 +122,7 @@
 }
 
 @media only screen and (min-width: 1080px) {
-    .not-found-wrapper {
+    .root {
         .text_group {
             flex: 0 0 30%;
             margin-left: 25%;
@@ -138,7 +138,7 @@
 }
 
 @media only screen and (max-width: 1079px) {
-    .not-found-wrapper {
+    .root {
         .text_group {
             flex: 0 0 100%;
             margin: 0;
