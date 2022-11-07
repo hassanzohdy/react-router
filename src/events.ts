@@ -7,7 +7,7 @@ export type RouterEvents = {
   onNavigating: (
     callback: (
       route: string,
-      navigationType: NavigationMode,
+      navigationMode: NavigationMode,
       previousRoute: string
     ) => void
   ) => EventSubscription;
@@ -15,7 +15,7 @@ export type RouterEvents = {
   //    * Callback when the router has changed the current route
   //    */
   //   onNavigated: (
-  //     callback: (route: string, navigationType: NavigationMode) => void
+  //     callback: (route: string, navigationMode: NavigationMode) => void
   //   ) => EventSubscription;
   /**
    * Triggered when locale code is about to change
@@ -33,13 +33,13 @@ export type RouterEvents = {
    * Triggered when page is about to be rendered
    */
   onRendering: (
-    callback: (route: string, navigationType: NavigationMode) => void
+    callback: (route: string, navigationMode: NavigationMode) => void
   ) => EventSubscription;
   /**
    * Triggered on page is rendered
    */
   onPageRendered: (
-    callback: (route: string, navigationType: NavigationMode) => void
+    callback: (route: string, navigationMode: NavigationMode) => void
   ) => EventSubscription;
 };
 
