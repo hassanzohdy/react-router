@@ -16,13 +16,12 @@ A powerful react router system to manage React Js App routes.
 - ✅ Page Refreshing when navigating to the same route, as an option.
 - ✅ Many helpers to navigate between routes using functions.
 - ❌ No ugly writing for routes in components.
-- ✅ Many helpers to navigate between routes using functions.
 
-## Before going on
+## React 17 And Lower
 
-This documentation will illustrate the package features, however, it is recommended to use it with [Mongez React](https://github.com/hassanzohdy/react) for better project organization.
+If you're using React 17, please use [Version 1 instead](https://github.com/hassanzohdy/react-router/tree/version-1).
 
-Route structure is the one used in [React Router DOM](https://v5.reactrouter.com/web/api/Route/path-string-string).
+Version 2 works with React `18` and higher.
 
 ## Installation
 
@@ -90,27 +89,6 @@ So let's create these two apps in our `src/apps` directory so it would be like t
      |-- admin
   |--- index.ts
 ```
-
-## Apps Path Alias
-
-To make lazy loading apps work, we need to define an absolute path for our apps, using [tsconfig.json](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) file or by using [link-module-alias](https://www.npmjs.com/package/link-module-alias) which is more recommended.
-
-If you're using `link-module-alias` then open `package.json` file and add to it the following code:
-
-```json
-"scripts": {
-  "postinstall": "link-module-alias"
-},
-"_moduleAliases": {
-  "apps": "src/apps"
-}
-```
-
-Then run `yarn postinstall` or `npm run postinstall`.
-
-> Please keep in mind that when you upgrade any package don't forget to run this command again.
-> If you're installing new package this command will run automatically so you won't need to run it.
-> If the `apps` is not defined in the path alias the lazy app loading won't work and would trigger an error.
 
 ## App Modules Declaration
 
@@ -292,22 +270,45 @@ Now let's create a `src/shared/apps-list.ts` file to set our apps list.
 ```
 
 ```ts
-// src/shared/apps-list.ts
-
-import { setApps } from "@mongez/react-router";
-
-import frontOfficeApp from "apps/front-office/front-office-modules.json";
+// src/shared/config/router.ts
+import { setRouterConfigurations, setApps } from "@mongez/react-router";
+import frontOfficeApp from "./../apps/front-office/front-office-modules.json";
 
 setApps([frontOfficeApp]);
+
+setRouterConfigurations({
+  //
+});
 ```
 
-> We used the `apps/` alias directly as we already using path alias.
+Now let's define the lazy loading loader, which will load the app provider and the module provider as well.
+
+```ts
+// src/shared/config/router.ts
+import { setRouterConfigurations, setApps } from "@mongez/react-router";
+import frontOfficeApp from "./../apps/front-office/front-office-modules.json";
+
+setApps([frontOfficeApp]);
+
+setRouterConfigurations({
+  lazyLoading: {
+    loaders: {
+      app: (app: string) => import(`./../apps/${app}/${app}-provider.ts`),
+      module: (app: string, module: string) =>
+        import(`./../apps/${app}/${module}/provider.ts`),
+    },
+    }
+  }  
+});
+```
+
+Here we told the router where you can load the app once the user hits the app path, and also where to find the module provider once the user hits one of the module entry path.
 
 Now let's head back to our index file and import our `apps-list.ts` file.
 
 ```tsx
 // src/index.ts
-import "./shared/apps-list";
+import "./src/shared/config/router";
 
 import router from "@mongez/react-router";
 
@@ -326,7 +327,6 @@ In `src/apps/front-office/home` we should have two files: `provider.ts` and `rou
 
 ```ts
 // src/apps/front-office/home/provider.ts
-
 import "./routes";
 ```
 
@@ -334,7 +334,6 @@ We just imported our `routes.ts` file, now let's add our routes there.
 
 ```ts
 // src/apps/front-office/home/routes.ts
-
 import router from "@mongez/router";
 import HomePage from "./components/HomePage";
 
@@ -342,6 +341,59 @@ router.add("/", HomePage);
 ```
 
 Now we'are ready to go as we're done with our setup.
+
+## Adding New Router
+
+Routes can be added in the router container using `router.add` method, it accepts four parameters:
+
+- `path`: The path of the route, it can be a string or an array of strings.
+- `component`: The component to be rendered when the route is matched.
+- `middleware`: an array of middleware to be executed before rendering the component.
+- `layout`: the Base layout component that page will be rendered inside it.
+
+```ts
+import HomePage from './HomePage';
+import Guardian from './middleware/Guardian';
+import BaseLayout from './layouts/BaseLayout';
+router.add("/", HomePage, [Guardian], BaseLayout);
+```
+
+The only required parameter is the `path` and the `component`, the rest are optional.
+
+You can also customize it by passing one argument as an object.
+
+```ts
+router.add({
+  path: "/",
+  component: HomePage,
+  middleware: [IsLoggedIn],
+  layout: BaseLayout,
+});
+```
+
+## Route Parameters
+
+We can define also route parameters, for example if we want to define a route that accepts a user id, we can do it like this:
+
+```ts
+router.add("/users/:id", UserPage);
+```
+
+Now we can access the user id in our `UserPage` component using `params` props.
+
+```tsx
+const UserPage = ({ params }) => {
+  const { id } = params;
+
+  return <div>User ID: {id}</div>;
+};
+```
+
+You can of course define multiple dynamic parameters in the route.
+
+```ts
+router.add("/users/:id/posts/:postId", PostPage);
+```
 
 ## Route Middleware
 
@@ -446,6 +498,34 @@ router.group({
 });
 ```
 
+The group function can group routes with the base path prefix, middleware, and layout.
+
+```ts
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  layout: BaseLayout,
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+    },
+    {
+      path: "/edit-profile",
+      component: EditProfilePage,
+    },
+    {
+      path: "/order-history",
+      component: OrderHistoryPage,
+    },
+    {
+      path: "/order-history/:id",
+      component: SingleOrderHistoryPage,
+    },
+  ],
+});
+```
+
 Our code now is more compact and cleaner, also you can pass an additional middleware to any route object if you want to add more middleware to certain routes.
 
 The prefix in the group method will be glued with all routes in the routes array, so the `AccountDashboardPage` route will be `/account/` but the last `/` will be trimmed by `MRR`.
@@ -454,7 +534,7 @@ The prefix in the group method will be glued with all routes in the routes array
 
 ## Page Base Layout
 
-Most of the apps has same layout structure such as a header and a footer among it the content of the page.
+Most of the apps has same layout structure such as a `header` and a `footer` among it the content of the page.
 
 This can be done easily with `MRR` by using `router.partOf` method.
 
@@ -502,7 +582,6 @@ Let's head back to our account module.
 ```ts
 // src/apps/front-office/account/routes.ts
 import router from "@mongez/react-router";
-
 import AccountDashboardPage from "./components/DashboardPage";
 import EditProfilePage from "./components/EditProfilePage";
 import OrderHistoryPage from "./components/OrderHistoryPage";
@@ -636,15 +715,19 @@ import router from "@mongez/react-router";
 router.add("/login", LoginPage);
 ```
 
+This is done by `MRR` automatically as it detects the current app path during adding the route information, so you don't need to worry about it.
+
 ### Route Path Structure
 
-Based on the app configurations, we've `7` route structures.
+Based on the app configurations, we've `7` different route structures.
 
 The full route structure is: `/basePath/appPath/(localeCode?)/routePath`
 
+The following are the possible route structures (after the base path segments).
+
 1. `/`: The app path
 2. `/en`: The app path appended with locale code
-3. `/en/contact-us`: The contact us route prefixed with locale code.
+3. `/en/contact-us`: The contact us `route` prefixed with locale code.
 4. `/admin`: Admin app home path.
 5. `/en/admin`: Admin app home path with `en` locale code.
 6. `/en/admin/customers`: Admin app customers page with `en` locale code.
@@ -652,7 +735,7 @@ The full route structure is: `/basePath/appPath/(localeCode?)/routePath`
 
 So our full route structure will be something like:
 
-`/localeCode(optional)/app-path/route`
+`{/localeCode?}{/app-path?}/route`
 
 > When you define your route don't add the app path or locale code, for example:
 
@@ -666,135 +749,281 @@ So our full route structure will be something like:
 
 ## Router Configurations
 
-`MRR` doesn't require any configurations to be set, but its recommended to define some configurations such as the locale code used in the project.
+`MRR` is shipped with a powerful router configuration, you can configure the router to your needs.
 
-In `src/shared` directory let's create a new file `config.ts`
+Let's head back again to our `src/configs/router.ts` and see the available configurations.
 
 ```ts
-// src/shared/config.ts
-import { setRouterConfigurations } from "@mongez/react-router";
+// src/shared/config/router.ts
+import { setRouterConfigurations, setApps } from "@mongez/react-router";
+import frontOfficeApp from "./../apps/front-office/front-office-modules.json";
+
+setApps([frontOfficeApp]);
 
 setRouterConfigurations({
-  // if your app is multilingual then define all locale codes in the app
-  localeCodes: ["en", "ar"],
-  // if the production build will be in a directory and not the root, then define the directory path in basePath
-  basePath: "/",
+  localization: {
+    localeCodes: ['en', 'ar'],
+    defaultLocaleCode: 'en',
+changeLanguageReloadMode: 'soft', // soft reload will re-render the current page, hard reload will reload the whole app
+  },
+  forceRefresh: true, // will re-render the page if user clicks on the same route link
+  strict: true, // run React in Strict Mode
+  rootComponent: Root, // the root component that will wrap the whole app, can be useful for adding global settings for one time to your UI like wrapping the whole app with a context provider.
+  lazyLoading: {
+    loadingComponent: Progress, // the component that will be rendered while the lazy loaded component is loading
+    loaders: {
+      app: (app: string) => import(`./../apps/${app}/${app}-provider.ts`),
+      module: (app: string, module: string) =>
+        import(`./../apps/${app}/${module}/provider.ts`),
+    },
+    }
+  }  
 });
 ```
-
-Now import the file in the index file.
-
-```ts
-// src/index.ts
-
-// its important to import the config file before any route functions.
-import "./shared/config";
-import "./shared/apps-list";
-import router from "@mongez/react-router";
-
-router.scan();
-```
-
-> If you're using [Mongez React](https://github.com/hassanzohdy/react), it can be part of the entire application configurations.
 
 Here is the full list of available configurations
 
 ```ts
 /**
- * Router configuration options list
+ * Object Type
  */
-type RouterConfigurations = {
+export type ObjectType = Record<string, any>;
+
+/**
+ * React Component Type
+ */
+export type Component = React.FC<any> | React.ComponentType<any>;
+
+/**
+ * Url Matcher handler
+ */
+export type UrlMatcher = (pattern: string) => {
+  regexp: RegExp;
+  keys: { name: string }[];
+};
+
+/**
+ * Not found configurations
+ */
+export type NotFoundConfigurations = {
+  /**
+   * Mode Type
+   * If set to `render`, then the 404 component will be rendered.
+   * Which requires you to define the 404 component.
+   *
+   * If set to `redirect`, then the user will be redirected to the defined path.
+   * Which requires you to define the redirect path (/404 by default).
+   */
+  mode?: "render" | "redirect";
+  /**
+   * 404 Component
+   *
+   * @default NotFound
+   */
+  component?: Component;
+  /**
+   * 404 Redirect Path
+   *
+   * @default /404
+   */
+  path?: string;
+};
+
+/**
+ * Change languages Mode
+ */
+export type ChangeLanguageReloadMode = "soft" | "hard";
+
+/**
+ * Lazy loading options
+ */
+export type LazyLoadingOptions = {
+  /**
+   * Loaders Options
+   */
+  loaders: Loaders;
+  /**
+   * Preload Component which will be displayed while the app/module is being loading
+   */
+  loadingComponent?: Component;
+  /**
+   * Whether to render only the loader or render the loader over the current page
+   *
+   * If set to `true` then the loader will be rendered over the current page
+   * By rendering the loader before the page component, no styling will
+   * be applied to the page, you can use this to show a loading screen in your loader
+   */
+  renderOverPage?: boolean;
+};
+
+/**
+ * Localization Options
+ */
+export type LocalizationOptions = {
+  /**
+   * Change Language reload mode
+   * Used when calling `changeLocaleCode` function
+   *
+   *  If st to `soft` then it will update the url with the new locale code
+   * and re-render the current page.
+   *
+   * If set to `hard` then it will reload the page with the new locale code.
+   * @default soft
+   */
+  changeLanguageReloadMode?: ChangeLanguageReloadMode;
   /**
    * Default locale code
+   *
+   * @default en
    */
   defaultLocaleCode?: string;
   /**
-   * Locale codes list
+   * Project localeCodes
+   *
+   * @default ["en"]
    */
   localeCodes?: string[];
+};
+
+/**
+ * Query String Options
+ */
+export type QueryStringOptions = {
   /**
-   * Router preloader that will be displayed until the module is loaded
-   *
-   * @default React.Fragment
+   * Query String Object to String parser
    */
-  preloader?: React.ComponentType<any>;
+  objectParser?: (queryString: string) => ObjectType;
   /**
-   * If set to true, the current layout will not be unmounted and the preloader (if set) will be displayed before it
-   * Please note the of the base layout and the preloader will have position `relative`
-   * This feature is still experimental and can be changed in future versions
-   * @experimental
-   * @default false
+   * Query String Object to String parser
    */
-  preloadOverlay?: boolean;
+  stringParser?: (queryObject: ObjectType) => string;
+};
+
+/**
+ * Grouped routes options
+ */
+export type GroupedRoutesOptions = {
   /**
-   * App base path in production
+   * Grouped routes
+   */
+  routes: PublicRouteOptions[];
+  /**
+   * Prefix path for all routes
+   */
+  path?: string;
+  /**
+   * Middleware
+   */
+  middleware?: Middleware;
+  /**
+   * Layout
+   */
+  layout?: Component;
+};
+
+/**
+ * Link component options
+ */
+export type LinkOptions = {
+  /**
+   * Component to be used as a link
    *
-   * @default: /
+   * @default 'a'
+   */
+  component?: Component | string;
+};
+
+/**
+ * Router Configurations
+ */
+export type RouterConfigurations = {
+  /**
+   * Project Base Path
+   * Its recommended to set it with production check like this:
+   * process.env.NODE_ENV === "production" ? "/project-name" : "/"
+   * @default "/"
    */
   basePath?: string;
   /**
-   * Determine whether to re-render the page
-   * When navigating to any page, even same current page
+   * Localization settings
+   */
+  localization?: LocalizationOptions;
+  /**
+   * Enable force refresh,
+   * If set to true, when the user navigates to the same page,
+   * it will re-render the page again.
    *
-   * Please note that can not be changed during the application is running
-   * as its value is cached at the application bootstrap
-   *
-   * @default: true
+   *  @default true
    */
   forceRefresh?: boolean;
   /**
-   * Scroll to top of the page when rendering new page
+   * Url Matcher
+   * This can be used to allow more dynamic url matching.
+   */
+  urlMatcher?: UrlMatcher;
+  /**
+   * Query string options
+   */
+  queryString?: QueryStringOptions;
+  /**
+   * Whether to enable strict mode
    *
-   * @default true
+   * @default false
    */
-  scrollTop?: boolean;
+  strict?: boolean;
   /**
-   * Top Root component that will wrap the entire application regardless the lazy module
+   * Root component that will be used to wrap all the pages
+   * This component will be rendered only once.
    */
-  rootComponent?: React.ComponentType<any>;
+  rootComponent?: Component;
   /**
-   * Determine the reload mode when switching language
-   * It can be either `soft` which will trigger the `onLanguageChange` event and will not reload the page but will re-render the same page
-   * Or `hard` which will reload the page
-   * 
-   * @default: hard
+   * App And Module Loading Options
    */
-  switchLanguageReloadMode: "soft" | "hard";
+  lazyLoading?: LazyLoadingOptions;
   /**
-   * NotFound Options
+   * Not Found Page Settings
    */
-  notFound?: {
-    /**
-     * Not found mode
-     * The redirect mode will redirect the client to the path
-     *
-     * Please note that can not be changed during the application is running
-     * as its value is cached at the application bootstrap
-     *
-     * @default: render
-     */
-    mode?: "redirect" | "render";
-    /**
-     * The route that will be redirected when the page is not found
-     * Works only when the mode is set to redirect
-     *
-     * @default: /404
-     */
-    route?: string;
-    /**
-     * The component that will be rendered when the page is not found
-     * Works only when the mode is set to render
-     *
-     * @default: React.Fragment
-     */
-    component?: React.ComponentType<any>;
-  };
+  notFound?: NotFoundConfigurations;
+  /**
+   * Link component options
+   */
+  link?: LinkOptions;
 };
 ```
+
+Let's see these configurations in details
+
+<!-- Table to illustrate router configurations -->
+| Configuration | Description | Default | Type |
+| --- | --- | --- |
+| `basePath` | The base path of the project, it's recommended to set it with production check like this: `process.env.NODE_ENV === "production" ? "/project-name" : "/"` | `/` | `string` |
+| `localization.localeCodes` | An array contains list of locale codes that will be used in the project | `["en"]` | `string[]` |
+| `localization.defaultLocaleCode` | The default locale code that will be used in the project | `en` | `string` |
+| `localization.changeLanguageReloadMode` | The mode that will be used when changing the language, if set to `soft` then it will update the url with the new locale code and re-render the current page, if set to `hard` then it will reload the page with the new locale code | `soft` | `soft`, `hard` |
+| `forceRefresh` | Whether to force refresh the page when the user navigates to the same page | `true` | `boolean` |
+| `urlMatcher` | This can be used to allow more dynamic url matching, for example using, Most of the packages for parsing route patterns work with regular expressions (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp) or a super-tiny alternative [regexparam](https://github.com/lukeed/regexparam)).
+
+  | `undefined` | `(pattern: string) => { regexp: RegExp; keys: { name: string }[]; }` |
+| `queryString.objectParser` | Query String Object to String parser | `undefined` | `(queryString: string) => ObjectType` |
+| `queryString.stringParser` | Query String Object to String parser | `undefined` | `(queryObject: ObjectType) => string` |
+| `strict` | Whether to enable React strict mode | `false` | `boolean` |
+| `rootComponent` | Root component that will be used to wrap all the pages, this component will be rendered only once | `undefined` | `Component` |
+| `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
+| `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |
+| `lazyLoading.renderOverPage` | Whether to render only the loader or render the loader over the current page, if set to `true` then the loader will be rendered over the current page, by rendering the loader before the page component, no styling will be applied to the page, you can use this to show a loading screen in your loader | `false` | `boolean` |
+| `notFound.component` | Component to be rendered when the page is not found | `InternalNotFoundPageComponent` | `Component` |
+| `notFound.redirectTo` | Redirect to a specific page when the page is not found | `/404` | `string` |
+| `link.component` | Component to be used as a link | `a` | `Component` |
+
+> If you're using [Mongez React](https://github.com/hassanzohdy/react), it can be part of the entire application configurations.
 
 ## Root Component
 
 The root component will wrap the entire application regardless wether current route is being lazy loaded or not.
+
+It can be defined in the [router configurations](#router-configurations).
+
+This component will be only rendered once during the application bootstrap.
 
 > Root Component does not receive any props at all.
 
@@ -818,26 +1047,26 @@ export default function HomePage() {
 
 Simply put, a simple navigation to route by using `to` or `href` prop.
 
-To navigate to route in a new tab:
+To navigate to route in a `new tab`
 
 ```tsx
 <Link to="/account" newTab>
   Go To Account Page In New Tab
 </Link>
-// outputs: <a href="/account" target="_blank" rel="noopener noreferrer">
 ```
 
-To navigate to route in another locale code:
-
-To navigate to route in another app:
+To navigate to route in `another app`
 
 ```tsx
 <Link to="/customers/100" app="admin">
   Go To Customer page in admin app.
 </Link>
-
 // outputs: /admin/customers/100
 ```
+
+> The app prop accepts the app name not the app path
+
+To navigate to route with another `locale code`
 
 ```tsx
 <Link to="/account" localeCode="ar">
@@ -855,213 +1084,55 @@ Navigate to another app with a locale code
 // outputs: /ar/admin/account
 ```
 
-> The app prop accepts the app name not the app path
-
 To navigate to a url, just set the url :p.
 
 ```tsx
 <Link to="https://google.com">Go To Google</Link>
 ```
 
-Make the link as email:
+Make the link as email
 
 ```tsx
-<Link mailTo="hassanzohdy@gmail.com">Email As Link</Link>
+<Link email="hassanzohdy@gmail.com">Email As Link</Link>
 // outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
 ```
 
-or using `MailLink` component directly
-
-```tsx
-import { MailLink } from "@mongez/react-router";
-
-<MailLink to="hassanzohdy@gmail.com">Email As Link</MailLink>;
-// outputs: <a href="mailto:hassanzohdy@gmail.com" .. />
-```
-
-Make the link as a telephone number:
+Make the link as a telephone number
 
 ```tsx
 <Link tel="+201002221122">Phone Number As Link</Link>
 // outputs: <a href="tel:+201002221122" .. />
 ```
 
-or using `MailLink` component directly
+You can also set the component to be used as a link
 
 ```tsx
-import { TelLink } from "@mongez/react-router";
-
-<TelLink to="+201002221122">Phone Number As Link</TelLink>;
-// outputs: <a href="tel:+201002221122" .. />
+<Link to="/account" component={MyCustomLinkComponent}>
+  Go To Account Page
+</Link>
+// outputs: <MyCustomLinkComponent to="/account" .. />
 ```
 
-Of course you can send any other html props such as `className`, `id` and so on.
-
-Use External Link
+Passing `onClick` prop can be done as well.
 
 ```tsx
-import { ExternalLink } from "@mongez/react-router";
-
-<ExternalLink to="https://google.com">Google</ExternalLink>;
-// outputs: <a href="https://google.com">Google</a>
+<Link to="/account" onClick={handleClick}>
+  Go To Account Page
+</Link>
 ```
 
-Open it in a new tab
+## Changing Locale Code to another locale code
+
+We can switch to another locale code by using `changeLocaleCode` function
 
 ```tsx
-import { ExternalLink } from "@mongez/react-router";
-
-<ExternalLink newTab to="https://google.com">
-  Google
-</ExternalLink>;
-// outputs: <a target="_blank" rel="noopener noreferrer" href="https://google.com">Google</a>
-```
-
-## Redirect Component
-
-This component usually used with middleware as mentioned earlier in the [Middleware section](#route-middleware).
-
-```tsx
-// src/apps/admin/account/middleware/Guardian.tsx
-import user from "somewhere-in-the-app";
-import React from "react";
-import { Redirect } from "@mongez/react-router";
-
-export default function Guardian() {
-  if (user.isNotLoggedIn()) {
-    return <Redirect to="/login" localeCode="fr" app="admin" />;
-  }
-
-  return null;
-}
-```
-
-The previous guardian will navigate to `/admin/fr/login` as the `admin` app path is `/admin` and the locale code is appended after it then finally the route itself.
-
-## Routes Structure
-
-There are 4 types of routes, let's take an example of `/login` route for more illustrations.
-
-1. A route in the base app: final route: `/login`, which is constructed as `page-route`.
-2. A route in the base app with locale code: final route: `/login`, which is constructed as `/locale-code/page-route`.
-3. A route in another app, such as admin: `/admin/login`, which is constructed as `/app-path/page-route`.
-4. A route in another app with a locale code, such as admin: `/admin/ar/login`, which is constructed as `/app-path/locale-code/page-route`.
-
-## Receiving router params
-
-Let's take a complex route and see how we can take its values.
-
-Our route path will be: `/admin/en/customers/101` and will be rendered in `CustomerPage` Component.
-
-This route path is defined as `/customers/:id`.
-
-```ts
-// src/apps/admin/customers/routes.ts
-
-import router from "@mongez/react-router";
-import CustomerPage from "./components/CustomerPage";
-
-router.add("/customers/:id", CustomerPage);
-```
-
-Now let's head to our `CustomerPage` component.
-
-```tsx
-// src/apps/admin/customers/components/CustomerPage.tsx
-
-import React from "react";
-
-export default function CustomerPage({ params }) {
-  const { localeCode, id } = params;
-  console.log(localeCode); // en
-  console.log(id); // 101
-
-  return <div>// component content</div>;
-}
-```
-
-The `/admin` segment will be ignored, we can only get `localeCode` which is defined by `MRR` internally and our defined segment `/:id` is transformed into `id` from the params object.
-
-## Route Wild Card
-
-Let's take another scenario where we have dynamic routes such as:
-
-`/categories/electronics/smart-phones/tablets`
-
-The route is defining the category tree, as we will access the tablets category page.
-
-In that sense, the route can be something else like `/categories/electronics/smart-phones` where we'll go to Smart Phones category.
-
-To get the dynamic route we can use wildcards.
-
-```ts
-// src/apps/front-office/categories/routes.ts
-
-import router from "@mongez/react-router";
-import CategoryPage from "./components/CategoryPage";
-
-router.add("/categories/:slug(.+)", CategoryPage);
-```
-
-In our `CategoryPage` component
-
-```tsx
-// src/apps/front-office/categories/components/CategoryPage.tsx
-
-import React from "react";
-
-export default function CategoryPage({ params }) {
-  const { slug } = params;
-  console.log(slug); // /electronics/smart-phones
-
-  return <div>// component content</div>;
-}
-```
-
-You can also use the `dynamicSegment` helper for more readability.
-
-```ts
-// src/apps/front-office/categories/routes.ts
-
-import router, { dynamicSegment } from "@mongez/react-router";
-import CategoryPage from "./components/CategoryPage";
-
-router.add("/categories/" + dynamicSegment("slug"), CategoryPage);
-```
-
-Will achieve the same result.
-
-### More Restrict Route Segments
-
-Sometimes, segments such as `:id` is usually integers only, so we can define a route that accepts only integer values in the route so we don't have to make another validation step on the given id, we can use `integerSegment` helper.
-
-```ts
-// src/apps/admin/customers/routes.ts
-
-import router, { integerSegment } from "@mongez/react-router";
-import CustomerPage from "./components/CustomerPage";
-
-router.add("/customers/" + integerSegment("id"), CustomerPage);
-```
-
-Now if the user hits `/customers/some-text` he/she will be redirected automatically to not found page, a `/customers/101` route will be valid though.
-
-Another helper function `floatSegment` can be used for float values.
-
-## Switching to another locale code
-
-We can switch to another locale code by using `switchLang` function
-
-> Starting from v1.0.60 it will make a full page reload instead of rerendering due to issues with switching navigation styles.
-
-```tsx
-import { switchLang } from '@mongez/react-router';
+import { changeLocaleCode } from '@mongez/react-router';
 
 import React from 'react'
 
 export default function Header() {
   const onClick = e => {
-    switchLang('ar'); // refreshes the page and changes the locale code
+    changeLocaleCode('ar'); // refreshes the page and changes the locale code
   };
 
   return (
@@ -1072,17 +1143,21 @@ export default function Header() {
 }
 ```
 
-> Starting from v1.0.62 you can determine whether to be hard reload (default) or soft reload by passing `reloadMode`
+This will update the `localeCode` in the URL and refresh the page.
+
+Based on the current router configurations, it will be determined whether to make a `soft` reload or a `hard` reload.
+
+If it is a `soft` reload, it will only rerender the current page, otherwise, it will refresh the page.
 
 ```tsx
-import { switchLang } from '@mongez/react-router';
+import { changeLocaleCode } from '@mongez/react-router';
 
 import React from 'react'
 
 export default function Header() {
   const onClick = e => {
-    switchLang('ar', 'soft'); // refreshes the page and changes the locale code without reloading the page
-    switchLang('ar', 'hard'); // Reload the page
+    changeLocaleCode('ar', 'soft'); // refreshes the page and changes the locale code without reloading the page
+    changeLocaleCode('ar', 'hard'); // Reload the page
   };
 
   return (
@@ -1198,52 +1273,60 @@ import { currentRoute } from "@mongez/react-router";
 console.log(currentRoute()); // will be something like /login or /account
 ```
 
-## Get full url of the page
+> Please note that currentRoute function does not return the locale code nor the app path, only the route path.
 
-To get full page path, we can use `url` function.
+## Managing Query String
 
-```tsx
-// src/apps/front-office/front-office-provider.ts
-import { url } from "@mongez/react-router";
+Another important feature that must be mentioned here is the `queryString` feature, it allows you to manage the query string in the URL.
 
-// detect current route
-console.log(url()); // will be something like https://sitename.com/online-store/account
-```
+### Get Query String As Object
 
-## Route Concatenation
-
-Sometimes you may need to concat multiple routes in one route, for example adding a route from a variable with another variable to generate a brand new route, luckily you can use `concatRoute` helper function to do it for you.
-
-```ts
-import { concatRoute } from "@mongez/react-router";
-
-const localeCode = "ar";
-
-const route = "login";
-
-const appPath = "/admin";
-
-const fullRoutePath = concatRoute(appPath, localeCode, route); // /admin/ar/login
-```
-
-Each argument can start with/without a trailing slash, also any doubled slashes will be converted into one slash and if there is any ending slashed will be trimmed as well.
-
-```ts
-import { concatRoute } from "@mongez/react-router";
-
-const localeCode = "ar";
-
-const route = "//login//";
-
-console.log(localeCode, route); // /ar/login
-```
-
-## Updating query string
-
-We can also update query string in the url with/without navigating to the route with the new query string by using `updateQueryString` helper function, this can be useful for cases such as filtering as we can only update the route without a full new re-render to the page.
+We can use `queryString` object to access all query string methods, to get the entire query string as an object, use `queryString.all()`.
 
 ```tsx
-import { updateQueryString } from "@mongez/react-router";
+import { queryString } from "@mongez/react-router";
+
+// get query string as object
+
+// sitename.com?name=John&age=30&id[]=1&id[]=2
+const queryStringParams = queryString.all();  // {name: 'John', age: 30, id: [1, 2]}
+```
+
+It will automatically convert the query string to an object, if the query string has an array, it will be converted to an array.
+
+Also any numbers will be converted to numbers.
+
+## Get a single value from query string
+
+To get a single value from the query string, use `queryString.get('key', defaultValue: any)`
+
+```tsx
+import { queryString } from "@mongez/react-router";
+
+// get a param from query string
+const name = queryString.get("name"); // John
+
+// if not found return default value
+const id = queryString.get("id", "12"); // 12
+```
+
+### Get Query String as string
+
+To get the entire query string as a string, use `queryString.toString()`
+
+```tsx
+import { queryString } from "@mongez/react-router";
+
+// get query string as string
+const queryString = queryString.toString(); // name=John&age=30&id[]=1&id[]=2
+```
+
+### Update query string
+
+We can also update query string in the url with/without navigating to the route with the new query string by using `update` function, this can be useful for cases such as filtering as we can only update the route without a full new re-render to the page.
+
+```tsx
+import { queryString } from "@mongez/react-router";
 
 export default function FilterData() {
   const filter = (e) => {
@@ -1256,7 +1339,7 @@ export default function FilterData() {
     };
 
     axios.get("/filter", filterData).then((response) => {
-      updateQueryString(filterData);
+      queryString.update(filterData);
     });
   };
 
@@ -1271,49 +1354,46 @@ export default function FilterData() {
 }
 ```
 
-If we would like to navigate to the same page with the updated query string, we can set the second argument to true.
+The `update` method accept either an object or a string, if it's an object, it will be converted to a query string and replace the current query string, if it's a string, it will be used to replace to the current query string.
+
+If you want to update the query string and re-render the page, pass `true` as the second argument.
 
 ```tsx
-import { updateQueryString } from "@mongez/react-router";
-
-export default function FilterData() {
-  const filter = (e) => {
-    // Just dummy data for demo only
-    const filterData = {
-      name: "",
-      email: "",
-      age: 0,
-      published: true,
-    };
-
-    axios.get("/filter", filterData).then((response) => {
-      updateQueryString(filterData, true); // update and navigate
-    });
-  };
-
-  return (
-    <div>
-      <form onSubmit={filter}>
-        ...
-        <button>Filter</button>
-      </form>
-    </div>
-  );
-}
+queryString.update(filterData, true);
 ```
 
-## Updating route without navigation
+## Updating route without navigation (Silent Navigation)
 
-> Added in v1.0.60
-
-Sometimes you might need to update the route but without navigating to it, this can be done using `updateRoute` helper function.
+Sometimes you might need to update the route but without navigating to it, this can be done using `silentNavigation` helper function.
 
 ```tsx
-import { updateRoute } from "@mongez/react-router";
+import { silentNavigation } from "@mongez/react-router";
 
 
 setTimeout(() => {
-  updateRoute('/home'); // update the route but do not navigate to it
+  silentNavigation('/home'); // update the route but do not navigate to it
+}, 3000);
+```
+
+You can also pass the second argument if you want to update the query string as well.
+
+```tsx
+import { silentNavigation } from "@mongez/react-router";
+
+
+setTimeout(() => {
+  silentNavigation('/home', { name: 'John' }); // update the route but do not navigate to it // /home?name=John
+}, 3000);
+```
+
+Query string can also be set as string.
+
+```tsx
+import { silentNavigation } from "@mongez/react-router";
+
+
+setTimeout(() => {
+  silentNavigation('/home', 'name=John'); // update the route but do not navigate to it // /home?name=John
 }, 3000);
 ```
 
@@ -1322,170 +1402,14 @@ setTimeout(() => {
 If the url has a `#hash` value we can get it using `hash` helper function.
 
 ```ts
-import { hash } from "@mongez/react-router";
+import { getHash } from "@mongez/react-router";
 
 // if the url is something like https://site-name.com/online-store/products/10#comments
 
-console.log(hash()); // comments
-```
-
-To get the value with the hash, pass an argument with true value to the function.
-
-```ts
-import { hash } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products/10#comments
-
-console.log(hash(true)); // #comments
-```
-
-## Get query string
-
-To get a value from query string, we can use the `queryString` helper function, this function returns three internal methods.
-
-To get a key value from query string, we can use `get` method:
-
-```ts
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-console.log(queryString().get("sortBy")); // price
-
-console.log(queryString().get("categoryId")); // 10
-```
-
-Please note that if you're going to get multiple values from query string, initiate the `queryString()` in a variable then use the variable instead.
-
-```ts
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-const params = queryString();
-
-console.log(params.get("sortBy")); // price
-console.log(params.get("categoryId")); // 10
-```
-
-You can also get a default value if the query param does not exist in the url.
-
-```ts
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-const params = queryString();
-
-console.log(params.get("sortBy")); // price
-
-console.log(params.get("sortDirection", "desc")); // desc
-```
-
-To get all query string params in object, we can use the `all` method.
-
-```ts
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-console.log(queryString().all()); // {sortBy: price, categoryId: 10}
-```
-
-To get it as a string use `toString` method.
-
-```ts
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-console.log(queryString().toString()); // sortBy=price&categoryId=10
-```
-
-> Each time you call `queryString()` it starts collecting values from the query params value, so be aware to not cache its value if the query string params will be changed you need to call the method again.
-
-✅
-
-```ts
-// src/front-office/products/components/ProductsListPage.tsx
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-console.log(queryString().toString()); // sortBy=price&categoryId=10
-import React from "react";
-
-export default function ProductsListPage() {
-  const params = queryString();
-
-  console.log(params.get("sortBy")); // price
-
-  // Or you can cache its value when navigating to the products list each time
-  const params = React.useMemo(() => queryString(), []);
-  return <div>//</div>;
-}
-```
-
-❌
-
-```ts
-// src/front-office/products/components/ProductsListPage.tsx
-import { queryString } from "@mongez/react-router";
-
-// if the url is something like https://site-name.com/online-store/products?sortBy=price&categoryId=10
-
-console.log(queryString().toString()); // sortBy=price&categoryId=10
-import React from "react";
-
-const params = queryString();
-
-export default function ProductsListPage() {
-  console.log(params.get("sortBy")); // empty string
-
-  return <div>//</div>;
-}
-```
-
-## Get project base url
-
-To get the base url, import `baseUrl` helper function, this will get the domain path suffixed with `basePath` that is defined in [the router configurations section](#router-configurations).
-
-```ts
-import { baseUrl } from "@mongez/react-router";
-
-console.log(baseUrl()); // something like https://sitename.com/online-store where /online-store is the basePath of the project.
-```
-
-## Get current page direction
-
-To get current page direction use `currentDirection` helper.
-
-`currentDirection(): string`
-
-```ts
-import { currentDirection } from "@mongez/react-router";
-
-console.log(currentDirection()); // ltr for example
-```
-
-Please note that this utility depends on `document.documentElement`'s `dir` property, if not set, then `ltr` will be returned as default.
-
-## Direction Is
-
-Check if current direction matches the given direction, using `directionIs` utility.
-
-`directionIs(direction: 'ltr' | 'rtl'): boolean`
-
-```ts
-import { directionIs } from "@mongez/react-router";
-
-console.log(directionIs("ltr")); // true
-console.log(directionIs("rtl")); // false
+console.log(getHash()); // comments
 ```
 
 ## Get Previous Route
-
-> Added in v1.0.43
 
 To get previous route use `previousRoute` function.
 
@@ -1499,234 +1423,46 @@ console.log(previousRoute()); // /login
 
 ## Router Events
 
-> Added in v1.0.43
-
 You may listen to any router change based on the navigation link change.
 
 ```ts
 import { routerEvents } from "@mongez/react-router";
 
-routerEvents.onChange(() => {
-  // route changed
-});
 ```
 
-## Request Api Preload
+There are mainly `5` events that can be listened to.
 
-> Added in v1.0.60
+- `onNavigating(callback: (route: string, navigationMode: NavigationMode, previousRoute: string) => void) => EventSubscription`: This event will be fired just before finding the proper route handler for current route, it receives the current route, navigation type and previous route.
+- `onLocaleChanging(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just before changing the locale code, it receives the current locale and the new locale.
+- `onLocaleChanged(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just after changing the locale code, it receives the current locale and the new locale, this event is triggered only if the change mode is `soft`.
+`onRendering(callback: (route: string, navigationMode: NavigationMode) => void): EventSubscription`
+`onPageRendered: (callback: (route: string, navigationMode: NavigationMode) => void) => EventSubscription`: This event will be fired just after rendering the page, it receives the current route and the navigation mode.
 
-Another powerful feature that comes with the router is the ability to [preload data](https://github.com/hassanzohdy/mongez-react-utils#preload) before the page is loaded, this is useful when you want to load data before the page is loaded, for example, you want to load the current user data before the page is loaded, you can do that by setting `preload` property to your api request.
+The navigation type determine how is the current route being rendered, it can be one of the following:
+
+- `navigation`: when the user clicks on a link or uses the `navigateTo` function, and normal navigation from url.
+- `changeLocaleCode`: when the user changes the locale code using `changeLocaleCode` function.
+- `swinging`: when the user uses the back/forward buttons in the browser.
+- `refresh`: when calling the `refresh` function.
 
 ```ts
-import router from "@mongez/react-router";
+import { routerEvents } from "@mongez/react-router";
 
-import AccountDashboardPage from "./components/DashboardPage";
-import EditProfilePage from "./components/EditProfilePage";
-import OrderHistoryPage from "./components/OrderHistoryPage";
-import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
-import Guardian from "./middleware/Guardian";
-import { getProfile, getOrders, getOrder } from "./services/profile";
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-      preload: getProfile,
-    },
-    {
-      path: "/edit-profile",
-      component: EditProfilePage,
-      preload: getProfile, // will not load the profile again if the user opened the profile page first, the response will be cached
-    },
-    {
-      path: "/order-history",
-      component: OrderHistoryPage,
-      preload: getOrders,
-    },
-    {
-      path: "/order-history/:id",
-      component: SingleOrderHistoryPage,
-      preload: ({ params }) => getOrder(params.id),
-    },
-  ],
+const subscription = routerEvents.onNavigating((route, navigationMode, previousRoute) => {
+  console.log(route, navigationMode, previousRoute);
 });
 ```
 
-Amazing, right! this is how you can preload data before the page is loaded, it will show the loading indicator until the data is loaded, if there is an error it will be shown instead of rendering the page component, on success, the page will be loaded.
-
-The callback of the preload receives the same props that are sent to the normal route component, so you can use them in the preload callback, see the order **details history route**.
-
-You can receive the response in `response` prop along with all other page component props.
-
-### Multiple Requests Preloaded
-
-You can also load multiple requests at the same time, just pass an array of requests to the `preload` property.
+Any event returns [Event Subscription](https://github.com/hassanzohdy/mongez-events#unsubscribe-to-event) which can be used to unsubscribe from the event.
 
 ```ts
-import router from "@mongez/react-router";
-import AccountDashboardPage from "./components/DashboardPage";
-import { getProfile, getOrdersStats } from "./services/profile";
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-      preload: [getProfile, getOrdersStats],
-    },
-  ],
-});
+// any time later
+subscription.unsubscribe();
 ```
 
-The page will not be rendered until all the requests are loaded successfully, if one of them fails, the error will be shown instead of the page.
-
-### Dependant Requests
-
-Sometimes you want to load a request based on the result of another request, for example, you want to load the cart data but needs to load the `app configurations` request that loads some configurations of the cart, for instance getting reward points value ratio (to be converted to money amount), in that sense, we can use [pipeline](https://github.com/hassanzohdy/mongez-react-utils#dependant-requests).
-
-```tsx
-import { pipeline } from '@mongez/react-utils';
-import router from "@mongez/react-router";
-import CartPage from "./components/CartPage";
-import { getCart, getAppConfigurations } from "./services/cart";
-
-router.group({
-  path: "/cart",
-  routes: [
-    {
-      path: "/",
-      component: CartPage,
-      preload: pipeline([
-        getAppConfigurations, 
-        getCart
-      ]),
-  ],
-});
-```
-
-As mentioned in the [docs](https://github.com/hassanzohdy/mongez-react-utils#dependant-requests) each request receives the params sent to the props along with the previous loaded response and all loaded responses.
-
-### Preload Caching Response
-
-By default, `preload` will cache the response of any request, this will decrease multiple calls of the same api in the application, for example, if you have a profile page that loads the current user data, and you have edit profile page that loads the same data, the second page will not make a request to the server, instead, it will use the cached response of the first page and vice versa.
-
-You can override this behavior by setting `cache` property to `false` in the `preloadConfig` property.
-
-```tsx
-import router from "@mongez/react-router";
-import AccountDashboardPage from "./components/DashboardPage";
-import { getProfile } from "./services/profile";
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-      preload: getProfile,
-      preloadConfig: {
-        cache: false,
-      },
-    },
-  ],
-});
-```
-
-`preloadConfig` will receive any configuration that can be passed to `payload` function, you can also set the general configurations of the preload in the router configurations list under `preload` property.
-
-### Loading And Error Component
-
-The preload requires to pass a component that should be rendered during the loading phase or if there is an error occurred while loading the request, this can also be set in `preloadConfig` key in the route object or in the router configurations list under `preload.loadingErrorComponent` property.
-
-```tsx
-import router from "@mongez/react-router";
-import AccountDashboardPage from "./components/DashboardPage";
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-      preload: getProfile,
-      preloadConfig: {
-        loadingErrorComponent: LoadingErrorComponent,
-      },
-    },
-  ],
-});
-```
-
-If you want to set global configurations for preload, use `setRouterConfigurations` directly from `@mongez/react-utils` package.
-
-```tsx
-import { setRouterConfigurations } from "@mongez/react-utils";
-import router from "@mongez/react-router";
-import AccountDashboardPage from "./components/DashboardPage";
-import LoadingErrorComponent from "./components/LoadingErrorComponent";
-
-setPreloadConfiguration({
-  loadingErrorComponent: LoadingErrorComponent,
-});
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-      preload: getProfile,
-    },
-  ],
-});
-```
+This will stop listening to the event.
 
 ## Change Log
 
-- 1.0.68 (27 Oct 2022)
-  - Added preload cache feature.
-- 1.0.62 (11 Oct 2022)
-  - Added `reloadMode` to switch lang to reload the page or not.
-- 1.0.60 (02 Oct 2022)
-  - Added `preload` feature.
-  - Updated `switchLang` to make hard reload instead of soft reload.
-  - Added `updateRoute` utility to update the route without navigating to it.
-  - Enhanced `Link` props definition for autocomplete.
-- 1.0.55 (18 Aug 2022)
-  - Fixed returned current route.
-- 1.0.52 (01 Aug 2022)
-  - Fixed router locale.
-- 1.0.44 (07 Jun 2022)
-  - Added `onChange` event for router navigation.
-  - Added `previousRoute` utility
-- 1.0.42 (07 Jun 2022)
-  - Added strict mode as `scan` argument, default to `true`.
-- 1.0.41 (07 Jun 2022)
-  - Added [Root Component](#root-component) feature.
-- 1.0.38 (22 May 2022)
-  - Fixed middleware type.
-- 1.0.27 (1 Apr 2022)
-  - Added `getCurrentRouteData` to get current route details.
-- 1.0.26 (1 Apr 2022)
-  - Added `ExternalLink` `MailLink` and `TelLink`
-- 1.0.22 (4 Mar 2022)
-- Added Route name amd route original path.
-- 1.0.21 (4 Mar 2022)
-  - Forced refresh function when `forceRefresh` configuration is set to false.
-- 1.0.20 (4 Mar 2022)
-  - Fixed Link Component for Relative, Mail to and tel props.
-- 1.0.16 (11 Jan 2022)
-  - Added [Get current page direction Utility](#get-current-page-direction)
-  - Added [Direction Is Utility](#direction-is)
-
-## TODO
-
-- [] Rebuild routing system with React Router DOM V6.
+- 2.0.0 (07 Nov 2022)
+  - Released Version 2.

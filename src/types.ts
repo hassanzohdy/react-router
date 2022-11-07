@@ -1,6 +1,13 @@
 import React from "react";
+
+/**
+ * Object Type
+ */
 export type ObjectType = Record<string, any>;
 
+/**
+ * React Component Type
+ */
 export type Component = React.FC<any> | React.ComponentType<any>;
 
 /**
@@ -162,10 +169,6 @@ export type RouterConfigurations = {
    */
   basePath?: string;
   /**
-   * Localization settings
-   */
-  localization?: LocalizationOptions;
-  /**
    * Enable force refresh,
    * If set to true, when the user navigates to the same page,
    * it will re-render the page again.
@@ -173,6 +176,16 @@ export type RouterConfigurations = {
    *  @default true
    */
   forceRefresh?: boolean;
+  /**
+   * Whether to enable strict mode
+   *
+   * @default false
+   */
+  strict?: boolean;
+  /**
+   * Localization settings
+   */
+  localization?: LocalizationOptions;
   /**
    * Url Matcher
    * This can be used to allow more dynamic url matching.
@@ -182,12 +195,6 @@ export type RouterConfigurations = {
    * Query string options
    */
   queryString?: QueryStringOptions;
-  /**
-   * Whether to enable strict mode
-   *
-   * @default false
-   */
-  strict?: boolean;
   /**
    * Root component that will be used to wrap all the pages
    * This component will be rendered only once.

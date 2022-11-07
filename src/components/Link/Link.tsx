@@ -39,7 +39,9 @@ function _Link(
 
     if (Is.url(path)) return path;
 
-    let appPath = app || router.getCurrentAppPath();
+    let appName = app || router.getCurrentApp()?.name;
+
+    const appPath = router.getApp(appName!)?.path!;
 
     let currentLocale = localeCode;
     path = concatRoute(appPath, path);
@@ -52,6 +54,8 @@ function _Link(
   }, [href, to, app, localeCode, email, tel]);
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    baseOnClick && baseOnClick(e);
+
     if (Is.url(path) || !path.startsWith("/")) return;
 
     if (props.target === "_blank") {
@@ -61,8 +65,6 @@ function _Link(
     e.preventDefault();
     // navigate to the path
     router.goTo(path);
-
-    baseOnClick && baseOnClick(e);
   };
 
   if (newTab) {

@@ -1,5 +1,6 @@
 import { toObjectParser, toStringParser } from "./query-string-parsers";
 import { ObjectType, QueryStringOptions } from "./types";
+import { refresh } from "./utilities";
 
 let queryStringOptions: Required<QueryStringOptions> = {
   objectParser: toObjectParser,
@@ -32,7 +33,7 @@ const queryString = {
   /**
    * Replace query string in the url with the given object
    */
-  update(params: Object | string) {
+  update(params: Object | string, reRender = false) {
     let queryStringText = queryString.toQueryString(params);
 
     const url = `${window.location.pathname}${
@@ -40,6 +41,10 @@ const queryString = {
     }`;
 
     window.history.replaceState({}, "", url);
+
+    if (reRender) {
+      refresh();
+    }
   },
   /**
    * Get query string as string

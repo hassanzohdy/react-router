@@ -6,6 +6,7 @@ import {
   ChangeLanguageReloadModeOptions,
   NavigationMode,
   ObjectType,
+  PublicApp,
 } from "./types";
 
 /**
@@ -14,13 +15,15 @@ import {
 export function navigateTo(
   path: string,
   localeCode?: string,
-  app = router.getCurrentAppPath()
+  appName = router.getCurrentApp()?.name
 ) {
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
   }
 
-  router.goTo(concatRoute(localeCode || "", app, path));
+  const appPath = router.getApp(appName!)?.path!;
+
+  router.goTo(concatRoute(localeCode || "", appPath, path));
 }
 
 /**
@@ -28,6 +31,13 @@ export function navigateTo(
  */
 export function navigateBack() {
   navigateTo(router.getPreviousRoute());
+}
+
+/**
+ * Get previous route
+ */
+export function previousRoute() {
+  return router.getPreviousRoute();
 }
 
 /**
@@ -98,4 +108,11 @@ export function silentNavigation(
  */
 export function getHash() {
   return window.location.hash.replace("#", "");
+}
+
+/**
+ * Set apps list
+ */
+export function setApps(apps: PublicApp[]) {
+  router.setAppsList(apps);
 }
