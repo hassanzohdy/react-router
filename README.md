@@ -1027,6 +1027,39 @@ It looks like this:
 
 ![Not Found Page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5llfh3np2th1xu4oowj2.png)
 
+A quick example of usage:
+
+```tsx
+import { NotFound } from '@mongez/react-components';
+import { setRouterConfigurations } from '@mongez/react-router';
+
+setRouterConfigurations({
+  notFound: {
+    mode 'render',
+    component: NotFound,
+  }
+});
+```
+
+## Preload Component
+
+You can use the preload component to show a loading screen while the app/module is being loaded.
+
+You may use [Progress Bar Component](https://github.com/hassanzohdy/react-components#progress-bar)
+
+![Progress Preview](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/99kzuedy4fiezrxgcst4.gif)
+
+```tsx
+import { ProgressBar } from '@mongez/react-components';
+import { setRouterConfigurations } from '@mongez/react-router';
+
+setRouterConfigurations({
+  lazyLoading: {
+    loadingComponent: ProgressBar,
+  }
+});
+```
+
 ## Root Component
 
 The root component will wrap the entire application regardless wether current route is being lazy loaded or not.
