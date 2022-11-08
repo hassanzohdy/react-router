@@ -1,4 +1,4 @@
-import Is from "@mongez/supportive-is";
+import { isNumeric } from "./helpers";
 import { ObjectType } from "./types";
 
 export function toObjectParser(query: string) {
@@ -16,7 +16,7 @@ export function toObjectParser(query: string) {
     const key = pair[0].replace("[]", "");
     let value: string | number = pair[1];
 
-    if (Is.numeric(value)) {
+    if (isNumeric(value)) {
       value = Number(value);
     }
 

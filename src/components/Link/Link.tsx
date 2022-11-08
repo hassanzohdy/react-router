@@ -1,6 +1,6 @@
 import concatRoute from "@mongez/concat-route";
-import Is from "@mongez/supportive-is";
 import React, { useMemo } from "react";
+import { isUrl } from "../../helpers";
 import router from "../../router";
 import { LinkOptions, LinkProps } from "../../types";
 
@@ -37,7 +37,7 @@ function _Link(
 
     let path = to || (href as string);
 
-    if (Is.url(path)) return path;
+    if (isUrl(path)) return path;
 
     let appName = app || router.getCurrentApp()?.name;
 
@@ -56,7 +56,7 @@ function _Link(
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     baseOnClick && baseOnClick(e);
 
-    if (Is.url(path) || !path.startsWith("/")) return;
+    if (isUrl(path) || !path.startsWith("/")) return;
 
     if (props.target === "_blank") {
       return;
