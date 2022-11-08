@@ -145,6 +145,9 @@ export default function RouterWrapper() {
     } else {
       fullContent = (
         <>
+          {router.lazyLoading?.renderOverPage && (
+            <div id="__preloader__" hidden />
+          )}
           <Layout>{content}</Layout>
         </>
       );
