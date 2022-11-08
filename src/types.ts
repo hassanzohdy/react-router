@@ -247,7 +247,7 @@ export type App = {
   /**
    * Is Loaded App
    */
-  isLoaded?: boolean;
+  isLoaded: boolean;
 };
 
 export type PublicApp = Omit<App, "isLoaded">;

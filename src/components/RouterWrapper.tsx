@@ -7,7 +7,7 @@ import { navigateTo } from "../utilities";
 export type Component = React.ComponentType<any>;
 
 export default function RouterWrapper() {
-  const [Layout, setLayout] = useState<any>(React.Fragment);
+  const [Layout, setLayout] = useState<Component>(React.Fragment);
 
   const [content, setContent] = useState<React.ReactNode>(<></>);
 
@@ -27,7 +27,7 @@ export default function RouterWrapper() {
 
     if (route.layout) {
       setLayout(() => {
-        return route.layout;
+        return route.layout as Component;
       });
     }
 
@@ -123,7 +123,8 @@ export default function RouterWrapper() {
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
     if (isLoading) {
-      const LoadingComponent = router.lazyLoading?.loadingComponent!;
+      const LoadingComponent =
+        router.lazyLoading?.loadingComponent! || (() => <></>);
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (

@@ -527,7 +527,7 @@ export class Router {
     });
 
     if (appModule) {
-      const loaders = [];
+      const loaders: any[] = [];
 
       if (!this.loadedApps.includes(this.currentApp?.name || "")) {
         loaders.push(
