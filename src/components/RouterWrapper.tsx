@@ -57,10 +57,10 @@ export default function RouterWrapper() {
 
   const notFound = () => {
     if (router.notFound.mode === "redirect") {
-      return navigateTo(router.notFound.path! || "/404");
+      return navigateTo(router.notFound.path || "/404");
     } else {
       const NotFoundComponent =
-        router.notFound.component! ||
+        router.notFound.component ||
         (() => (
           <>
             <h1>Not Found Page</h1>
@@ -84,7 +84,7 @@ export default function RouterWrapper() {
         const routeHandler = router.getRouteByPath(route);
 
         if (routeHandler) {
-          updatePage(routeHandler!);
+          updatePage(routeHandler);
         } else {
           notFound();
         }
@@ -124,7 +124,7 @@ export default function RouterWrapper() {
     let fullContent: React.ReactNode;
     if (isLoading) {
       const LoadingComponent =
-        router.lazyLoading?.loadingComponent! || (() => <></>);
+        router.lazyLoading?.loadingComponent || (() => <></>);
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (

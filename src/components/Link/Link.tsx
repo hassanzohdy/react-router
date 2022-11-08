@@ -28,7 +28,7 @@ function _Link(
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
-  ref: any
+  ref: any,
 ) {
   const path = useMemo(() => {
     if (email) return `mailto:${email}`;
@@ -39,7 +39,7 @@ function _Link(
 
     if (isUrl(path)) return path;
 
-    let appName = app || router.getCurrentApp()?.name;
+    const appName = app || router.getCurrentApp()?.name;
 
     const appPath = router.getApp(appName!)?.path!;
 
