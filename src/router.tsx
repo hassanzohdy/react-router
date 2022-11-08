@@ -1,10 +1,10 @@
 import concatRoute from "@mongez/concat-route";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import RouterWrapper from "./components/RouterWrapper";
 import routerEvents, { triggerEvent } from "./events";
 import matchUrl, { urlPatternMatcher } from "./matcher";
 import queryString from "./query-string";
+import { renderer } from "./renderer";
 import {
   App,
   ChangeLanguageReloadMode,
@@ -513,25 +513,7 @@ export class Router {
    * Render content
    */
   protected render() {
-    const Root = this.rootComponent;
-
-    const app = (
-      <Root>
-        <RouterWrapper />
-      </Root>
-    );
-
-    if (!this.root) {
-      this.root = ReactDOM.createRoot(
-        document.getElementById("root") as HTMLElement
-      );
-    }
-
-    const StrictModeWrapper = this._strictMode
-      ? React.StrictMode
-      : React.Fragment;
-
-    this.root.render(<StrictModeWrapper>{app}</StrictModeWrapper>);
+    this.root = renderer(this.rootComponent, this._strictMode);
   }
 
   /**
