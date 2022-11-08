@@ -906,7 +906,7 @@ export type GroupedRoutesOptions = {
   /**
    * Grouped routes
    */
-  routes: PublicRouteOptions[];
+  routes: Route[];
   /**
    * Prefix path for all routes
    */

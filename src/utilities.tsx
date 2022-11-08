@@ -116,3 +116,10 @@ export function getHash() {
 export function setApps(apps: PublicApp[]) {
   router.setAppsList(apps);
 }
+
+/**
+ * Get current app object
+ */
+export function currentApp() {
+  return router.getCurrentApp();
+}

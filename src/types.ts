@@ -130,7 +130,7 @@ export type GroupedRoutesOptions = {
   /**
    * Grouped routes
    */
-  routes: PublicRouteOptions[];
+  routes: Route[];
   /**
    * Prefix path for all routes
    */
@@ -305,9 +305,7 @@ export type RouteOptions = {
 /**
  * Public route options that will be used by developers
  */
-export type PublicRouteOptions = Required<
-  Pick<RouteOptions, "component" | "path">
-> &
+export type Route = Required<Pick<RouteOptions, "component" | "path">> &
   Pick<RouteOptions, "layout" | "middleware">;
 
 /**

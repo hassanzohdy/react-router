@@ -17,7 +17,7 @@ import {
   NavigationMode,
   NotFoundConfigurations,
   ObjectType,
-  PublicRouteOptions,
+  Route,
   RouteOptions,
   UrlMatcher,
 } from "./types";
@@ -325,7 +325,7 @@ export class Router {
   /**
    * Add new route
    */
-  public add(routeOptions: PublicRouteOptions): Router;
+  public add(routeOptions: Route): Router;
   public add(
     path: string,
     component: React.ComponentType<any>,
@@ -333,7 +333,7 @@ export class Router {
     layout?: React.ComponentType<any>
   ): Router;
   public add(...args: any[]) {
-    let routeOptions: PublicRouteOptions;
+    let routeOptions: Route;
     if (args.length === 1) {
       routeOptions = args[0];
     } else {
@@ -390,7 +390,7 @@ export class Router {
   /**
    * Group routes by one layout
    */
-  public partOf(layout: Component, routes: PublicRouteOptions[]) {
+  public partOf(layout: Component, routes: Route[]) {
     return this.group({
       layout,
       routes,
