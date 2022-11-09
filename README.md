@@ -1473,9 +1473,10 @@ import { routerEvents } from "@mongez/react-router";
 
 ```
 
-There are mainly `5` events that can be listened to.
+There are mainly `6` events that can be listened to.
 
 - `onNavigating(callback: (route: string, navigationMode: NavigationMode, previousRoute: string) => void) => EventSubscription`: This event will be fired just before finding the proper route handler for current route, it receives the current route, navigation type and previous route.
+- `onDetectingInitialLocaleCode(callback: (localeCode: string) => void) => EventSubscription`: This event will be fired just before detecting the initial locale code, it receives the detected locale code, this will be triggered only once and only if the url has a locale code.
 - `onLocaleChanging(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just before changing the locale code, it receives the current locale and the new locale.
 - `onLocaleChanged(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just after changing the locale code, it receives the current locale and the new locale, this event is triggered only if the change mode is `soft`.
 `onRendering(callback: (route: string, navigationMode: NavigationMode) => void): EventSubscription`
@@ -1507,5 +1508,7 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.0.23 (09 Nov 2022)
+  - Added `onDetectingInitialLocaleCode` event.
 - 2.0.0 (07 Nov 2022)
   - Released Version 2.

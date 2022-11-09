@@ -18,6 +18,13 @@ export type RouterEvents = {
   //     callback: (route: string, navigationMode: NavigationMode) => void
   //   ) => EventSubscription;
   /**
+   * Triggered when initial locale code is detected from the url
+   * This will eb only triggered once
+   */
+  onDetectingInitialLocaleCode: (
+    callback: (localeCode: string) => void
+  ) => EventSubscription;
+  /**
    * Triggered when locale code is about to change
    */
   onLocaleChanging: (
@@ -56,6 +63,9 @@ const routerEvents: RouterEvents = {
   onLocaleChanged: (callback) => {
     return events.subscribe(`router.localeChanged`, callback);
   },
+  onDetectingInitialLocaleCode: (callback) => {
+    return events.subscribe(`router.initialLocaleCode`, callback);
+  },
   onRendering: (callback) => {
     return events.subscribe(`router.rendering`, callback);
   },
@@ -69,6 +79,7 @@ export type RouterEventType =
   //   | "navigated"
   | "rendering"
   | "rendered"
+  | "initialLocaleCode"
   | "localeCodeChanging"
   | "localeChanged";
 
