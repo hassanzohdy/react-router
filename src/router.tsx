@@ -1,4 +1,5 @@
 import concatRoute from "@mongez/concat-route";
+import { EventSubscription } from "@mongez/events";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import routerEvents, { triggerEvent } from "./events";
@@ -19,6 +20,7 @@ import {
   ObjectType,
   Route,
   RouteOptions,
+  RouterConfigurations,
   UrlMatcher,
 } from "./types";
 
@@ -159,10 +161,48 @@ export class Router {
   public navigationMode: NavigationMode = NavigationMode.navigation;
 
   /**
+   * Scroll top type
+   */
+  protected _scrollTopType?: RouterConfigurations["scrollToTop"];
+
+  /**
+   * Scroll to top event subscriber
+   */
+  protected scrollToTopEvent?: EventSubscription;
+
+  /**
    * Constructor
    */
   public constructor() {
     this.detectBrowserUrlChange();
+    this.setScrollToTop("smooth");
+  }
+
+  /**
+   * Set scroll to top type
+   */
+  public setScrollToTop(scrollToTop: RouterConfigurations["scrollToTop"]) {
+    this._scrollTopType = scrollToTop;
+
+    if (scrollToTop === false && this.scrollToTopEvent) {
+      this.scrollToTopEvent.unsubscribe();
+      return;
+    }
+
+    if (!scrollToTop) return;
+
+    this.scrollToTopEvent = routerEvents.onNavigating(() => {
+      if (scrollToTop === "smooth") {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+
+    return this;
   }
 
   /**

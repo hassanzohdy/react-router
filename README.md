@@ -945,6 +945,12 @@ export type RouterConfigurations = {
    */
   basePath?: string;
   /**
+   * Scroll to top when navigating to a new page
+   *
+   * @default smooth
+   */
+  scrollToTop?: false | "smooth" | "default";
+  /**
    * Localization settings
    */
   localization?: LocalizationOptions;
@@ -997,6 +1003,7 @@ Let's see these configurations in details
 | Configuration | Description | Default | Type |
 | --- | --- | --- |
 | `basePath` | The base path of the project, it's recommended to set it with production check like this: `process.env.NODE_ENV === "production" ? "/project-name" : "/"` | `/` | `string` |
+| `scrollToTop` | Whether to scroll to top of the page when navigating to a new page | `smooth` | `false` \| `"smooth"` | `"default"` |
 | `localization.localeCodes` | An array contains list of locale codes that will be used in the project | `["en"]` | `string[]` |
 | `localization.defaultLocaleCode` | The default locale code that will be used in the project | `en` | `string` |
 | `localization.changeLanguageReloadMode` | The mode that will be used when changing the language, if set to `soft` then it will update the url with the new locale code and re-render the current page, if set to `hard` then it will reload the page with the new locale code | `soft` | `soft`, `hard` |
@@ -1508,6 +1515,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.0.25 (09 Nov 2022)
+  - Added Added scroll to top feature.
 - 2.0.23 (09 Nov 2022)
   - Added `onDetectingInitialLocaleCode` event.
 - 2.0.0 (07 Nov 2022)

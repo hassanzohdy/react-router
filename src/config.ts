@@ -1,7 +1,10 @@
+import { EventSubscription } from "@mongez/events";
 import { setLinkOptions } from "./components/Link/Link";
 import { setQueryStringOptions } from "./query-string";
 import router from "./router";
 import { RouterConfigurations } from "./types";
+
+let navigatingEvent: EventSubscription;
 
 export function setRouterConfigurations(configurations: RouterConfigurations) {
   if (configurations.basePath) {
@@ -42,5 +45,9 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
 
   if (configurations.link) {
     setLinkOptions(configurations.link);
+  }
+
+  if (configurations.scrollToTop !== false) {
+    router.setScrollToTop(configurations.scrollToTop);
   }
 }

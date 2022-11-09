@@ -177,6 +177,12 @@ export type RouterConfigurations = {
    */
   forceRefresh?: boolean;
   /**
+   * Scroll to top when navigating to a new page
+   *
+   * @default smooth
+   */
+  scrollToTop?: false | "smooth" | "default";
+  /**
    * Whether to enable strict mode
    *
    * @default false
