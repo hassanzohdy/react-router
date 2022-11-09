@@ -425,7 +425,11 @@ export class Router {
     });
 
     if (route) {
-      route.key = path + "/" + this.getCurrentLocaleCode();
+      route.key = concatRoute(
+        this.getCurrentLocaleCode(),
+        this.currentApp?.path || "/",
+        path
+      );
     }
 
     return route;
@@ -477,14 +481,14 @@ export class Router {
     window.addEventListener("popstate", () => {
       this.parseLocation();
 
-      if (this.cacheContent[this.currentLocaleCode + this.currentRoute]) {
-        const content =
-          this.cacheContent[this.currentLocaleCode + this.currentRoute];
+      // if (this.cacheContent[this.currentLocaleCode + this.currentRoute]) {
+      //   const content =
+      //     this.cacheContent[this.currentLocaleCode + this.currentRoute];
 
-        this.root?.render(content);
+      //   this.root?.render(content);
 
-        return;
-      }
+      //   return;
+      // }
 
       this.refresh(NavigationMode.swinging);
     });
