@@ -111,7 +111,7 @@ export default function RouterWrapper() {
 
       if (router.activeRoute?.layout !== Layout) {
         setLayout(() => {
-          return router.activeRoute?.layout;
+          return router.activeRoute?.layout || React.Fragment;
         });
       }
 
