@@ -109,6 +109,12 @@ export default function RouterWrapper() {
     const event = routerEvents.onRendering((path: string) => {
       const routeHandler = router.getRouteByPath(path);
 
+      if (router.activeRoute?.layout !== Layout) {
+        setLayout(() => {
+          return router.activeRoute?.layout;
+        });
+      }
+
       if (routeHandler) {
         updatePage(routeHandler);
       } else {
