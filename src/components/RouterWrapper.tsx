@@ -25,11 +25,9 @@ export default function RouterWrapper() {
 
     route.key = key;
 
-    if (route.layout) {
-      setLayout(() => {
-        return route.layout as Component;
-      });
-    }
+    setLayout(() => {
+      return route.layout || React.Fragment;
+    });
 
     if (route.middleware) {
       for (const middleware of route.middleware) {
@@ -108,12 +106,6 @@ export default function RouterWrapper() {
 
     const event = routerEvents.onRendering((path: string) => {
       const routeHandler = router.getRouteByPath(path);
-
-      if (router.activeRoute?.layout !== Layout) {
-        setLayout(() => {
-          return router.activeRoute?.layout || React.Fragment;
-        });
-      }
 
       if (routeHandler) {
         updatePage(routeHandler);
