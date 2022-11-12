@@ -21,6 +21,8 @@ const queryString = {
   all() {
     const query = window.location.search.substring(1);
 
+    if (!query) return {};
+
     return queryStringOptions.objectParser(query);
   },
   /**

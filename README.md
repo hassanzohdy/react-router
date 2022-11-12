@@ -1515,6 +1515,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.0.31 (12 Nov 2022)
+  - Fixed `queryString.all` function to return an empty object if the query string is empty.
 - 2.0.30 (12 Nov 2022)
   - Fixed cached path on Link component when changing locale code.
 - 2.0.29 (12 Nov 2022)
