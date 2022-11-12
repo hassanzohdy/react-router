@@ -1515,6 +1515,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.0.30 (12 Nov 2022)
+  - Fixed cached path on Link component when changing locale code.
 - 2.0.29 (12 Nov 2022)
   - Fixed when clicking ctrl/shift/alt/meta keys, work in default behavior.
 - 2.0.25 (09 Nov 2022)

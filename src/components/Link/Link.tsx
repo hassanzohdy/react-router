@@ -30,6 +30,10 @@ function _Link(
   }: LinkProps,
   ref: any
 ) {
+  if (!localeCode && router.hasLocaleCode) {
+    localeCode = router.getCurrentLocaleCode();
+  }
+
   const path = useMemo(() => {
     if (email) return `mailto:${email}`;
 
@@ -43,14 +47,9 @@ function _Link(
 
     const appPath = router.getApp(appName)?.path as string;
 
-    let currentLocale = localeCode;
     path = concatRoute(appPath, path);
 
-    if (!localeCode && router.hasLocaleCode) {
-      currentLocale = router.getCurrentLocaleCode();
-    }
-
-    return currentLocale ? concatRoute(currentLocale, path) : path;
+    return localeCode ? concatRoute(localeCode, path) : path;
   }, [href, to, app, localeCode, email, tel]);
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -75,7 +74,7 @@ function _Link(
     }
   };
 
-  if (newTab) {
+  if (newTab && !props.target) {
     props.target = "_blank";
   }
 
