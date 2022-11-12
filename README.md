@@ -1515,6 +1515,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.0.29 (12 Nov 2022)
+  - Fixed when clicking ctrl/shift/alt/meta keys, work in default behavior.
 - 2.0.25 (09 Nov 2022)
   - Added Added scroll to top feature.
 - 2.0.23 (09 Nov 2022)
