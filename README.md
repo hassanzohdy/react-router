@@ -1084,6 +1084,22 @@ This component will be only rendered once during the application bootstrap.
 
 > Root Component does not receive any props at all.
 
+## Lazy Loading Components Loader
+
+> Added in V2.1.0
+
+If you're using [React Lazy](https://reactjs.org/docs/code-splitting.html#reactlazy) to lazy load your components, you can use `lazyComponentLoader` to define a fallback component to be rendered while the component is being loaded.
+
+```tsx
+import { setRouterConfigurations } from '@mongez/react-router';
+
+setRouterConfigurations({
+  lazyLoading: {
+    lazyComponentLoader: <div>Loading...</div>,
+  }
+});
+```
+
 ## Link Navigation
 
 Using `Link` component in react will provide some interesting features to make the link more readable and easier to use.
