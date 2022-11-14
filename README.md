@@ -1100,6 +1100,8 @@ setRouterConfigurations({
 });
 ```
 
+> If the config is not set and there is a `loadingComponent` defined, it will be used instead.
+
 ## Link Navigation
 
 Using `Link` component in react will provide some interesting features to make the link more readable and easier to use.
