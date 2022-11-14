@@ -251,6 +251,16 @@ export class Router {
   }
 
   /**
+   * Get lazy loading config
+   */
+  public getLazyLoadingConfig(
+    string: keyof LazyLoadingOptions,
+    defaultValue?: any
+  ) {
+    return this.lazyLoading?.[string] ?? defaultValue;
+  }
+
+  /**
    * Get current route
    */
   public getCurrentRoute() {

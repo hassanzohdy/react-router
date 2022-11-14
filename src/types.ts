@@ -78,6 +78,12 @@ export type LazyLoadingOptions = {
    * be applied to the page, you can use this to show a loading screen in your loader
    */
   renderOverPage?: boolean;
+  /**
+   * Define the component that will be used as fallback in the Suspense component
+   *
+   * @default loadingComponent
+   */
+  lazyComponentLoader?: Component;
 };
 
 /**

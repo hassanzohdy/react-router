@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import routerEvents, { triggerEvent } from "../events";
 import router from "../router";
 import { RouteOptions } from "../types";
@@ -124,30 +124,37 @@ export default function RouterWrapper() {
       const LoadingComponent =
         router.lazyLoading?.loadingComponent || (() => <></>);
 
+      const suspenseProps = {
+        fallback: router.getLazyLoadingConfig(
+          "lazyComponentLoader",
+          router.getLazyLoadingConfig("loadingComponent")
+        ),
+      };
+
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (
-          <>
+          <Suspense {...suspenseProps}>
             <div id="__preloader__" hidden={!isLoading}>
               {isLoading && <LoadingComponent loading />}
             </div>
             {<Layout>{content}</Layout>}
-          </>
+          </Suspense>
         );
       } else {
         fullContent = (
-          <>
+          <Suspense {...suspenseProps}>
             <LoadingComponent loading />
-          </>
+          </Suspense>
         );
       }
     } else {
       fullContent = (
-        <>
+        <Suspense {...suspenseProps}>
           {router.lazyLoading?.renderOverPage && (
             <div id="__preloader__" hidden />
           )}
           <Layout>{content}</Layout>
-        </>
+        </Suspense>
       );
     }
 

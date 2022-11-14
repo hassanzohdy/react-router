@@ -854,6 +854,12 @@ export type LazyLoadingOptions = {
    * be applied to the page, you can use this to show a loading screen in your loader
    */
   renderOverPage?: boolean;
+  /**
+   * Define the component that will be used as fallback in the Suspense component
+   *
+   * @default loadingComponent
+   */
+  lazyComponentLoader?: Component;
 };
 
 /**
@@ -1018,6 +1024,7 @@ Let's see these configurations in details
 | `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
 | `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |
 | `lazyLoading.renderOverPage` | Whether to render only the loader or render the loader over the current page, if set to `true` then the loader will be rendered over the current page, by rendering the loader before the page component, no styling will be applied to the page, you can use this to show a loading screen in your loader | `false` | `boolean` |
+| `lazyLoading.lazyComponentLoader` | Lazy Loading Component when using `React.lazy`, that will be used as a fallback to [Suspense Component](https://reactjs.org/docs/code-splitting.html#reactlazy), if not and `lazyLoading.loadingComponent` is set it will be used instead. | `lazyLoading.loadingComponent` | `Component` |
 | `notFound.component` | Component to be rendered when the page is not found | `InternalNotFoundPageComponent` | `Component` |
 | `notFound.redirectTo` | Redirect to a specific page when the page is not found | `/404` | `string` |
 | `link.component` | Component to be used as a link | `a` | `Component` |
@@ -1515,6 +1522,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.1.0 (14 Nov 2022)
+  - Added `lazyLoadingComponent` feature.
 - 2.0.31 (12 Nov 2022)
   - Fixed `queryString.all` function to return an empty object if the query string is empty.
 - 2.0.30 (12 Nov 2022)
