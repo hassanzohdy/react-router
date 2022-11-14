@@ -55,11 +55,9 @@ export function currentRoute() {
  */
 export function changeLocaleCode(
   localeCode: string,
-  reloadMode: ChangeLanguageReloadMode = ChangeLanguageReloadModeOptions.soft
+  reloadMode: ChangeLanguageReloadMode = router.getChangeLanguageReloadMode()
 ) {
   const currentLocaleCode = router.getCurrentLocaleCode();
-
-  triggerEvent("localeCodeChanging", localeCode, currentLocaleCode);
 
   const currentRoute = router.getCurrentRoute();
   const currentAppPath = router.getCurrentAppPath();
@@ -76,6 +74,8 @@ export function changeLocaleCode(
     window.location.href = fullPath;
     return;
   }
+
+  triggerEvent("localeCodeChanging", localeCode, currentLocaleCode);
 
   router.refreshActiveRouteKey();
   router.goTo(

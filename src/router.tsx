@@ -350,6 +350,24 @@ export class Router {
   }
 
   /**
+   * Get localization settings
+   */
+  public getLocalization() {
+    return {
+      defaultLocaleCode: this.defaultLocaleCode,
+      localeCodes: this.localeCodes,
+      changeLanguageReloadMode: this.changeLanguageReloadMode,
+    };
+  }
+
+  /**
+   * Get change language reload mode
+   */
+  public getChangeLanguageReloadMode() {
+    return this.changeLanguageReloadMode;
+  }
+
+  /**
    * Scan routes
    */
   public scan() {
