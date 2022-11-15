@@ -120,16 +120,16 @@ export default function RouterWrapper() {
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
+    const suspenseProps = {
+      fallback: router.getLazyLoadingConfig(
+        "lazyComponentLoader",
+        router.getLazyLoadingConfig("loadingComponent")
+      ),
+    };
     if (isLoading) {
       const LoadingComponent =
         router.lazyLoading?.loadingComponent || (() => <></>);
 
-      const suspenseProps = {
-        fallback: router.getLazyLoadingConfig(
-          "lazyComponentLoader",
-          router.getLazyLoadingConfig("loadingComponent")
-        ),
-      };
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (
