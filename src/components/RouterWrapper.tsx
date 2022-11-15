@@ -116,26 +116,29 @@ export default function RouterWrapper() {
     });
 
     return () => event.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
-    const suspenseProps = {
-      fallback: router.getLazyLoadingConfig(
+    const Fallback =
+      router.getLazyLoadingConfig(
         "lazyComponentLoader",
-        router.getLazyLoadingConfig("loadingComponent")
-      ),
+        router.getLazyLoadingConfig("loadingComponent"),
+      ) || React.Fragment;
+    const suspenseProps = {
+      fallback: <Fallback loading />,
     };
+
     if (isLoading) {
       const LoadingComponent =
         router.lazyLoading?.loadingComponent || (() => <></>);
-
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (
           <Suspense {...suspenseProps}>
             <div id="__preloader__" hidden={!isLoading}>
-              {isLoading && <LoadingComponent loading />}
+              <LoadingComponent loading />
             </div>
             {<Layout>{content}</Layout>}
           </Suspense>
@@ -160,7 +163,7 @@ export default function RouterWrapper() {
 
     if (router.activeRoute && !isLoading) {
       // will be used in the swinging actions like going back and forward.
-      router.cacheRouteContent(router.activeRoute!, fullContent);
+      router.cacheRouteContent(router.activeRoute, fullContent);
     }
 
     return fullContent;
