@@ -58,12 +58,7 @@ export default function RouterWrapper() {
       return navigateTo(router.notFound.path || "/404");
     } else {
       const NotFoundComponent =
-        router.notFound.component ||
-        (() => (
-          <>
-            <h1>Not Found Page</h1>
-          </>
-        ));
+        router.notFound.component || (() => <h1>Not Found Page</h1>);
 
       setContent(<NotFoundComponent />);
     }
@@ -124,21 +119,34 @@ export default function RouterWrapper() {
     const Fallback =
       router.getLazyLoadingConfig(
         "lazyComponentLoader",
-        router.getLazyLoadingConfig("loadingComponent"),
+        router.getLazyLoadingConfig("loadingComponent")
       ) || React.Fragment;
+
+    const fallbackProps = {};
+
+    if (Fallback !== React.Fragment) {
+      fallbackProps["loading"] = true;
+    }
+
     const suspenseProps = {
-      fallback: <Fallback loading />,
+      fallback: <Fallback {...fallbackProps} />,
     };
 
     if (isLoading) {
       const LoadingComponent =
-        router.lazyLoading?.loadingComponent || (() => <></>);
+        router.lazyLoading?.loadingComponent || React.Fragment;
+
+      const loadingProps = {};
+
+      if (LoadingComponent !== React.Fragment) {
+        loadingProps["loading"] = true;
+      }
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (
           <Suspense {...suspenseProps}>
             <div id="__preloader__" hidden={!isLoading}>
-              <LoadingComponent loading />
+              <LoadingComponent {...loadingProps} />
             </div>
             {<Layout>{content}</Layout>}
           </Suspense>
@@ -146,7 +154,7 @@ export default function RouterWrapper() {
       } else {
         fullContent = (
           <Suspense {...suspenseProps}>
-            <LoadingComponent loading />
+            <LoadingComponent {...loadingProps} />
           </Suspense>
         );
       }
