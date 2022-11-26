@@ -82,7 +82,14 @@ function _Link(
     props.rel = "noopener noreferrer";
   }
 
-  return <Component ref={ref} href={path} onClick={onClick} {...props} />;
+  return (
+    <Component
+      ref={ref}
+      href={path.startsWith("/") ? concatRoute(router.basePath, path) : path}
+      onClick={onClick}
+      {...props}
+    />
+  );
 }
 
 const Link = React.forwardRef(_Link);
