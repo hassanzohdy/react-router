@@ -22,8 +22,8 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
     router.setRootComponent(configurations.rootComponent);
   }
 
-  if (configurations.strict !== undefined) {
-    router.strictMode(configurations.strict);
+  if (configurations.strictMode !== undefined) {
+    router.strictMode(configurations.strictMode);
   }
 
   if (configurations.localization) {

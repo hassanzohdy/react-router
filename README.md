@@ -767,7 +767,7 @@ setRouterConfigurations({
 changeLanguageReloadMode: 'soft', // soft reload will re-render the current page, hard reload will reload the whole app
   },
   forceRefresh: true, // will re-render the page if user clicks on the same route link
-  strict: true, // run React in Strict Mode
+  strictMode: true, // run React in Strict Mode
   rootComponent: Root, // the root component that will wrap the whole app, can be useful for adding global settings for one time to your UI like wrapping the whole app with a context provider.
   lazyLoading: {
     loadingComponent: Progress, // the component that will be rendered while the lazy loaded component is loading
@@ -982,7 +982,7 @@ export type RouterConfigurations = {
    *
    * @default false
    */
-  strict?: boolean;
+  strictMode?: boolean;
   /**
    * Root component that will be used to wrap all the pages
    * This component will be rendered only once.
@@ -1019,7 +1019,7 @@ Let's see these configurations in details
   | `undefined` | `(pattern: string) => { regexp: RegExp; keys: { name: string }[]; }` |
 | `queryString.objectParser` | Query String Object to String parser | `undefined` | `(queryString: string) => ObjectType` |
 | `queryString.stringParser` | Query String Object to String parser | `undefined` | `(queryObject: ObjectType) => string` |
-| `strict` | Whether to enable React strict mode | `false` | `boolean` |
+| `strictMode` | Whether to enable React strict mode | `false` | `boolean` |
 | `rootComponent` | Root component that will be used to wrap all the pages, this component will be rendered only once | `undefined` | `Component` |
 | `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
 | `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |

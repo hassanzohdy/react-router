@@ -171,6 +171,7 @@ export type RouterConfigurations = {
    * Project Base Path
    * Its recommended to set it with production check like this:
    * process.env.NODE_ENV === "production" ? "/project-name" : "/"
+   *
    * @default "/"
    */
   basePath?: string;
@@ -179,7 +180,7 @@ export type RouterConfigurations = {
    * If set to true, when the user navigates to the same page,
    * it will re-render the page again.
    *
-   *  @default true
+   * @default true
    */
   forceRefresh?: boolean;
   /**
@@ -193,7 +194,7 @@ export type RouterConfigurations = {
    *
    * @default false
    */
-  strict?: boolean;
+  strictMode?: boolean;
   /**
    * Localization settings
    */
