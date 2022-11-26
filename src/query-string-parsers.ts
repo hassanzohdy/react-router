@@ -18,6 +18,8 @@ export function toObjectParser(query: string) {
 
     if (isNumeric(value)) {
       value = Number(value);
+    } else if (typeof value === "string") {
+      value = decodeURIComponent(value);
     }
 
     if (result[key]) {
