@@ -24,6 +24,8 @@ export function navigateTo(
   const appPath = router.getApp(appName!)?.path!;
 
   router.goTo(concatRoute(localeCode || "", appPath, path));
+
+  return true;
 }
 
 /**

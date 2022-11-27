@@ -17,7 +17,7 @@ A powerful react router system to manage React Js App routes.
 - ✅ Many helpers to navigate between routes using functions.
 - ❌ No ugly writing for routes in components.
 
-## React 17 And Lower
+## React 17 And earlier
 
 If you're using React 17, please use [Version 1 instead](https://github.com/hassanzohdy/react-router/tree/version-1).
 
@@ -56,19 +56,370 @@ Now let's add a route for our home page
 ```tsx
 // src/index.ts
 import router from "@mongez/react-router";
-import HomePage from "./Home";
-
-router.add("/", HomePage);
 
 // Start scanning for all of registered routes
 router.scan();
 ```
 
-We imported our `HomePage` component which is a normal react component, then we used the `router.add` method to define our first route which defines our home page route.
+## Registering Routes
 
-Next we called `router.scan()` to start scanning all registered routes in the router to call the proper route.
+Now the router will scan for all of the registered routes, and try to match current route with the registered routes.
+
+But we didn't register any route yet, so let's do it.
+
+```tsx
+// src/routes.ts
+import router from "@mongez/react-router";
+import HomePage from './pages/HomePage';
+
+router.add('/', HomePage);
+```
+
+Now let's import the `routes.ts` file in our `src/index.ts` file.
+
+```tsx
+// src/index.ts
+import router from "@mongez/react-router";
+import "./routes";
+
+// Start scanning for all of registered routes
+router.scan();
+```
+
+Now the app is ready to be served in `/` route.
 
 > Please keep in mind to set `router.scan` after declaring all of your routes first.
+
+## Declaring Routes
+
+There are many ways to declare routes, but the most common way is to use `router.add` function.
+
+```tsx
+// src/routes.ts
+import router from "@mongez/react-router";
+import HomePage from './pages/HomePage';
+
+router.add('/', HomePage);
+```
+
+This is the basic usage, we can also use dynamic paths, for example getting the user id from the url.
+
+```tsx
+// src/routes.ts
+import router from "@mongez/react-router";
+import HomePage from './pages/HomePage';
+import UserDetailsPage from './pages/UserDetailsPage';
+
+router.add('/', HomePage);
+router.add('/users/:id', UserDetailsPage);
+```
+
+Now the `UserDetailsPage` will receive `params` object in its props, and the `id` will be available in `params.id`.
+
+```tsx
+// src/pages/UserDetailsPage.tsx
+import React from 'react';
+
+export default function UserDetailsPage({ params }) {
+    const userId = params.id;
+
+    return (
+        <div>
+            User ID: {userId}
+        </div>
+    );
+}
+```
+
+## Adding New Route
+
+Routes can be added in the router container using `router.add` method, it accepts four parameters:
+
+- `path`: The path of the route, it can be a string or an array of strings.
+- `component`: The component to be rendered when the route is matched.
+- `middleware`: an array of middleware to be executed before rendering the component.
+- `layout`: the Base layout component that page will be rendered inside it.
+
+```ts
+import HomePage from './HomePage';
+import Guardian from './middleware/Guardian';
+import BaseLayout from './layouts/BaseLayout';
+router.add("/", HomePage, [Guardian], BaseLayout);
+```
+
+The only required parameter is the `path` and the `component`, the rest are optional.
+
+You can also customize it by passing one argument as an object.
+
+```ts
+router.add({
+  path: "/",
+  component: HomePage,
+  middleware: [IsLoggedIn],
+  layout: BaseLayout,
+});
+```
+
+## Route Middleware
+
+Some routes require a step head before navigating to its component. for example the visitor can not access his/her account dashboard unless he/she is logged in, in such a scenario we can use a middleware.
+
+```ts
+// src/routes.ts
+import router from "@mongez/react-router";
+
+import AccountDashboardPage from "./pages/DashboardPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+import SingleOrderHistoryPage from "./pages/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
+
+router.add("/account", AccountDashboardPage, [Guardian]);
+router.add("/account/edit-profile", EditProfilePage), [Guardian];
+router.add("/account/order-history", OrderHistoryPage, [Guardian]);
+router.add("/account/order-history/:id", SingleOrderHistoryPage, [Guardian]);
+```
+
+Here we defined our routes, with a new argument in `router.add` which is an array of middleware that will be declared before navigating to our pages.
+
+Now let's see our new Guardian middleware file.
+
+```tsx
+// src/middleware/Guardian.tsx
+import user from "somewhere-in-the-app";
+import React from "react";
+import { navigateTo } from "@mongez/react-router";
+
+export default function Guardian() {
+  if (user.isNotLoggedIn()) {
+    return navigateTo("/login");
+  }
+
+  return null;
+}
+```
+
+Here we defined a component that allows us to check if user is not logged in, then we'll redirect the user to the login route by using `navigateTo` utility from `MRR`.
+
+Now whenever a user hits any of the account routes, the `Guardian` component will be called first, if the user is not logged in then he/she will be redirected to the given route `/login` and called instead of the current page component.
+
+If the middleware returned a value, then it will be displayed instead of the page component.
+
+So the middleware can look like:
+
+```tsx
+// src/middleware/Guardian.tsx
+import user from "somewhere-in-the-app";
+import React from "react";
+
+export default function Guardian() {
+  if (user.isNotLoggedIn()) {
+    return <h1>You do not have access to this page, please login first.</h1>;
+  }
+
+  return null;
+}
+```
+
+> Kindly note that `navigateTo` returns true, that's mean when you use it to navigate and want to stop the page from rendering, you can return the function directly.
+
+## Page Base Layout
+
+Most of the apps has same layout structure such as a `header` and a `footer` among it the content of the page.
+
+This can be done easily with `MRR` by using `router.partOf` method.
+
+```tsx
+// src/components/BaseLayout.tsx
+import React from "react";
+import Header from "./Header";
+import Footer from "./Footer";
+
+export default function BaseLayout({ children }) {
+  return (
+    <>
+      <Header />
+      <main>{children}</main>
+      <Footer />
+    </>
+  );
+}
+```
+
+Now let's add our New Base layout to our HomePage.
+
+```ts
+// src/routes.ts
+import router from "@mongez/router";
+import HomePage from "./pages/HomePage";
+import BaseLayout from "./components/BaseLayout";
+
+router.partOf(BaseLayout, [
+  {
+    path: "/",
+    component: HomePage,
+  },
+]);
+```
+
+Now our `HomePage` component doesn't need to call the header or the footer of the page, it is now part of the `BaseLayout`.
+
+### Extending Base Layout
+
+Let's take another scenario that the account pages have a common sidebar between all of its page, we can make a newer layout that can hold the header, footer and the account sidebar.
+
+```tsx
+// src/components/AccountLayout.tsx
+import React from "react";
+import Header from "./Header";
+import Header from "./Footer";
+import AccountSidebar from "./AccountSidebar";
+
+export default function AccountLayout({ children }) {
+  return (
+    <>
+      <Header />
+      <main>
+        <AccountSidebar />
+        <div>{children}</div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+```
+
+Now let's our account routes again to use our new layout instead of the base layout.
+
+```ts
+// src/routes.ts
+import router from "@mongez/react-router";
+
+import AccountDashboardPage from "./pages/DashboardPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+import SingleOrderHistoryPage from "./pages/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
+
+import AccountLayout from "./components/AccountLayout";
+
+router.group({
+  path: "/account",
+  layout: AccountLayout,
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+    },
+    {
+      path: "/edit-profile",
+      component: EditProfilePage,
+    },
+    {
+      path: "/order-history",
+      component: OrderHistoryPage,
+    },
+    {
+      path: "/order-history/:id",
+      component: SingleOrderHistoryPage,
+    },
+  ],
+});
+```
+
+Now we're almost done, one more thing to do is to extend our base layout as we injected the header and the footer again in the `AccountLayout` component, let's fix this.
+
+```tsx
+// src/components/AccountLayout.tsx
+import React from "react";
+import BaseLayout from "apps/front-office/components/BaseLayout";
+import AccountSidebar from "./AccountSidebar";
+
+export default function AccountLayout({ children }) {
+  return (
+    <BaseLayout>
+      <AccountSidebar />
+      <div>{children}</div>
+    </BaseLayout>
+  );
+}
+```
+
+Now our code is very neat and can be maintained easily.
+
+## Grouped Routes
+
+As we can use `router.add` method do define a route, we can define one or more routes with common settings such as a prefix or a middleware.
+
+In our previous middleware example, we can see that all routes starts with `/account` and they all have the same middleware, we can group these routes in one method using `router.group` method.
+
+```ts
+// src/routes.tsx
+import router from "@mongez/react-router";
+import AccountDashboardPage from "./pages/DashboardPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+import SingleOrderHistoryPage from "./pages/SingleOrderHistoryPage";
+import Guardian from "./middleware/Guardian";
+
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  routes: [
+    {
+      path: "/", // it can be also path: '', just an empty string
+      component: AccountDashboardPage,
+    },
+    {
+      path: "/edit-profile",
+      component: EditProfilePage,
+    },
+    {
+      path: "/order-history",
+      component: OrderHistoryPage,
+    },
+    {
+      path: "/order-history/:id",
+      component: SingleOrderHistoryPage,
+    },
+  ],
+});
+```
+
+We can also group routes with certain `layout`, so all pages can have a shared `layout`.
+
+```ts
+router.group({
+  path: "/account",
+  middleware: [Guardian],
+  layout: BaseLayout,
+  routes: [
+    {
+      path: "/",
+      component: AccountDashboardPage,
+    },
+    {
+      path: "/edit-profile",
+      component: EditProfilePage,
+    },
+    {
+      path: "/order-history",
+      component: OrderHistoryPage,
+    },
+    {
+      path: "/order-history/:id",
+      component: SingleOrderHistoryPage,
+    },
+  ],
+});
+```
+
+Our code now is more compact and cleaner, also you can pass an additional middleware to any route object if you want to add more middleware to certain routes.
+
+The prefix in the group method will be glued with all routes in the routes array, so the `AccountDashboardPage` route will be `/account/` but the last `/` will be trimmed by `MRR`.
+
+> You can set the path of the `AccountDashboardPage` to be empty string '' it works as well.
 
 ## Lazy loading Apps
 
@@ -341,365 +692,6 @@ router.add("/", HomePage);
 ```
 
 Now we'are ready to go as we're done with our setup.
-
-## Adding New Router
-
-Routes can be added in the router container using `router.add` method, it accepts four parameters:
-
-- `path`: The path of the route, it can be a string or an array of strings.
-- `component`: The component to be rendered when the route is matched.
-- `middleware`: an array of middleware to be executed before rendering the component.
-- `layout`: the Base layout component that page will be rendered inside it.
-
-```ts
-import HomePage from './HomePage';
-import Guardian from './middleware/Guardian';
-import BaseLayout from './layouts/BaseLayout';
-router.add("/", HomePage, [Guardian], BaseLayout);
-```
-
-The only required parameter is the `path` and the `component`, the rest are optional.
-
-You can also customize it by passing one argument as an object.
-
-```ts
-router.add({
-  path: "/",
-  component: HomePage,
-  middleware: [IsLoggedIn],
-  layout: BaseLayout,
-});
-```
-
-## Route Parameters
-
-We can define also route parameters, for example if we want to define a route that accepts a user id, we can do it like this:
-
-```ts
-router.add("/users/:id", UserPage);
-```
-
-Now we can access the user id in our `UserPage` component using `params` props.
-
-```tsx
-const UserPage = ({ params }) => {
-  const { id } = params;
-
-  return <div>User ID: {id}</div>;
-};
-```
-
-You can of course define multiple dynamic parameters in the route.
-
-```ts
-router.add("/users/:id/posts/:postId", PostPage);
-```
-
-## Route Middleware
-
-Some routes require a step head before navigating to its component. for example the visitor can not access his/her account dashboard unless he/she is logged in, in such a scenario we can use a middleware.
-
-In `src/apps/front-office/account/routes.ts` file we can define our routes as follows:
-
-```ts
-// src/apps/front-office/account/routes.ts
-import router from "@mongez/react-router";
-
-import AccountDashboardPage from "./components/DashboardPage";
-import EditProfilePage from "./components/EditProfilePage";
-import OrderHistoryPage from "./components/OrderHistoryPage";
-import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
-import Guardian from "./middleware/Guardian";
-
-router.add("/account", AccountDashboardPage, [Guardian]);
-router.add("/account/edit-profile", EditProfilePage), [Guardian];
-router.add("/account/order-history", OrderHistoryPage, [Guardian]);
-router.add("/account/order-history/:id", SingleOrderHistoryPage, [Guardian]);
-```
-
-Here we defined our routes, with a new argument in `router.add` which is an array of middleware that will be declared before navigating to our pages.
-
-Now let's see our new Guardian middleware file.
-
-```tsx
-// src/apps/front-office/account/middleware/Guardian.tsx
-import user from "somewhere-in-the-app";
-import React from "react";
-import { Redirect } from "@mongez/react-router";
-
-export default function Guardian() {
-  if (user.isNotLoggedIn()) {
-    return <Redirect to="/login" />;
-  }
-
-  return null;
-}
-```
-
-Here we defined a component that allows us to check if user is not logged in, then we'll redirect the user to the login route by using `Redirect` component from `MRR`.
-
-Now whenever a user hits any of the account routes, the `Guardian` component will be called first, if the user is not logged in then the redirect component will be called instead of the page component.
-
-If the middleware returned a value, then it will be displayed instead of the page component.
-
-So the middleware can look like:
-
-```tsx
-// src/apps/front-office/account/middleware/Guardian.tsx
-import user from "somewhere-in-the-app";
-import React from "react";
-
-export default function Guardian() {
-  if (user.isNotLoggedIn()) {
-    return <h1>You do not have access to this page, please login first.</h1>;
-  }
-
-  return null;
-}
-```
-
-## Grouped Routes
-
-As we can use `router.add` method do define a route, we can define one or more routes with common settings such as a prefix or a middleware.
-
-In our previous middleware example, we can see that all routes starts with `/account` and they all have the same middleware, we can group these routes in one method using `router.group` method.
-
-```ts
-// src/apps/front-office/account/routes.ts
-import router from "@mongez/react-router";
-
-import AccountDashboardPage from "./components/DashboardPage";
-import EditProfilePage from "./components/EditProfilePage";
-import OrderHistoryPage from "./components/OrderHistoryPage";
-import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
-import Guardian from "./middleware/Guardian";
-
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-    },
-    {
-      path: "/edit-profile",
-      component: EditProfilePage,
-    },
-    {
-      path: "/order-history",
-      component: OrderHistoryPage,
-    },
-    {
-      path: "/order-history/:id",
-      component: SingleOrderHistoryPage,
-    },
-  ],
-});
-```
-
-The group function can group routes with the base path prefix, middleware, and layout.
-
-```ts
-router.group({
-  path: "/account",
-  middleware: [Guardian],
-  layout: BaseLayout,
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-    },
-    {
-      path: "/edit-profile",
-      component: EditProfilePage,
-    },
-    {
-      path: "/order-history",
-      component: OrderHistoryPage,
-    },
-    {
-      path: "/order-history/:id",
-      component: SingleOrderHistoryPage,
-    },
-  ],
-});
-```
-
-Our code now is more compact and cleaner, also you can pass an additional middleware to any route object if you want to add more middleware to certain routes.
-
-The prefix in the group method will be glued with all routes in the routes array, so the `AccountDashboardPage` route will be `/account/` but the last `/` will be trimmed by `MRR`.
-
-> You can set the path of the `AccountDashboardPage` to be empty string '' it works as well.
-
-## Page Base Layout
-
-Most of the apps has same layout structure such as a `header` and a `footer` among it the content of the page.
-
-This can be done easily with `MRR` by using `router.partOf` method.
-
-```tsx
-// src/apps/front-office/components/BaseLayout.tsx
-
-import React from "react";
-import Header from "./Header";
-import Footer from "./Footer";
-
-export default function BaseLayout({ children }) {
-  return (
-    <>
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </>
-  );
-}
-```
-
-Now let's add our New Base layout to our HomePage.
-
-```ts
-// src/apps/front-office/home/routes.ts
-
-import router from "@mongez/router";
-import HomePage from "./components/HomePage";
-import BaseLayout from "apps/front-office/components/BaseLayout";
-
-router.partOf(BaseLayout, [
-  {
-    path: "/",
-    component: HomePage,
-  },
-]);
-```
-
-Now our `HomePage` component doesn't need to call the header or the footer of the page, it is now part of the `BaseLayout`.
-
-This can be useful with `router.group` as well, we can set a common layout between list of pages.
-
-Let's head back to our account module.
-
-```ts
-// src/apps/front-office/account/routes.ts
-import router from "@mongez/react-router";
-import AccountDashboardPage from "./components/DashboardPage";
-import EditProfilePage from "./components/EditProfilePage";
-import OrderHistoryPage from "./components/OrderHistoryPage";
-import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
-import Guardian from "./middleware/Guardian";
-
-import BaseLayout from "apps/front-office/components/BaseLayout";
-
-router.group({
-  path: "/account",
-  layout: BaseLayout,
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-    },
-    {
-      path: "/edit-profile",
-      component: EditProfilePage,
-    },
-    {
-      path: "/order-history",
-      component: OrderHistoryPage,
-    },
-    {
-      path: "/order-history/:id",
-      component: SingleOrderHistoryPage,
-    },
-  ],
-});
-```
-
-Now we added a new property in the group object called `layout` which defines the layout that will render all of the routes pages.
-
-### Extending Base Layout
-
-Let's take another scenario that the account pages have a common sidebar between all of its page, we can make a newer layout that can hold the header, footer and the account sidebar.
-
-```tsx
-// src/apps/front-office/account/components/AccountLayout.tsx
-import React from "react";
-import Header from "apps/front-office/components/Header";
-import Header from "apps/front-office/components/Footer";
-import AccountSidebar from "./AccountSidebar";
-
-export default function AccountLayout({ children }) {
-  return (
-    <>
-      <Header />
-      <main>
-        <AccountSidebar />
-        <div>{children}</div>
-      </main>
-      <Footer />
-    </>
-  );
-}
-```
-
-Now let's our account routes again to use our new layout instead of the base layout.
-
-```ts
-// src/apps/front-office/account/routes.ts
-import router from "@mongez/react-router";
-
-import AccountDashboardPage from "./components/DashboardPage";
-import EditProfilePage from "./components/EditProfilePage";
-import OrderHistoryPage from "./components/OrderHistoryPage";
-import SingleOrderHistoryPage from "./components/SingleOrderHistoryPage";
-import Guardian from "./middleware/Guardian";
-
-import AccountLayout from "./components/AccountLayout";
-
-router.group({
-  path: "/account",
-  layout: AccountLayout,
-  middleware: [Guardian],
-  routes: [
-    {
-      path: "/",
-      component: AccountDashboardPage,
-    },
-    {
-      path: "/edit-profile",
-      component: EditProfilePage,
-    },
-    {
-      path: "/order-history",
-      component: OrderHistoryPage,
-    },
-    {
-      path: "/order-history/:id",
-      component: SingleOrderHistoryPage,
-    },
-  ],
-});
-```
-
-Now we're almost done, one more thing to do is to extend our base layout as we injected the header and the footer again in the `AccountLayout` component, let's fix this.
-
-```tsx
-// src/apps/front-office/account/components/AccountLayout.tsx
-import React from "react";
-import BaseLayout from "apps/front-office/components/BaseLayout";
-import AccountSidebar from "./AccountSidebar";
-
-export default function AccountLayout({ children }) {
-  return (
-    <BaseLayout>
-      <AccountSidebar />
-      <div>{children}</div>
-    </BaseLayout>
-  );
-}
-```
-
-Now our code is very neat and can be maintained easily.
 
 ## Routes Relativity
 
