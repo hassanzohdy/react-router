@@ -15,7 +15,7 @@ A powerful react router system to manage React Js App routes.
 - ✅ Base layout to set common components in one place such as Header and Footer of the page.
 - ✅ Page Refreshing when navigating to the same route, as an option.
 - ✅ Many helpers to navigate between routes using functions.
-- ❌ No ugly writing for routes in components.
+- ✅ No ugly writing for routes in components.
 
 ## React 17 And earlier
 
