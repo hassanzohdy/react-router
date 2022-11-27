@@ -77,12 +77,20 @@ export function changeLocaleCode(
 
   triggerEvent("localeCodeChanging", localeCode, currentLocaleCode);
 
+  const forceRefreshEnabled = router.isForceRefreshEnabled();
+
+  // force enabling it temporarily
+  router.forceRefresh(true);
+
   router.refreshActiveRouteKey();
   router.goTo(
     concatRoute(localeCode, currentAppPath, currentRoute),
     NavigationMode.changeLocaleCode
   );
   triggerEvent("localeChanged", localeCode, currentLocaleCode);
+
+  // restore the force refresh value
+  router.forceRefresh(forceRefreshEnabled);
 }
 
 /**
