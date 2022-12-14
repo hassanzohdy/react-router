@@ -6,7 +6,7 @@ import {
   ChangeLanguageReloadModeOptions,
   NavigationMode,
   ObjectType,
-  PublicApp,
+  PublicApp
 } from "./types";
 
 /**
@@ -25,7 +25,7 @@ export function navigateTo(
 
   router.goTo(concatRoute(localeCode || "", appPath, path));
 
-  return true;
+  return <></>;
 }
 
 /**

@@ -92,6 +92,6 @@ function _Link(
   );
 }
 
-const Link = React.forwardRef(_Link);
+const Link: React.FC<LinkProps> = React.forwardRef<LinkProps>(_Link);
 
 export default Link;
