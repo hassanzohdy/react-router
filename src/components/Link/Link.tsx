@@ -25,6 +25,10 @@ function _Link(
     localeCode,
     to,
     app,
+    style = {
+      textDecoration: "none",
+      color: "inherit",
+    },
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
@@ -95,3 +99,7 @@ function _Link(
 const Link: React.FC<LinkProps> = React.forwardRef<LinkProps>(_Link);
 
 export default Link;
+
+export function UnstyledLink(props: LinkProps) {
+  return <Link style={{}} {...props} />;
+}

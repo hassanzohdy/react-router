@@ -1116,6 +1116,8 @@ Simply put, a simple navigation to route by using `to` or `href` prop.
 
 To navigate to route in a `new tab`
 
+Starting from `V2.1.11`, The link component will be styled with `text-decoration` with value `none` and `color` to `inherit`, if you want to use the plain link, use `UnStyledLink` component instead.
+
 ```tsx
 <Link to="/account" newTab>
   Go To Account Page In New Tab

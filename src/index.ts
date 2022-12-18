@@ -1,4 +1,4 @@
-export { default as Link } from "./components/Link";
+export { default as Link, UnstyledLink } from "./components/Link";
 export * from "./config";
 export { default as routerEvents } from "./events";
 export { default as queryString, setQueryStringOptions } from "./query-string";
