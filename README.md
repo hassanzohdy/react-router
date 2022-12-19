@@ -1532,7 +1532,7 @@ This will stop listening to the event.
 
 ## Change Log
 
-- 2.1.13 (19 Dec 2022)
+- 2.1.14 (19 Dec 2022)
   - Exposed `suspenseFallback` configuration.
   - Now `Link` component has a reset style (removed text decoration and color is inherit).
   - Added `UnstyledLink` if you want to use a link with default style.

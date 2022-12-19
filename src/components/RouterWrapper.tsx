@@ -43,7 +43,15 @@ export default function RouterWrapper() {
 
     const Component = route.component;
 
-    const componentContent = <Component key={key} params={router.params} />;
+    const suspenseFallback = getRouterConfigurations().suspenseFallback || (
+      <></>
+    );
+
+    const componentContent = (
+      <Suspense fallback={suspenseFallback}>
+        <Component key={key} params={router.params} />
+      </Suspense>
+    );
 
     setContent(componentContent);
 
@@ -117,13 +125,6 @@ export default function RouterWrapper() {
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
-    const suspenseFallback = getRouterConfigurations().suspenseFallback || (
-      <></>
-    );
-
-    const suspenseProps = {
-      fallback: suspenseFallback,
-    };
 
     if (isLoading) {
       const LoadingComponent =
@@ -137,28 +138,28 @@ export default function RouterWrapper() {
 
       if (router.lazyLoading?.renderOverPage) {
         fullContent = (
-          <Suspense {...suspenseProps}>
+          <>
             <div id="__preloader__" hidden={!isLoading}>
               <LoadingComponent {...loadingProps} />
             </div>
             {<Layout>{content}</Layout>}
-          </Suspense>
+          </>
         );
       } else {
         fullContent = (
-          <Suspense {...suspenseProps}>
+          <>
             <LoadingComponent {...loadingProps} />
-          </Suspense>
+          </>
         );
       }
     } else {
       fullContent = (
-        <Suspense {...suspenseProps}>
+        <>
           {router.lazyLoading?.renderOverPage && (
             <div id="__preloader__" hidden />
           )}
           <Layout>{content}</Layout>
-        </Suspense>
+        </>
       );
     }
 
