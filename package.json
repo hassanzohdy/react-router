@@ -1,6 +1,6 @@
 {
     "name": "@mongez/react-router",
-    "version": "2.1.11",
+    "version": "2.1.12",
     "description": "A powerful react router system with lazy loading",
     "main": "src/index.ts",
     "dependencies": {

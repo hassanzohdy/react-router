@@ -846,12 +846,6 @@ export type LazyLoadingOptions = {
    * be applied to the page, you can use this to show a loading screen in your loader
    */
   renderOverPage?: boolean;
-  /**
-   * Define the component that will be used as fallback in the Suspense component
-   *
-   * @default loadingComponent
-   */
-  lazyComponentLoader?: Component;
 };
 
 /**
@@ -981,6 +975,12 @@ export type RouterConfigurations = {
    */
   rootComponent?: Component;
   /**
+   * Suspense fallback
+   *
+   * @default <></>
+   */
+  suspendFallback?: React.ReactNode;
+  /**
    * App And Module Loading Options
    */
   lazyLoading?: LazyLoadingOptions;
@@ -1016,7 +1016,7 @@ Let's see these configurations in details
 | `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
 | `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |
 | `lazyLoading.renderOverPage` | Whether to render only the loader or render the loader over the current page, if set to `true` then the loader will be rendered over the current page, by rendering the loader before the page component, no styling will be applied to the page, you can use this to show a loading screen in your loader | `false` | `boolean` |
-| `lazyLoading.lazyComponentLoader` | Lazy Loading Component when using `React.lazy`, that will be used as a fallback to [Suspense Component](https://reactjs.org/docs/code-splitting.html#reactlazy), if not and `lazyLoading.loadingComponent` is set it will be used instead. | `lazyLoading.loadingComponent` | `Component` |
+| `suspenseFallback` | Define suspense fallback when using `React.lazy`, that will be used as a fallback to [Suspense Component](https://reactjs.org/docs/code-splitting.html#reactlazy) | `<></>` | `React.ReactNode` |
 | `notFound.component` | Component to be rendered when the page is not found | `InternalNotFoundPageComponent` | `Component` |
 | `notFound.redirectTo` | Redirect to a specific page when the page is not found | `/404` | `string` |
 | `link.component` | Component to be used as a link | `a` | `Component` |
@@ -1080,15 +1080,13 @@ This component will be only rendered once during the application bootstrap.
 
 > Added in V2.1.0
 
-If you're using [React Lazy](https://reactjs.org/docs/code-splitting.html#reactlazy) to lazy load your components, you can use `lazyComponentLoader` to define a fallback component to be rendered while the component is being loaded.
+If you're using [React Lazy](https://reactjs.org/docs/code-splitting.html#reactlazy) to lazy load your components, you can use `suspenseFallback` to define a fallback component to be rendered while the component is being loaded.
 
 ```tsx
 import { setRouterConfigurations } from '@mongez/react-router';
 
 setRouterConfigurations({
-  lazyLoading: {
-    lazyComponentLoader: <div>Loading...</div>,
-  }
+  suspenseFallback: <div>Loading...</div>,
 });
 ```
 
@@ -1534,6 +1532,10 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.1.12 (19 Dec 2022)
+  - Exposed `suspenseFallback` configuration.
+  - Now `Link` component has a reset style (removed text decoration and color is inherit).
+  - Added `UnstyledLink` if you want to use a link with default style.
 - 2.1.0 (14 Nov 2022)
   - Added `lazyLoadingComponent` feature.
 - 2.0.31 (12 Nov 2022)

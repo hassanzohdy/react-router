@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
+import { getRouterConfigurations } from "../config";
 import routerEvents, { triggerEvent } from "../events";
 import router from "../router";
 import { RouteOptions } from "../types";
@@ -116,20 +117,10 @@ export default function RouterWrapper() {
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
-    const Fallback =
-      router.getLazyLoadingConfig(
-        "lazyComponentLoader",
-        router.getLazyLoadingConfig("loadingComponent")
-      ) || React.Fragment;
-
-    const fallbackProps = {};
-
-    if (Fallback !== React.Fragment) {
-      fallbackProps["loading"] = true;
-    }
+    const suspenseFallback = getRouterConfigurations().suspendFallback || <></>;
 
     const suspenseProps = {
-      fallback: <Fallback {...fallbackProps} />,
+      fallback: suspenseFallback,
     };
 
     if (isLoading) {
