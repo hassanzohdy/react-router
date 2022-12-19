@@ -125,12 +125,11 @@ export default function RouterWrapper() {
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
-
     if (isLoading) {
       const LoadingComponent =
         router.lazyLoading?.loadingComponent || React.Fragment;
 
-      const loadingProps = {};
+      const loadingProps: any = {};
 
       if (LoadingComponent !== React.Fragment) {
         loadingProps["loading"] = true;
