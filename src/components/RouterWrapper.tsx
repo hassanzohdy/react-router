@@ -117,7 +117,9 @@ export default function RouterWrapper() {
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
-    const suspenseFallback = getRouterConfigurations().suspendFallback || <></>;
+    const suspenseFallback = getRouterConfigurations().suspenseFallback || (
+      <></>
+    );
 
     const suspenseProps = {
       fallback: suspenseFallback,

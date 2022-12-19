@@ -212,7 +212,7 @@ export type RouterConfigurations = {
    *
    * @default <></>
    */
-  suspendFallback?: React.ReactNode;
+  suspenseFallback?: React.ReactNode;
   /**
    * App And Module Loading Options
    */
