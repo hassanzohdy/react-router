@@ -25,10 +25,6 @@ function _Link(
     localeCode,
     to,
     app,
-    style = {
-      textDecoration: "none",
-      color: "inherit",
-    },
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
@@ -88,7 +84,6 @@ function _Link(
 
   return (
     <Component
-      style={style}
       ref={ref}
       href={path.startsWith("/") ? concatRoute(router.basePath, path) : path}
       onClick={onClick}
@@ -100,7 +95,3 @@ function _Link(
 const Link: React.FC<LinkProps> = React.forwardRef<LinkProps>(_Link);
 
 export default Link;
-
-export function UnstyledLink(props: LinkProps) {
-  return <Link style={{}} {...props} />;
-}
