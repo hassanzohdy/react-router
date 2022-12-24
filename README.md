@@ -1530,6 +1530,8 @@ This will stop listening to the event.
 
 ## Change Log
 
+- 2.1.16 (24 Dec 2022)
+  - Fixed when app name is different than app path returning not found.
 - 2.1.15 (20 Dec 2022)
   - Revoked `UnstyledLink` component.
 - 2.1.14 (19 Dec 2022)

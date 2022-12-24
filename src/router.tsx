@@ -604,7 +604,7 @@ export class Router {
     const firstSegment = "/" + route.split("/")[1];
 
     const appModule = this.currentApp?.modules?.find((module) => {
-      return module?.entry.includes(firstSegment);
+      return module.entry.includes(firstSegment);
     });
 
     if (appModule) {
@@ -623,7 +623,8 @@ export class Router {
       ) {
         loaders.push(
           this.lazyLoading?.loaders?.module(
-            this.currentApp?.name!,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.currentApp!.name!,
             appModule.name
           )
         );
@@ -717,7 +718,7 @@ export class Router {
 
         continue;
       } else if (this.isApp(segment)) {
-        this.currentApp = this.getApp(segment);
+        this.currentApp = this.getAppByPath("/" + segment);
 
         continue;
       } else {
