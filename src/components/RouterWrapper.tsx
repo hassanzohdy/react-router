@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { getRouterConfigurations } from "../config";
 import routerEvents, { triggerEvent } from "../events";
+import { NAVIGATING } from "../helpers";
 import router from "../router";
 import { RouteOptions } from "../types";
 import { navigateTo } from "../utilities";
@@ -33,6 +34,8 @@ export default function RouterWrapper() {
     if (route.middleware) {
       for (const middleware of route.middleware) {
         const output = (middleware as any)();
+
+        if (output === NAVIGATING) return;
 
         if (output) {
           setContent(output);

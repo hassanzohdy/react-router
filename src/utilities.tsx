@@ -1,12 +1,14 @@
 import concatRoute from "@mongez/concat-route";
 import { triggerEvent } from "./events";
+import { NAVIGATING } from "./helpers";
 import router from "./router";
 import {
+  App,
   ChangeLanguageReloadMode,
   ChangeLanguageReloadModeOptions,
   NavigationMode,
   ObjectType,
-  PublicApp
+  PublicApp,
 } from "./types";
 
 /**
@@ -15,24 +17,24 @@ import {
 export function navigateTo(
   path: string,
   localeCode?: string,
-  appName = router.getCurrentApp()?.name
+  appName = router.getCurrentApp()?.name,
 ) {
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
   }
 
-  const appPath = router.getApp(appName!)?.path!;
+  const appPath = router.getApp(appName!)?.path as string;
 
   router.goTo(concatRoute(localeCode || "", appPath, path));
 
-  return <></>;
+  return NAVIGATING;
 }
 
 /**
  * Navigate back to the previous route
  */
 export function navigateBack() {
-  navigateTo(router.getPreviousRoute());
+  return navigateTo(router.getPreviousRoute());
 }
 
 /**
@@ -57,7 +59,7 @@ export function currentRoute() {
  */
 export function changeLocaleCode(
   localeCode: string,
-  reloadMode: ChangeLanguageReloadMode = router.getChangeLanguageReloadMode()
+  reloadMode: ChangeLanguageReloadMode = router.getChangeLanguageReloadMode(),
 ) {
   const currentLocaleCode = router.getCurrentLocaleCode();
 
@@ -82,7 +84,7 @@ export function changeLocaleCode(
   router.refreshActiveRouteKey();
   router.goTo(
     concatRoute(localeCode, currentAppPath, currentRoute),
-    NavigationMode.changeLocaleCode
+    NavigationMode.changeLocaleCode,
   );
   triggerEvent("localeChanged", localeCode, currentLocaleCode);
 }
@@ -107,7 +109,7 @@ export function refresh() {
  */
 export function silentNavigation(
   path: string,
-  querySting?: string | ObjectType
+  querySting?: string | ObjectType,
 ) {
   router.silentNavigation(path, querySting);
 }
@@ -123,7 +125,7 @@ export function getHash() {
  * Set apps list
  */
 export function setApps(apps: PublicApp[]) {
-  router.setAppsList(apps);
+  router.setAppsList(apps as App[]);
 }
 
 /**
