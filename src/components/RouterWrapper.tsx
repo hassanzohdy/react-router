@@ -27,10 +27,6 @@ export default function RouterWrapper() {
 
     route.key = key;
 
-    setLayout(() => {
-      return route.layout || React.Fragment;
-    });
-
     if (route.middleware) {
       for (const middleware of route.middleware) {
         const output = (middleware as any)();
@@ -43,6 +39,10 @@ export default function RouterWrapper() {
         }
       }
     }
+
+    setLayout(() => {
+      return route.layout || React.Fragment;
+    });
 
     const Component = route.component;
 
