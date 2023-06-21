@@ -1,11 +1,11 @@
 {
     "name": "@mongez/react-router",
-    "version": "2.1.21",
+    "version": "2.1.23",
     "description": "A powerful react router system with lazy loading",
     "main": "src/index.ts",
     "dependencies": {
-        "@mongez/concat-route": "^1.x.x",
-        "@mongez/events": "^1.x.x"
+        "@mongez/concat-route": "^1.0.0",
+        "@mongez/events": "^2.1.0"
     },
     "repository": {
         "type": "git",

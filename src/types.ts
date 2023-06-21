@@ -382,3 +382,14 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
    */
   newTab?: boolean;
 };
+
+
+/**
+ * Lazy Loading props
+ */
+export type LazyLoadingProps = {
+  /**
+   * Whether the app or module is being loaded
+   */
+  loading: boolean; 
+}
