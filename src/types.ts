@@ -383,7 +383,6 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   newTab?: boolean;
 };
 
-
 /**
  * Lazy Loading props
  */

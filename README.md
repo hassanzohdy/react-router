@@ -999,7 +999,7 @@ Let's see these configurations in details
 
 <!-- Table to illustrate router configurations -->
 | Configuration | Description | Default | Type |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `basePath` | The base path of the project, it's recommended to set it with production check like this: `process.env.NODE_ENV === "production" ? "/project-name" : "/"` | `/` | `string` |
 | `scrollToTop` | Whether to scroll to top of the page when navigating to a new page | `smooth` | `false` \| `"smooth"` | `"default"` |
 | `localization.localeCodes` | An array contains list of locale codes that will be used in the project | `["en"]` | `string[]` |
@@ -1007,11 +1007,10 @@ Let's see these configurations in details
 | `localization.changeLanguageReloadMode` | The mode that will be used when changing the language, if set to `soft` then it will update the url with the new locale code and re-render the current page, if set to `hard` then it will reload the page with the new locale code | `soft` | `soft`, `hard` |
 | `forceRefresh` | Whether to force refresh the page when the user navigates to the same page | `true` | `boolean` |
 | `urlMatcher` | This can be used to allow more dynamic url matching, for example using, Most of the packages for parsing route patterns work with regular expressions (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp) or a super-tiny alternative [regexparam](https://github.com/lukeed/regexparam)).
-
   | `undefined` | `(pattern: string) => { regexp: RegExp; keys: { name: string }[]; }` |
 | `queryString.objectParser` | Query String Object to String parser | `undefined` | `(queryString: string) => ObjectType` |
 | `queryString.stringParser` | Query String Object to String parser | `undefined` | `(queryObject: ObjectType) => string` |
-| `strictMode` | Whether to enable React strict mode | `false` | `boolean` |
+| `strictMode` | If set to true, the entire application will be wrapped in `<React.StrictMode>`  | `true` | `boolean` |
 | `rootComponent` | Root component that will be used to wrap all the pages, this component will be rendered only once | `undefined` | `Component` |
 | `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
 | `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |
