@@ -31,7 +31,11 @@ export default function RouterWrapper() {
     if (route.middleware) {
       for (const middleware of route.middleware) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const output = (middleware as any)();
+        const output = (middleware as any)({
+          params: router.params,
+          localeCode: router.getCurrentLocaleCode(),
+          route: route,
+        });
 
         if (output === NAVIGATING) return;
 
