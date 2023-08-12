@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import concatRoute from "@mongez/concat-route";
 import React, { useMemo } from "react";
 import { isUrl } from "../../helpers";

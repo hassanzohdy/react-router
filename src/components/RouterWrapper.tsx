@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { getRouterConfigurations } from "../config";
 import routerEvents, { triggerEvent } from "../events";
@@ -29,6 +30,7 @@ export default function RouterWrapper() {
 
     if (route.middleware) {
       for (const middleware of route.middleware) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const output = (middleware as any)();
 
         if (output === NAVIGATING) return;
@@ -77,7 +79,8 @@ export default function RouterWrapper() {
   };
 
   const lazyLoading = (route: string) => {
-    const [loaders, onLoad]: any = router.getLazyRouter(route);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [loaders, onLoad] = router.getLazyRouter(route) as any;
 
     if (loaders) {
       setIsLoading(true);

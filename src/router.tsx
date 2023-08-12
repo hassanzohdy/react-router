@@ -535,6 +535,16 @@ export class Router {
   ) {
     fullPath = concatRoute(this.basePath, fullPath);
 
+    // check if the fullPath equals to current path
+    // if so and force refresh is disabled, then do nothing
+    if (
+      !this.isForceRefreshEnabled() &&
+      this.currentLocaleCode + this.currentRoute ===
+        this.currentLocaleCode + fullPath
+    ) {
+      return;
+    }
+
     // update the current route for browser
     window.history.pushState(null, "", fullPath);
 
