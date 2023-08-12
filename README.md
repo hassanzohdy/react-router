@@ -70,9 +70,9 @@ But we didn't register any route yet, so let's do it.
 ```tsx
 // src/routes.ts
 import router from "@mongez/react-router";
-import HomePage from './pages/HomePage';
+import HomePage from "./pages/HomePage";
 
-router.add('/', HomePage);
+router.add("/", HomePage);
 ```
 
 Now let's import the `routes.ts` file in our `src/index.ts` file.
@@ -97,9 +97,9 @@ There are many ways to declare routes, but the most common way is to use `router
 ```tsx
 // src/routes.ts
 import router from "@mongez/react-router";
-import HomePage from './pages/HomePage';
+import HomePage from "./pages/HomePage";
 
-router.add('/', HomePage);
+router.add("/", HomePage);
 ```
 
 This is the basic usage, we can also use dynamic paths, for example getting the user id from the url.
@@ -107,27 +107,23 @@ This is the basic usage, we can also use dynamic paths, for example getting the 
 ```tsx
 // src/routes.ts
 import router from "@mongez/react-router";
-import HomePage from './pages/HomePage';
-import UserDetailsPage from './pages/UserDetailsPage';
+import HomePage from "./pages/HomePage";
+import UserDetailsPage from "./pages/UserDetailsPage";
 
-router.add('/', HomePage);
-router.add('/users/:id', UserDetailsPage);
+router.add("/", HomePage);
+router.add("/users/:id", UserDetailsPage);
 ```
 
 Now the `UserDetailsPage` will receive `params` object in its props, and the `id` will be available in `params.id`.
 
 ```tsx
 // src/pages/UserDetailsPage.tsx
-import React from 'react';
+import React from "react";
 
 export default function UserDetailsPage({ params }) {
-    const userId = params.id;
+  const userId = params.id;
 
-    return (
-        <div>
-            User ID: {userId}
-        </div>
-    );
+  return <div>User ID: {userId}</div>;
 }
 ```
 
@@ -141,9 +137,9 @@ Routes can be added in the router container using `router.add` method, it accept
 - `layout`: the Base layout component that page will be rendered inside it.
 
 ```ts
-import HomePage from './HomePage';
-import Guardian from './middleware/Guardian';
-import BaseLayout from './layouts/BaseLayout';
+import HomePage from "./HomePage";
+import Guardian from "./middleware/Guardian";
+import BaseLayout from "./layouts/BaseLayout";
 router.add("/", HomePage, [Guardian], BaseLayout);
 ```
 
@@ -220,8 +216,6 @@ export default function Guardian() {
   return null;
 }
 ```
-
-> Kindly note that `navigateTo` returns true, that's mean when you use it to navigate and want to stop the page from rendering, you can return the function directly.
 
 ## Page Base Layout
 
@@ -649,7 +643,7 @@ setRouterConfigurations({
         import(`./../apps/${app}/${module}/provider.ts`),
     },
     }
-  }  
+  }
 });
 ```
 
@@ -769,7 +763,7 @@ changeLanguageReloadMode: 'soft', // soft reload will re-render the current page
         import(`./../apps/${app}/${module}/provider.ts`),
     },
     }
-  }  
+  }
 });
 ```
 
@@ -998,27 +992,28 @@ export type RouterConfigurations = {
 Let's see these configurations in details
 
 <!-- Table to illustrate router configurations -->
-| Configuration | Description | Default | Type |
-| --- | --- | --- | --- |
-| `basePath` | The base path of the project, it's recommended to set it with production check like this: `process.env.NODE_ENV === "production" ? "/project-name" : "/"` | `/` | `string` |
-| `scrollToTop` | Whether to scroll to top of the page when navigating to a new page | `smooth` | `false` \| `"smooth"` | `"default"` |
-| `localization.localeCodes` | An array contains list of locale codes that will be used in the project | `["en"]` | `string[]` |
-| `localization.defaultLocaleCode` | The default locale code that will be used in the project | `en` | `string` |
-| `localization.changeLanguageReloadMode` | The mode that will be used when changing the language, if set to `soft` then it will update the url with the new locale code and re-render the current page, if set to `hard` then it will reload the page with the new locale code | `soft` | `soft`, `hard` |
-| `forceRefresh` | Whether to force refresh the page when the user navigates to the same page | `true` | `boolean` |
-| `urlMatcher` | This can be used to allow more dynamic url matching, for example using, Most of the packages for parsing route patterns work with regular expressions (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp) or a super-tiny alternative [regexparam](https://github.com/lukeed/regexparam)).
-  | `undefined` | `(pattern: string) => { regexp: RegExp; keys: { name: string }[]; }` |
-| `queryString.objectParser` | Query String Object to String parser | `undefined` | `(queryString: string) => ObjectType` |
-| `queryString.stringParser` | Query String Object to String parser | `undefined` | `(queryObject: ObjectType) => string` |
-| `strictMode` | If set to true, the entire application will be wrapped in `<React.StrictMode>`  | `true` | `boolean` |
-| `rootComponent` | Root component that will be used to wrap all the pages, this component will be rendered only once | `undefined` | `Component` |
-| `lazyLoading.loaders` | Loaders options for app and module,**this is required** if you're going to use the lazy apps. | `undefined` | `Loaders` |
-| `lazyLoading.loadingComponent` | Preload Component which will be displayed while the app/module is being loading | `InternalPreloaderComponent` | `Component` |
-| `lazyLoading.renderOverPage` | Whether to render only the loader or render the loader over the current page, if set to `true` then the loader will be rendered over the current page, by rendering the loader before the page component, no styling will be applied to the page, you can use this to show a loading screen in your loader | `false` | `boolean` |
-| `suspenseFallback` | Define suspense fallback when using `React.lazy`, that will be used as a fallback to [Suspense Component](https://reactjs.org/docs/code-splitting.html#reactlazy) | `<></>` | `React.ReactNode` |
-| `notFound.component` | Component to be rendered when the page is not found | `InternalNotFoundPageComponent` | `Component` |
-| `notFound.redirectTo` | Redirect to a specific page when the page is not found | `/404` | `string` |
-| `link.component` | Component to be used as a link | `a` | `Component` |
+
+| Configuration                           | Description                                                                                                                                                                                                                                                                                                | Default                         | Type                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- | ----------- |
+| `basePath`                              | The base path of the project, it's recommended to set it with production check like this: `process.env.NODE_ENV === "production" ? "/project-name" : "/"`                                                                                                                                                  | `/`                             | `string`                              |
+| `scrollToTop`                           | Whether to scroll to top of the page when navigating to a new page                                                                                                                                                                                                                                         | `smooth`                        | `false` \| `"smooth"`                 | `"default"` |
+| `localization.localeCodes`              | An array contains list of locale codes that will be used in the project                                                                                                                                                                                                                                    | `["en"]`                        | `string[]`                            |
+| `localization.defaultLocaleCode`        | The default locale code that will be used in the project                                                                                                                                                                                                                                                   | `en`                            | `string`                              |
+| `localization.changeLanguageReloadMode` | The mode that will be used when changing the language, if set to `soft` then it will update the url with the new locale code and re-render the current page, if set to `hard` then it will reload the page with the new locale code                                                                        | `soft`                          | `soft`, `hard`                        |
+| `forceRefresh`                          | Whether to force refresh the page when the user navigates to the same page                                                                                                                                                                                                                                 | `true`                          | `boolean`                             |
+| `urlMatcher`                            | This can be used to allow more dynamic url matching, for example using, Most of the packages for parsing route patterns work with regular expressions (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp) or a super-tiny alternative [regexparam](https://github.com/lukeed/regexparam)).   |
+| `undefined`                             | `(pattern: string) => { regexp: RegExp; keys: { name: string }[]; }`                                                                                                                                                                                                                                       |
+| `queryString.objectParser`              | Query String Object to String parser                                                                                                                                                                                                                                                                       | `undefined`                     | `(queryString: string) => ObjectType` |
+| `queryString.stringParser`              | Query String Object to String parser                                                                                                                                                                                                                                                                       | `undefined`                     | `(queryObject: ObjectType) => string` |
+| `strictMode`                            | If set to true, the entire application will be wrapped in `<React.StrictMode>`                                                                                                                                                                                                                             | `true`                          | `boolean`                             |
+| `rootComponent`                         | Root component that will be used to wrap all the pages, this component will be rendered only once                                                                                                                                                                                                          | `undefined`                     | `Component`                           |
+| `lazyLoading.loaders`                   | Loaders options for app and module,**this is required** if you're going to use the lazy apps.                                                                                                                                                                                                              | `undefined`                     | `Loaders`                             |
+| `lazyLoading.loadingComponent`          | Preload Component which will be displayed while the app/module is being loading                                                                                                                                                                                                                            | `InternalPreloaderComponent`    | `Component`                           |
+| `lazyLoading.renderOverPage`            | Whether to render only the loader or render the loader over the current page, if set to `true` then the loader will be rendered over the current page, by rendering the loader before the page component, no styling will be applied to the page, you can use this to show a loading screen in your loader | `false`                         | `boolean`                             |
+| `suspenseFallback`                      | Define suspense fallback when using `React.lazy`, that will be used as a fallback to [Suspense Component](https://reactjs.org/docs/code-splitting.html#reactlazy)                                                                                                                                          | `<></>`                         | `React.ReactNode`                     |
+| `notFound.component`                    | Component to be rendered when the page is not found                                                                                                                                                                                                                                                        | `InternalNotFoundPageComponent` | `Component`                           |
+| `notFound.redirectTo`                   | Redirect to a specific page when the page is not found                                                                                                                                                                                                                                                     | `/404`                          | `string`                              |
+| `link.component`                        | Component to be used as a link                                                                                                                                                                                                                                                                             | `a`                             | `Component`                           |
 
 > If you're using [Mongez React](https://github.com/hassanzohdy/react), it can be part of the entire application configurations.
 
@@ -1055,13 +1050,13 @@ You may use [Progress Bar Component](https://github.com/hassanzohdy/react-compon
 ![Progress Preview](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/99kzuedy4fiezrxgcst4.gif)
 
 ```tsx
-import { ProgressBar } from '@mongez/react-components';
-import { setRouterConfigurations } from '@mongez/react-router';
+import { ProgressBar } from "@mongez/react-components";
+import { setRouterConfigurations } from "@mongez/react-router";
 
 setRouterConfigurations({
   lazyLoading: {
     loadingComponent: ProgressBar,
-  }
+  },
 });
 ```
 
@@ -1075,6 +1070,18 @@ This component will be only rendered once during the application bootstrap.
 
 > Root Component does not receive any props at all.
 
+## Strict Mode
+
+By default [Strict Mode](https://react.dev/reference/react/StrictMode) is enabled, you can disable it by setting `strictMode` to `false` in the [router configurations](#router-configurations).
+
+```tsx
+import { setRouterConfigurations } from "@mongez/react-router";
+
+setRouterConfigurations({
+  strictMode: false,
+});
+```
+
 ## Lazy Loading Components Loader
 
 > Added in V2.1.0
@@ -1082,7 +1089,7 @@ This component will be only rendered once during the application bootstrap.
 If you're using [React Lazy](https://reactjs.org/docs/code-splitting.html#reactlazy) to lazy load your components, you can use `suspenseFallback` to define a fallback component to be rendered while the component is being loaded.
 
 ```tsx
-import { setRouterConfigurations } from '@mongez/react-router';
+import { setRouterConfigurations } from "@mongez/react-router";
 
 setRouterConfigurations({
   suspenseFallback: <div>Loading...</div>,
@@ -1353,7 +1360,7 @@ import { queryString } from "@mongez/react-router";
 // get query string as object
 
 // sitename.com?name=John&age=30&id[]=1&id[]=2
-const queryStringParams = queryString.all();  // {name: 'John', age: 30, id: [1, 2]}
+const queryStringParams = queryString.all(); // {name: 'John', age: 30, id: [1, 2]}
 ```
 
 It will automatically convert the query string to an object, if the query string has an array, it will be converted to an array.
@@ -1433,9 +1440,8 @@ Sometimes you might need to update the route but without navigating to it, this 
 ```tsx
 import { silentNavigation } from "@mongez/react-router";
 
-
 setTimeout(() => {
-  silentNavigation('/home'); // update the route but do not navigate to it
+  silentNavigation("/home"); // update the route but do not navigate to it
 }, 3000);
 ```
 
@@ -1444,9 +1450,8 @@ You can also pass the second argument if you want to update the query string as 
 ```tsx
 import { silentNavigation } from "@mongez/react-router";
 
-
 setTimeout(() => {
-  silentNavigation('/home', { name: 'John' }); // update the route but do not navigate to it // /home?name=John
+  silentNavigation("/home", { name: "John" }); // update the route but do not navigate to it // /home?name=John
 }, 3000);
 ```
 
@@ -1455,9 +1460,8 @@ Query string can also be set as string.
 ```tsx
 import { silentNavigation } from "@mongez/react-router";
 
-
 setTimeout(() => {
-  silentNavigation('/home', 'name=John'); // update the route but do not navigate to it // /home?name=John
+  silentNavigation("/home", "name=John"); // update the route but do not navigate to it // /home?name=John
 }, 3000);
 ```
 
@@ -1491,7 +1495,6 @@ You may listen to any router change based on the navigation link change.
 
 ```ts
 import { routerEvents } from "@mongez/react-router";
-
 ```
 
 There are mainly `6` events that can be listened to.
@@ -1500,8 +1503,8 @@ There are mainly `6` events that can be listened to.
 - `onDetectingInitialLocaleCode(callback: (localeCode: string) => void) => EventSubscription`: This event will be fired just before detecting the initial locale code, it receives the detected locale code, this will be triggered only once and only if the url has a locale code.
 - `onLocaleChanging(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just before changing the locale code, it receives the current locale and the new locale.
 - `onLocaleChanged(callback: (newLocaleCode: string, oldLocaleCode: string)) => EventSubscription`: This event will be fired just after changing the locale code, it receives the current locale and the new locale, this event is triggered only if the change mode is `soft`.
-`onRendering(callback: (route: string, navigationMode: NavigationMode) => void): EventSubscription`
-`onPageRendered: (callback: (route: string, navigationMode: NavigationMode) => void) => EventSubscription`: This event will be fired just after rendering the page, it receives the current route and the navigation mode.
+  `onRendering(callback: (route: string, navigationMode: NavigationMode) => void): EventSubscription`
+  `onPageRendered: (callback: (route: string, navigationMode: NavigationMode) => void) => EventSubscription`: This event will be fired just after rendering the page, it receives the current route and the navigation mode.
 
 The navigation type determine how is the current route being rendered, it can be one of the following:
 
@@ -1513,9 +1516,11 @@ The navigation type determine how is the current route being rendered, it can be
 ```ts
 import { routerEvents } from "@mongez/react-router";
 
-const subscription = routerEvents.onNavigating((route, navigationMode, previousRoute) => {
-  console.log(route, navigationMode, previousRoute);
-});
+const subscription = routerEvents.onNavigating(
+  (route, navigationMode, previousRoute) => {
+    console.log(route, navigationMode, previousRoute);
+  }
+);
 ```
 
 Any event returns [Event Subscription](https://github.com/hassanzohdy/mongez-events#unsubscribe-to-event) which can be used to unsubscribe from the event.
