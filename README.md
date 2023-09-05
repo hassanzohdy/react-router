@@ -469,7 +469,7 @@ Now open `front-office-modules.json` file and put the following code inside it.
   "modules": [
     {
       "entry": ["/"],
-      "module": "home"
+      "name": "home"
     }
   ]
 }
@@ -532,11 +532,11 @@ In that sense, they all share one module which is `account` and they all start w
   "modules": [
     {
       "entry": ["/account"],
-      "module": "account"
+      "name": "account"
     },
     {
       "entry": ["/"],
-      "module": "home"
+      "name": "home"
     }
   ]
 }
@@ -551,11 +551,11 @@ One more thing to mention is that we can also load the module with different rou
   "modules": [
     {
       "entry": ["/account", "/login"],
-      "module": "account"
+      "name": "account"
     },
     {
       "entry": ["/"],
-      "module": "home"
+      "name": "home"
     }
   ]
 }
@@ -572,11 +572,11 @@ One more thing to mention is that we can also load the module with different rou
   "modules": [
     {
       "entry": ["/account", "/login"],
-      "module": "account"
+      "name": "account"
     },
     {
       "entry": ["/"],
-      "module": "home"
+      "name": "home"
     }
   ]
 }
@@ -591,11 +591,11 @@ One more thing to mention is that we can also load the module with different rou
   "modules": [
     {
       "entry": ["/account/dashboard", "/account/edit-profile", "/login"],
-      "module": "account"
+      "name": "account"
     },
     {
       "entry": ["/"],
-      "module": "home"
+      "name": "home"
     }
   ]
 }
