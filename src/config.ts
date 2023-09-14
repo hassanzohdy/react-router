@@ -50,6 +50,12 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
     router.setScrollToTop(configurations.scrollToTop);
   }
 
+  if (configurations.autoRedirectToLocaleCode !== undefined) {
+    router.setAutoRedirectToDefaultLocaleCode(
+      configurations.autoRedirectToLocaleCode
+    );
+  }
+
   routerConfigurations = { ...routerConfigurations, ...configurations };
 }
 

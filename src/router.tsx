@@ -23,6 +23,7 @@ import {
   RouterConfigurations,
   UrlMatcher,
 } from "./types";
+import { changeLocaleCode } from "./utilities";
 
 export class Router {
   /**
@@ -171,11 +172,27 @@ export class Router {
   protected scrollToTopEvent?: EventSubscription;
 
   /**
+   * Auto redirect to the default locale code
+   *
+   * @default auto
+   */
+  private autoRedirectToDefaultLocaleCode?: boolean;
+
+  /**
    * Constructor
    */
   public constructor() {
     this.detectBrowserUrlChange();
     this.setScrollToTop("smooth");
+  }
+
+  /**
+   * Detect auto redirect to default locale code
+   */
+  protected detectAutoRedirectToDefaultLocaleCode() {
+    if (this.autoRedirectToDefaultLocaleCode !== undefined) return;
+
+    this.autoRedirectToDefaultLocaleCode = this.localeCodes.length > 1;
   }
 
   /**
@@ -201,6 +218,17 @@ export class Router {
         window.scrollTo(0, 0);
       }
     });
+
+    return this;
+  }
+
+  /**
+   * Whether to auto redirect to the default locale code
+   */
+  public setAutoRedirectToDefaultLocaleCode(
+    autoRedirectToDefaultLocaleCode: boolean
+  ) {
+    this.autoRedirectToDefaultLocaleCode = autoRedirectToDefaultLocaleCode;
 
     return this;
   }
@@ -381,10 +409,14 @@ export class Router {
    * Scan routes
    */
   public scan() {
+    this.detectAutoRedirectToDefaultLocaleCode();
+
     this.parseLocation();
 
     if (this.initialLocaleCode) {
       triggerEvent("initialLocaleCode", this.initialLocaleCode);
+    } else if (this.autoRedirectToDefaultLocaleCode) {
+      return changeLocaleCode(this.defaultLocaleCode, "hard");
     }
 
     triggerEvent(

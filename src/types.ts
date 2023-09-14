@@ -178,6 +178,12 @@ export type RouterConfigurations = {
    */
   forceRefresh?: boolean;
   /**
+   * Auto redirect to locale code if no locale code is found in the url
+   *
+   * @default true
+   */
+  autoRedirectToLocaleCode?: boolean;
+  /**
    * Scroll to top when navigating to a new page
    *
    * @default smooth
@@ -390,5 +396,5 @@ export type LazyLoadingProps = {
   /**
    * Whether the app or module is being loaded
    */
-  loading: boolean; 
-}
+  loading: boolean;
+};
