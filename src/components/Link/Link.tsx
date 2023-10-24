@@ -42,6 +42,8 @@ function _Link(
 
     let path = to || (href as string);
 
+    if (path.startsWith("#")) return path;
+
     if (isUrl(path)) return path;
 
     const appName = app || (router.getCurrentApp()?.name as string);
