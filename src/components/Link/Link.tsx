@@ -90,7 +90,7 @@ function _Link(
   return (
     <Component
       ref={ref}
-      href={path.startsWith("/") ? concatRoute(router.basePath, path) : path}
+      href={path?.startsWith("/") ? concatRoute(router.basePath, path) : path}
       onClick={onClick}
       {...props}
     />
