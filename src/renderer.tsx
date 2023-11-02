@@ -1,22 +1,26 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import { hydrateRoot, createRoot } from "react-dom/client";
 import RouterWrapper from "./components/RouterWrapper";
 import { Component } from "./types";
 
 export function renderer(Root: Component, strictMode: boolean) {
+  const rootElement = document.getElementById("root") as HTMLElement;
+
   const app = (
     <Root>
       <RouterWrapper />
     </Root>
   );
 
-  const root = ReactDOM.createRoot(
-    document.getElementById("root") as HTMLElement
-  );
+  if (rootElement.hasChildNodes()) {
+    return hydrateRoot(rootElement, app);
+  } else {
+    const root = createRoot(rootElement);
 
-  const StrictModeWrapper = strictMode ? React.StrictMode : React.Fragment;
+    const StrictModeWrapper = strictMode ? React.StrictMode : React.Fragment;
 
-  root.render(<StrictModeWrapper>{app}</StrictModeWrapper>);
+    root.render(<StrictModeWrapper>{app}</StrictModeWrapper>);
 
-  return root;
+    return root;
+  }
 }

@@ -1619,8 +1619,14 @@ setRouterConfigurations({
 
 In this case it will be set to `true`.
 
+## Hydration
+
+Starting from Version `2.3.0` MRR will check if the root element has any children, if it has, it will hydrate the application instead of creating a new root tree.
+
 ## Change Log
 
+- 2.3.0 (02 Nov 2023)
+  - Added hydration feature.
 - 2.2.0 (15 Sept 2023)
   - Added `autoRedirectToLocaleCode` configuration.
 - 2.1.16 (24 Dec 2022)
