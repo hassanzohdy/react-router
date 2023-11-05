@@ -40,16 +40,22 @@ export function toObjectParser(query: string) {
   return result;
 }
 
-export function toStringParser(params: ObjectType) {
-  const newParams = { ...params };
+export function toStringParser(
+  params: ObjectType,
+  parentKey?: string,
+): string {
+  const newParams: ObjectType = { ...params };
   const queryString = Object.keys(newParams)
-    .map((key) => {
+    .map(key => {
       const value = newParams[key];
+      const updatedKey = parentKey ? `${parentKey}[${key}]` : key;
 
-      if (Array.isArray(value)) {
-        return value.map((v) => `${key}[]=${v}`).join("&");
+      if (typeof value === "object" && !Array.isArray(value)) {
+        return toStringParser(value, updatedKey);
+      } else if (Array.isArray(value)) {
+        return value.map(v => `${updatedKey}[]=${v}`).join("&");
       } else {
-        return `${key}=${value}`;
+        return `${updatedKey}=${value}`;
       }
     })
     .join("&");
