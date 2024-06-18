@@ -725,6 +725,9 @@ export class Router {
 
     // update the current route for browser
     window.history.replaceState({}, document.title, url);
+
+    this.previousRoute = this.currentRoute;
+    this.currentRoute = route;
   }
 
   /**
