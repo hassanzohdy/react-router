@@ -16,6 +16,19 @@ export default function RouterWrapper() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [renderingEvent] = useState(() => {
+    return routerEvents.onRendering((path: string) => {
+      const routeHandler = router.getRouteByPath(path);
+
+      if (routeHandler) {
+        updatePage(routeHandler);
+      } else {
+        // start lazy loading
+        lazyLoading(router.getCurrentRoute());
+      }
+    });
+  });
+
   const updatePage = (route: RouteOptions) => {
     let key: string = route.key || "";
 
@@ -56,15 +69,15 @@ export default function RouterWrapper() {
       <></>
     );
 
+    const component = <Component key={key} params={router.params} />;
+
     const componentContent = (
-      <Suspense fallback={suspenseFallback}>
-        <Component key={key} params={router.params} />
-      </Suspense>
+      <Suspense fallback={suspenseFallback}>{component}</Suspense>
     );
 
-    setContent(componentContent);
-
     router.activeRoute = route;
+
+    setContent(componentContent);
 
     setTimeout(() => {
       triggerEvent("rendered", route.path, router.navigationMode);
@@ -84,6 +97,7 @@ export default function RouterWrapper() {
 
   const lazyLoading = (route: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const [loaders, onLoad] = router.getLazyRouter(route) as any;
 
     if (loaders) {
@@ -117,21 +131,15 @@ export default function RouterWrapper() {
       // start lazy loading
       lazyLoading(currentRoute);
     }
-
-    const event = routerEvents.onRendering((path: string) => {
-      const routeHandler = router.getRouteByPath(path);
-
-      if (routeHandler) {
-        updatePage(routeHandler);
-      } else {
-        // start lazy loading
-        lazyLoading(router.getCurrentRoute());
-      }
-    });
-
-    return () => event.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    return () => {
+      renderingEvent.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [renderingEvent]);
 
   const fullContent = useMemo(() => {
     let fullContent: React.ReactNode;
@@ -180,5 +188,5 @@ export default function RouterWrapper() {
     return fullContent;
   }, [Layout, content, isLoading]);
 
-  return fullContent;
+  return <>{fullContent}</>;
 }

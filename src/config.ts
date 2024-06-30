@@ -52,7 +52,7 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
 
   if (configurations.autoRedirectToLocaleCode !== undefined) {
     router.setAutoRedirectToDefaultLocaleCode(
-      configurations.autoRedirectToLocaleCode
+      configurations.autoRedirectToLocaleCode,
     );
   }
 
@@ -61,7 +61,7 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
 
 export function getRouterConfig(
   key: keyof RouterConfigurations,
-  defaultValue: any
+  defaultValue: any,
 ) {
   return routerConfigurations[key] || defaultValue;
 }

@@ -1,6 +1,7 @@
 import concatRoute from "@mongez/concat-route";
 import { EventSubscription } from "@mongez/events";
 import React from "react";
+import { createPortal } from "react-dom";
 import ReactDOM from "react-dom/client";
 import routerEvents, { triggerEvent } from "./events";
 import matchUrl, { urlPatternMatcher } from "./matcher";
@@ -178,12 +179,20 @@ export class Router {
    */
   private autoRedirectToDefaultLocaleCode?: boolean;
 
+  public contents: Record<string, React.ReactNode> = {};
+
+  protected currentPageComponentNode?: React.ReactNode;
+
   /**
    * Constructor
    */
   public constructor() {
     this.detectBrowserUrlChange();
     this.setScrollToTop("smooth");
+  }
+
+  public setCurrentPageNode(node: React.ReactNode) {
+    this.currentPageComponentNode = node;
   }
 
   /**
@@ -226,7 +235,7 @@ export class Router {
    * Whether to auto redirect to the default locale code
    */
   public setAutoRedirectToDefaultLocaleCode(
-    autoRedirectToDefaultLocaleCode: boolean
+    autoRedirectToDefaultLocaleCode: boolean,
   ) {
     this.autoRedirectToDefaultLocaleCode = autoRedirectToDefaultLocaleCode;
 
@@ -283,7 +292,7 @@ export class Router {
    */
   public getLazyLoadingConfig(
     string: keyof LazyLoadingOptions,
-    defaultValue?: any
+    defaultValue?: any,
   ) {
     return this.lazyLoading?.[string] ?? defaultValue;
   }
@@ -423,7 +432,7 @@ export class Router {
       "navigating",
       this.currentRoute,
       NavigationMode.navigation,
-      "/"
+      "/",
     );
 
     this.render();
@@ -439,7 +448,7 @@ export class Router {
     path: string,
     component: React.ComponentType<any>,
     middleware?: Middleware,
-    layout?: React.ComponentType<any>
+    layout?: React.ComponentType<any>,
   ): Router;
   public add(...args: any[]) {
     let routeOptions: Route;
@@ -475,7 +484,7 @@ export class Router {
       if (groupOptions.path) {
         finalRouteOptions.path = concatRoute(
           groupOptions.path,
-          routeOptions.path
+          routeOptions.path,
         );
       }
 
@@ -514,7 +523,7 @@ export class Router {
     // find the proper route for the given path
     // also check for dynamic segments and parse it into params object
 
-    const route = this.routesList.find((route) => {
+    const route = this.routesList.find(route => {
       const [found, params] = matchUrl(route.path, path, this.matcher);
 
       if (params) {
@@ -528,7 +537,7 @@ export class Router {
       route.key = concatRoute(
         this.getCurrentLocaleCode(),
         this.currentApp?.path || "/",
-        path
+        path,
       );
     }
 
@@ -542,7 +551,7 @@ export class Router {
     const activeRoute = this.activeRoute;
 
     const internalActiveRoute = this.list().find(
-      (route) => route.path === activeRoute?.path
+      route => route.path === activeRoute?.path,
     );
 
     if (internalActiveRoute) {
@@ -563,7 +572,7 @@ export class Router {
    */
   public goTo(
     fullPath: string,
-    navigationMode: NavigationMode = NavigationMode.navigation
+    navigationMode: NavigationMode = NavigationMode.navigation,
   ) {
     fullPath = concatRoute(this.basePath, fullPath);
 
@@ -591,15 +600,6 @@ export class Router {
     window.addEventListener("popstate", () => {
       this.parseLocation();
 
-      // if (this.cacheContent[this.currentLocaleCode + this.currentRoute]) {
-      //   const content =
-      //     this.cacheContent[this.currentLocaleCode + this.currentRoute];
-
-      //   this.root?.render(content);
-
-      //   return;
-      // }
-
       this.refresh(NavigationMode.swinging);
     });
   }
@@ -615,13 +615,13 @@ export class Router {
       "navigating",
       this.currentRoute,
       navigationMode,
-      this.previousRoute
+      this.previousRoute,
     );
 
     triggerEvent(
       "rendering",
       concatRoute(this.currentApp?.path || "/", this.currentRoute),
-      navigationMode
+      navigationMode,
     );
   }
 
@@ -645,7 +645,7 @@ export class Router {
   public getLazyRouter(route: string) {
     const firstSegment = "/" + route.split("/")[1];
 
-    const appModule = this.currentApp?.modules?.find((module) => {
+    const appModule = this.currentApp?.modules?.find(module => {
       return module.entry.includes(firstSegment);
     });
 
@@ -654,21 +654,21 @@ export class Router {
 
       if (!this.loadedApps.includes(this.currentApp?.name || "")) {
         loaders.push(
-          this.lazyLoading?.loaders?.app(this.currentApp?.name || "")
+          this.lazyLoading?.loaders?.app(this.currentApp?.name || ""),
         );
       }
 
       if (
         !this.loadedModules.includes(
-          this.currentApp?.name + "_" + appModule.name
+          this.currentApp?.name + "_" + appModule.name,
         )
       ) {
         loaders.push(
           this.lazyLoading?.loaders?.module(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.currentApp!.name!,
-            appModule.name
-          )
+            appModule.name,
+          ),
         );
       }
 
@@ -710,13 +710,13 @@ export class Router {
    */
   public silentNavigation(
     route: string,
-    updateQuerySting?: string | ObjectType
+    updateQuerySting?: string | ObjectType,
   ) {
     let url = concatRoute(
       this.basePath,
       this.currentLocaleCode,
       this.currentApp?.path || "",
-      route
+      route,
     );
 
     if (updateQuerySting) {
@@ -740,7 +740,7 @@ export class Router {
     // current route will be the pathname without the base path and locale code and without the app path
     const path = window.location.pathname.replace(
       new RegExp(`^${this.basePath}`),
-      ""
+      "",
     );
 
     let currentRoute = "/";
@@ -782,21 +782,21 @@ export class Router {
    * Get app by path
    */
   public getAppByPath(path: string) {
-    return this.appsList.find((app) => app.path === path);
+    return this.appsList.find(app => app.path === path);
   }
 
   /**
    * Get app by name
    */
   public getApp(name: string) {
-    return this.appsList.find((app) => app.name === name);
+    return this.appsList.find(app => app.name === name);
   }
 
   /**
    * Detect if the given path is an app
    */
   public isApp(path: string) {
-    return this.appsList.find((app) => app.path === "/" + path) !== undefined;
+    return this.appsList.find(app => app.path === "/" + path) !== undefined;
   }
 }
 

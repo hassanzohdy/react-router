@@ -1,5 +1,5 @@
 import React from "react";
-import { hydrateRoot, createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import RouterWrapper from "./components/RouterWrapper";
 import { Component } from "./types";
 

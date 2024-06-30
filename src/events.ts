@@ -8,8 +8,8 @@ export type RouterEvents = {
     callback: (
       route: string,
       navigationMode: NavigationMode,
-      previousRoute: string
-    ) => void
+      previousRoute: string,
+    ) => void,
   ) => EventSubscription;
   //   /**
   //    * Callback when the router has changed the current route
@@ -22,54 +22,54 @@ export type RouterEvents = {
    * This will eb only triggered once
    */
   onDetectingInitialLocaleCode: (
-    callback: (localeCode: string) => void
+    callback: (localeCode: string) => void,
   ) => EventSubscription;
   /**
    * Triggered when locale code is about to change
    */
   onLocaleChanging: (
-    callback: (localeCode: string, oldLocaleCode: string) => void
+    callback: (localeCode: string, oldLocaleCode: string) => void,
   ) => EventSubscription;
   /**
    * Triggered when locale code is changed
    */
   onLocaleChanged: (
-    callback: (newLocaleCode: string, oldLocaleCode: string) => void
+    callback: (newLocaleCode: string, oldLocaleCode: string) => void,
   ) => EventSubscription;
   /**
    * Triggered when page is about to be rendered
    */
   onRendering: (
-    callback: (route: string, navigationMode: NavigationMode) => void
+    callback: (route: string, navigationMode: NavigationMode) => void,
   ) => EventSubscription;
   /**
    * Triggered on page is rendered
    */
   onPageRendered: (
-    callback: (route: string, navigationMode: NavigationMode) => void
+    callback: (route: string, navigationMode: NavigationMode) => void,
   ) => EventSubscription;
 };
 
 const routerEvents: RouterEvents = {
-  onNavigating: (callback) => {
+  onNavigating: callback => {
     return events.subscribe(`router.navigating`, callback);
   },
   //   onNavigated: (callback) => {
   //     return events.subscribe(`router.navigated`, callback);
   //   },
-  onLocaleChanging: (callback) => {
+  onLocaleChanging: callback => {
     return events.subscribe(`router.localeCodeChanging`, callback);
   },
-  onLocaleChanged: (callback) => {
+  onLocaleChanged: callback => {
     return events.subscribe(`router.localeChanged`, callback);
   },
-  onDetectingInitialLocaleCode: (callback) => {
+  onDetectingInitialLocaleCode: callback => {
     return events.subscribe(`router.initialLocaleCode`, callback);
   },
-  onRendering: (callback) => {
+  onRendering: callback => {
     return events.subscribe(`router.rendering`, callback);
   },
-  onPageRendered: (callback) => {
+  onPageRendered: callback => {
     return events.subscribe(`router.rendered`, callback);
   },
 };
