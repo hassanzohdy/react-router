@@ -212,8 +212,34 @@ export default function Guardian() {
   if (user.isNotLoggedIn()) {
     return <h1>You do not have access to this page, please login first.</h1>;
   }
+}
+```
 
-  return null;
+Each middleware receives the following params:
+
+```ts
+type MiddlewareProps = {
+  route: RouteOptions;
+  params: ObjectType;
+  localeCode: string;
+};
+```
+
+So we can access current route data, params and the current locale code, an example will be something like:
+
+```tsx
+// src/middleware/Guardian.tsx
+import user from "somewhere-in-the-app";
+import React from "react";
+
+export default function Guardian({ route, params, localeCode }) {
+  if (params.id && params.includes("admin")) {
+    return <h1>You do not have access to this page, please login first.</h1>;
+  }
+
+  if (user.isNotLoggedIn()) {
+    return <h1>You do not have access to this page, please login first.</h1>;
+  }
 }
 ```
 

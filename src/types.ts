@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 
 /**
  * Object Type
@@ -289,10 +289,19 @@ export type Loaders = {
   module: (appName: string, moduleName: string) => Promise<any>;
 };
 
+export type MiddlewareProps = {
+  route: RouteOptions;
+  params: ObjectType;
+  localeCode: string;
+};
+
 /**
  * Route middleware type
  */
-export type Middleware = Component[];
+export type Middleware = (
+  | FC<MiddlewareProps>
+  | ((options: MiddlewareProps) => React.ReactNode)
+)[];
 
 /**
  * Route structure
