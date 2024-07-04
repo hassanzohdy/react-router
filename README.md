@@ -199,7 +199,7 @@ Here we defined a component that allows us to check if user is not logged in, th
 
 Now whenever a user hits any of the account routes, the `Guardian` component will be called first, if the user is not logged in then he/she will be redirected to the given route `/login` and called instead of the current page component.
 
-If the middleware returned a value, then it will be displayed instead of the page component.
+If the middleware returns a `truthy` value, it will be displayed instead of the page component. Otherwise, if the middleware returns a `falsy` value (`null`, `false`, `""`, `0`), the page component will be displayed.
 
 So the middleware can look like:
 
