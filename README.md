@@ -1264,6 +1264,34 @@ Passing `onClick` prop can be done as well.
 </Link>
 ```
 
+### Link Silent Navigation
+
+If the `silent` prop is set to `true`, it will stop the route navigation, this could be useful if you want to stop the navigation based on certain conditions, could also be used to `update the route path silently` without navigating to another page.
+
+> A possible use case for this, to open a popup (task for example) when clicking on the task link, it will open the popup, change the route but stay in the same component page.
+
+```tsx
+import { Link } from "@mongez/react-router";
+import { useState } from "react";
+import TaskPopup from "./TaskPopup";
+
+export default function TasksList() {
+  const [opened, setOpened] = useState(false);
+  const openInPopup = () => {
+    setOpened(true);
+  };
+
+  return (
+    <>
+      <Link to="/tasks/1" silent onClick={openInPopup}>
+        Open Task In Popup
+      </Link>
+      {opened && <TaskPopup id="1" />}
+    </>
+  );
+}
+```
+
 ## Changing Locale Code to another locale code
 
 We can switch to another locale code by using `changeLocaleCode` function

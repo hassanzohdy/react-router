@@ -368,6 +368,12 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
    */
   component?: React.ComponentType<any> | string;
   /**
+   * If set to true, it will change the current route without navigating to the url and without refreshing the page
+   *
+   * @default false
+   */
+  silent?: boolean;
+  /**
    * Alias to `to` prop
    */
   href?: string;

@@ -26,6 +26,7 @@ function _Link(
     localeCode,
     to,
     app,
+    silent = false,
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
@@ -74,8 +75,13 @@ function _Link(
 
     if (path.startsWith("/")) {
       e.preventDefault();
-      // navigate to the path
-      router.goTo(path);
+
+      if (silent === true) {
+        router.silentNavigation(path);
+      } else {
+        // navigate to the path
+        router.goTo(path);
+      }
     }
   };
 
