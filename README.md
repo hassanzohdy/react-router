@@ -127,6 +127,23 @@ export default function UserDetailsPage({ params }) {
 }
 ```
 
+To get the current locale code when you render the page, the page component receives also a `localeCode` prop.
+
+```tsx
+// src/pages/UserDetailsPage.tsx
+import React from "react";
+
+export default function UserDetailsPage({ params, localeCode }) {
+  const userId = params.id;
+
+  return (
+    <div>
+      User ID: {userId}, Locale Code: {localeCode}
+    </div>
+  );
+}
+```
+
 ## Adding New Route
 
 Routes can be added in the router container using `router.add` method, it accepts four parameters:

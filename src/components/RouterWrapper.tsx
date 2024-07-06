@@ -41,11 +41,13 @@ export default function RouterWrapper() {
 
     route.key = key;
 
+    const currentLocale = router.getCurrentLocaleCode();
+
     if (route.middleware) {
       for (const middleware of route.middleware) {
         const output = middleware({
           params: router.params,
-          localeCode: router.getCurrentLocaleCode(),
+          localeCode: currentLocale,
           route: route,
         });
 
@@ -68,7 +70,9 @@ export default function RouterWrapper() {
       <></>
     );
 
-    const component = <Component key={key} params={router.params} />;
+    const component = (
+      <Component key={key} localeCode={currentLocale} params={router.params} />
+    );
 
     const componentContent = (
       <Suspense fallback={suspenseFallback}>{component}</Suspense>
