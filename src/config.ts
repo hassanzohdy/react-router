@@ -46,7 +46,7 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
     setLinkOptions(configurations.link);
   }
 
-  if (configurations.scrollToTop !== false) {
+  if (configurations.scrollToTop !== undefined) {
     router.setScrollToTop(configurations.scrollToTop);
   }
 
