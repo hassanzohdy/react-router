@@ -16,7 +16,7 @@ export default function RouterWrapper() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const renderingEvent = useMemo(() => {
+  const renderingEvent = (() => {
     return routerEvents.onRendering((path: string) => {
       const routeHandler = router.getRouteByPath(path);
 
@@ -27,7 +27,7 @@ export default function RouterWrapper() {
         lazyLoading(router.getCurrentRoute());
       }
     });
-  }, []);
+  })();
 
   const updatePage = (route: RouteOptions) => {
     let key: string = route.key || "";

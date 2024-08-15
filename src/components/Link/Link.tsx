@@ -30,7 +30,7 @@ function _Link(
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
-  ref: any
+  ref: any,
 ) {
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
@@ -103,6 +103,6 @@ function _Link(
   );
 }
 
-const Link: React.FC<LinkProps> = React.forwardRef<LinkProps>(_Link);
+const Link = React.forwardRef<LinkProps>(_Link) as React.FC<LinkProps>;
 
 export default Link;

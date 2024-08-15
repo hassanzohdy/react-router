@@ -1,4 +1,5 @@
 import concatRoute from "@mongez/concat-route";
+import { getRouterConfig } from "./config";
 import { triggerEvent } from "./events";
 import { NAVIGATING } from "./helpers";
 import router from "./router";
@@ -63,15 +64,26 @@ export function changeLocaleCode(
 ) {
   const currentLocaleCode = router.getCurrentLocaleCode();
 
+  router.setCurrentLocaleCode(localeCode);
+
   const currentRoute = router.getCurrentRoute();
   const currentAppPath = router.getCurrentAppPath();
+
+  const appendLocaleCodeToUrl = getRouterConfig("appendLocaleCodeToUrl");
+
+  triggerEvent("localeCodeChanging", localeCode, currentLocaleCode);
 
   if (reloadMode === ChangeLanguageReloadModeOptions.hard) {
     const basePath = router.basePath;
     const queryString = window.location.search;
     const hash = window.location.hash;
     const fullPath =
-      concatRoute(basePath, localeCode, currentAppPath, currentRoute) +
+      concatRoute(
+        basePath,
+        appendLocaleCodeToUrl ? localeCode : "",
+        currentAppPath,
+        currentRoute,
+      ) +
       queryString +
       hash;
 
@@ -79,13 +91,17 @@ export function changeLocaleCode(
     return;
   }
 
-  triggerEvent("localeCodeChanging", localeCode, currentLocaleCode);
-
   router.refreshActiveRouteKey();
-  router.goTo(
-    concatRoute(localeCode, currentAppPath, currentRoute),
-    NavigationMode.changeLocaleCode,
-  );
+
+  if (appendLocaleCodeToUrl) {
+    router.goTo(
+      concatRoute(localeCode, currentAppPath, currentRoute),
+      NavigationMode.changeLocaleCode,
+    );
+  } else {
+    refresh();
+  }
+
   triggerEvent("localeChanged", localeCode, currentLocaleCode);
 }
 

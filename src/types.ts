@@ -184,6 +184,12 @@ export type RouterConfigurations = {
    */
   autoRedirectToLocaleCode?: boolean;
   /**
+   * Whether to append the locale code to the url
+   *
+   * @default true
+   */
+  appendLocaleCodeToUrl?: boolean;
+  /**
    * Scroll to top when navigating to a new page
    *
    * @default smooth

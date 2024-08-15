@@ -61,11 +61,15 @@ export function setRouterConfigurations(configurations: RouterConfigurations) {
 
 export function getRouterConfig(
   key: keyof RouterConfigurations,
-  defaultValue: any,
+  defaultValue?: any,
 ) {
   return routerConfigurations[key] || defaultValue;
 }
 
 export function getRouterConfigurations() {
   return routerConfigurations;
+}
+
+export function shouldAppendLocaleCodeToUrl() {
+  return getRouterConfig("appendLocaleCodeToUrl") ?? true;
 }

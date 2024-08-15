@@ -26,6 +26,17 @@ const queryString = {
     return queryStringOptions.objectParser(query);
   },
   /**
+   * Parse the given query string
+   */
+  parse(searchParams: string) {
+    if (searchParams.startsWith("?")) {
+      searchParams = searchParams.substring(1);
+    }
+
+    if (!searchParams) return {};
+    return queryStringOptions.objectParser(searchParams);
+  },
+  /**
    * Get key from query string
    */
   get(key: string, defaultValue: any = null) {
@@ -35,8 +46,8 @@ const queryString = {
   /**
    * Replace query string in the url with the given object
    */
-  update(params: Object | string, reRender = false) {
-    let queryStringText = queryString.toQueryString(params);
+  update(params: Record<string, any> | string, reRender = false) {
+    const queryStringText = queryString.toQueryString(params);
 
     const url = `${window.location.pathname}${
       queryStringText ? "?" + queryStringText : ""

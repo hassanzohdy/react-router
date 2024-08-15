@@ -1,8 +1,8 @@
 import concatRoute from "@mongez/concat-route";
 import { EventSubscription } from "@mongez/events";
 import React from "react";
-import { createPortal } from "react-dom";
 import ReactDOM from "react-dom/client";
+import { shouldAppendLocaleCodeToUrl } from "./config";
 import routerEvents, { triggerEvent } from "./events";
 import matchUrl, { urlPatternMatcher } from "./matcher";
 import queryString from "./query-string";
@@ -369,6 +369,15 @@ export class Router {
   }
 
   /**
+   * Set current locale code
+   */
+  public setCurrentLocaleCode(localeCode: string) {
+    this.currentLocaleCode = localeCode;
+
+    return this;
+  }
+
+  /**
    * Set locale codes
    */
   public setLocaleCodes(localeCodes: string[]) {
@@ -576,12 +585,15 @@ export class Router {
   ) {
     fullPath = concatRoute(this.basePath, fullPath);
 
+    const localeCode = shouldAppendLocaleCodeToUrl()
+      ? this.currentLocaleCode
+      : "";
+
     // check if the fullPath equals to current path
     // if so and force refresh is disabled, then do nothing
     if (
       !this.isForceRefreshEnabled() &&
-      this.currentLocaleCode + this.currentRoute ===
-        this.currentLocaleCode + fullPath
+      localeCode + this.currentRoute === localeCode + fullPath
     ) {
       return;
     }
@@ -712,9 +724,13 @@ export class Router {
     route: string,
     updateQuerySting?: string | ObjectType,
   ) {
+    const localeCode = shouldAppendLocaleCodeToUrl()
+      ? this.currentLocaleCode
+      : "";
+
     let url = concatRoute(
       this.basePath,
-      this.currentLocaleCode,
+      localeCode,
       this.currentApp?.path || "",
       route,
     );
