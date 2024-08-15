@@ -966,13 +966,35 @@ export type LinkOptions = {
  * Router Configurations
  */
 export type RouterConfigurations = {
+  
   /**
    * Project Base Path
    * Its recommended to set it with production check like this:
    * process.env.NODE_ENV === "production" ? "/project-name" : "/"
+   *
    * @default "/"
    */
   basePath?: string;
+  /**
+   * Enable force refresh,
+   * If set to true, when the user navigates to the same page,
+   * it will re-render the page again.
+   *
+   * @default true
+   */
+  forceRefresh?: boolean;
+  /**
+   * Auto redirect to locale code if no locale code is found in the url
+   *
+   * @default true
+   */
+  autoRedirectToLocaleCode?: boolean;
+  /**
+   * Whether to append the locale code to the url
+   *
+   * @default true
+   */
+  appendLocaleCodeToUrl?: boolean;
   /**
    * Scroll to top when navigating to a new page
    *
@@ -980,17 +1002,15 @@ export type RouterConfigurations = {
    */
   scrollToTop?: false | "smooth" | "default";
   /**
+   * Whether to enable strict mode
+   *
+   * @default false
+   */
+  strictMode?: boolean;
+  /**
    * Localization settings
    */
   localization?: LocalizationOptions;
-  /**
-   * Enable force refresh,
-   * If set to true, when the user navigates to the same page,
-   * it will re-render the page again.
-   *
-   *  @default true
-   */
-  forceRefresh?: boolean;
   /**
    * Url Matcher
    * This can be used to allow more dynamic url matching.
@@ -1000,12 +1020,6 @@ export type RouterConfigurations = {
    * Query string options
    */
   queryString?: QueryStringOptions;
-  /**
-   * Whether to enable strict mode
-   *
-   * @default false
-   */
-  strictMode?: boolean;
   /**
    * Root component that will be used to wrap all the pages
    * This component will be rendered only once.
