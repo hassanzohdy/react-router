@@ -71,5 +71,5 @@ export function getRouterConfigurations() {
 }
 
 export function shouldAppendLocaleCodeToUrl() {
-  return getRouterConfig("appendLocaleCodeToUrl") ?? true;
+  return routerConfigurations.appendLocaleCodeToUrl ?? true;
 }

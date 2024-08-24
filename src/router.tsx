@@ -433,7 +433,10 @@ export class Router {
 
     if (this.initialLocaleCode) {
       triggerEvent("initialLocaleCode", this.initialLocaleCode);
-    } else if (this.autoRedirectToDefaultLocaleCode) {
+    } else if (
+      this.autoRedirectToDefaultLocaleCode &&
+      shouldAppendLocaleCodeToUrl()
+    ) {
       return changeLocaleCode(this.defaultLocaleCode, "hard");
     }
 
