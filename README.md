@@ -1083,6 +1083,8 @@ Instead of making the user waits to load the bundle when he/she clicks on a link
 
 This will enhance user experience and make the app faster for the user.
 
+This feature will make the browser downloads the module bundle in the background when the user hovers the link, so when the user clicks on the link the module will be loaded instantly.
+
 By default this feature is enabled for all `Link` components, you can either disable it by setting it in the router configurations to false, or disable it for certain links by setting `prefetch` prop to `false`.
 
 ```tsx
