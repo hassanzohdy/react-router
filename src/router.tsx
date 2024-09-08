@@ -655,6 +655,19 @@ export class Router {
   }
 
   /**
+   * Prefetch the given path
+   */
+  public prefetch(path: string) {
+    const [loaders, callback] = this.getLazyRouter(path) as any;
+
+    if (loaders) {
+      Promise.all(loaders).then(() => {
+        callback();
+      });
+    }
+  }
+
+  /**
    * Get the lazy loader of the given route
    */
   public getLazyRouter(route: string) {

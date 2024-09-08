@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import type { AnchorHTMLAttributes, ComponentType, FC, ReactNode } from "react";
 
 /**
  * Object Type
@@ -8,7 +8,7 @@ export type ObjectType = Record<string, any>;
 /**
  * React Component Type
  */
-export type Component = React.FC<any> | React.ComponentType<any>;
+export type Component = FC<any> | ComponentType<any>;
 
 /**
  * Url Matcher handler
@@ -224,7 +224,7 @@ export type RouterConfigurations = {
    *
    * @default <></>
    */
-  suspenseFallback?: React.ReactNode;
+  suspenseFallback?: ReactNode;
   /**
    * App And Module Loading Options
    */
@@ -237,6 +237,13 @@ export type RouterConfigurations = {
    * Link component options
    */
   link?: LinkOptions;
+  /**
+   * Prefetch the module when user hover the link
+   * This is the global configuration for the prefetch
+   *
+   * @default true
+   */
+  prefetch?: boolean;
 };
 
 /**
@@ -306,7 +313,7 @@ export type MiddlewareProps = {
  */
 export type Middleware = (
   | FC<MiddlewareProps>
-  | ((options: MiddlewareProps) => React.ReactNode)
+  | ((options: MiddlewareProps) => ReactNode)
 )[];
 
 /**
@@ -320,7 +327,7 @@ export type RouteOptions = {
   /**
    * Route component
    */
-  component: React.ComponentType<any>;
+  component: ComponentType<any>;
   /**
    * Route middleware
    */
@@ -328,7 +335,7 @@ export type RouteOptions = {
   /**
    * Route Base Layout
    */
-  layout?: React.ComponentType<any>;
+  layout?: ComponentType<any>;
   /**
    * Route path Unique key
    * Used for force refreshing the route
@@ -364,7 +371,7 @@ export enum NavigationMode {
   refresh = "refresh",
 }
 
-export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   /**
    * Link Path
    */
@@ -372,7 +379,7 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   /**
    * Set link component type
    */
-  component?: React.ComponentType<any> | string;
+  component?: ComponentType<any> | string;
   /**
    * If set to true, it will change the current route without navigating to the url and without refreshing the page
    *
@@ -408,6 +415,12 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
    * @default: false
    */
   newTab?: boolean;
+  /**
+   * Prefetch the module when user hover the link
+   *
+   * @default true
+   */
+  prefetch?: boolean;
 };
 
 /**

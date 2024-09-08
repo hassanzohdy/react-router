@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import {
+  ComponentType,
+  Fragment,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { getRouterConfigurations } from "../config";
 import routerEvents, { triggerEvent } from "../events";
 import { NAVIGATING } from "../helpers";
@@ -7,12 +15,12 @@ import router from "../router";
 import { RouteOptions } from "../types";
 import { navigateTo } from "../utilities";
 
-export type Component = React.ComponentType<any>;
+export type Component = ComponentType<any>;
 
 export default function RouterWrapper() {
-  const [Layout, setLayout] = useState<Component>(React.Fragment);
+  const [Layout, setLayout] = useState<Component>(Fragment);
 
-  const [content, setContent] = useState<React.ReactNode>(<></>);
+  const [content, setContent] = useState<ReactNode>(<></>);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +69,7 @@ export default function RouterWrapper() {
     }
 
     setLayout(() => {
-      return route.layout || React.Fragment;
+      return route.layout || Fragment;
     });
 
     const Component = route.component;
@@ -145,14 +153,13 @@ export default function RouterWrapper() {
   }, [renderingEvent]);
 
   const fullContent = useMemo(() => {
-    let fullContent: React.ReactNode;
+    let fullContent: ReactNode;
     if (isLoading) {
-      const LoadingComponent =
-        router.lazyLoading?.loadingComponent || React.Fragment;
+      const LoadingComponent = router.lazyLoading?.loadingComponent || Fragment;
 
       const loadingProps: any = {};
 
-      if (LoadingComponent !== React.Fragment) {
+      if (LoadingComponent !== Fragment) {
         loadingProps["loading"] = true;
       }
 

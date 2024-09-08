@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import concatRoute from "@mongez/concat-route";
-import React, { useMemo } from "react";
+import { forwardRef, useEffect, useMemo, useRef } from "react";
+import { getRouterConfig } from "../../config";
 import { isUrl } from "../../helpers";
 import router from "../../router";
 import { LinkOptions, LinkProps } from "../../types";
@@ -23,6 +24,7 @@ function _Link(
     email,
     tel,
     newTab,
+    prefetch = getRouterConfig("prefetch", true),
     localeCode,
     to,
     app,
@@ -35,6 +37,9 @@ function _Link(
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
   }
+
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const isPrefetchedRef = useRef(false);
 
   const path = useMemo(() => {
     if (email) return `mailto:${email}`;
@@ -93,9 +98,43 @@ function _Link(
     props.rel = "noopener noreferrer";
   }
 
+  useEffect(() => {
+    if (!prefetch) return;
+    if (!path.startsWith("/")) return;
+    if (isPrefetchedRef.current) return;
+    const element = linkRef?.current;
+
+    if (!element) return;
+
+    // we ned to prefetch the module on hover
+    const callback = () => {
+      if (isPrefetchedRef.current) {
+        element.removeEventListener("mouseover", callback);
+        return;
+      }
+
+      isPrefetchedRef.current = true;
+      router.prefetch(path);
+    };
+
+    element.addEventListener("mouseover", callback);
+
+    return () => {
+      element.removeEventListener("mouseover", callback);
+    };
+  }, [path, prefetch, linkRef]);
+
   return (
     <Component
-      ref={ref}
+      ref={element => {
+        if (ref) {
+          ref.current = element;
+        }
+
+        if (linkRef) {
+          linkRef.current = element;
+        }
+      }}
       href={path?.startsWith("/") ? concatRoute(router.basePath, path) : path}
       onClick={onClick}
       {...props}
@@ -103,6 +142,6 @@ function _Link(
   );
 }
 
-const Link = React.forwardRef<LinkProps>(_Link) as React.FC<LinkProps>;
+const Link = forwardRef<LinkProps>(_Link) as React.FC<LinkProps>;
 
 export default Link;
