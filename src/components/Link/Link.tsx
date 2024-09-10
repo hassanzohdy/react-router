@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import concatRoute from "@mongez/concat-route";
-import { forwardRef, useEffect, useMemo, useRef } from "react";
+import { forwardRef, useEffect, useMemo, useRef, MouseEvent } from "react";
 import { getRouterConfig } from "../../config";
 import { isUrl } from "../../helpers";
 import router from "../../router";
@@ -32,7 +32,7 @@ function _Link(
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
-  ref: any,
+  ref: any
 ) {
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
@@ -48,7 +48,7 @@ function _Link(
 
     let path = to || (href as string);
 
-    if (!path) return path;
+    if (!path) return "";
 
     if (path.startsWith("#")) return path;
 
@@ -63,7 +63,7 @@ function _Link(
     return localeCode ? concatRoute(localeCode, path) : path;
   }, [href, to, app, localeCode, email, tel]);
 
-  const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     baseOnClick && baseOnClick(e);
 
     if (
@@ -126,7 +126,7 @@ function _Link(
 
   return (
     <Component
-      ref={element => {
+      ref={(element) => {
         if (ref) {
           ref.current = element;
         }
