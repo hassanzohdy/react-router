@@ -4,12 +4,12 @@ import { triggerEvent } from "./events";
 import { NAVIGATING } from "./helpers";
 import router from "./router";
 import {
-  App,
-  ChangeLanguageReloadMode,
+  type App,
+  type ChangeLanguageReloadMode,
   ChangeLanguageReloadModeOptions,
   NavigationMode,
-  ObjectType,
-  PublicApp,
+  type ObjectType,
+  type PublicApp,
 } from "./types";
 
 /**

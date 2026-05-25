@@ -1,7 +1,7 @@
 import { setLinkOptions } from "./components/Link/Link";
 import { setQueryStringOptions } from "./query-string";
 import router from "./router";
-import { RouterConfigurations } from "./types";
+import type { RouterConfigurations } from "./types";
 
 let routerConfigurations: Partial<RouterConfigurations> = {};
 

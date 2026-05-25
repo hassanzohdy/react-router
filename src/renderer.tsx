@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import RouterWrapper from "./components/RouterWrapper";
-import { Component } from "./types";
+import type { Component } from "./types";
 
 export function renderer(Root: Component, strictMode: boolean) {
   const rootElement = document.getElementById("root") as HTMLElement;

@@ -1,5 +1,5 @@
 import { isNumeric } from "./helpers";
-import { ObjectType } from "./types";
+import type { ObjectType } from "./types";
 
 export function toObjectParser(query: string) {
   const vars = query.split("&");
@@ -43,6 +43,7 @@ export function toObjectParser(query: string) {
 
   return result;
 }
+
 export function toStringParser(params: ObjectType, parentKey?: string): string {
   const newParams: ObjectType = { ...params };
   const queryString = Object.keys(newParams)

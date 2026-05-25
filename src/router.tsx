@@ -1,35 +1,50 @@
 import concatRoute from "@mongez/concat-route";
-import { EventSubscription } from "@mongez/events";
+import type { EventSubscription } from "@mongez/events";
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM, { createRoot } from "react-dom/client";
 import { shouldAppendLocaleCodeToUrl } from "./config";
 import routerEvents, { triggerEvent } from "./events";
 import matchUrl, { urlPatternMatcher } from "./matcher";
 import queryString from "./query-string";
 import { renderer } from "./renderer";
 import {
-  App,
-  ChangeLanguageReloadMode,
+  type App,
+  type ChangeLanguageReloadMode,
   ChangeLanguageReloadModeOptions,
-  Component,
-  GroupedRoutesOptions,
-  LazyLoadingOptions,
-  LocalizationOptions,
-  Middleware,
+  type Component,
+  type GroupedRoutesOptions,
+  type LazyLoadingOptions,
+  type LocalizationOptions,
+  type Middleware,
   NavigationMode,
-  NotFoundConfigurations,
-  ObjectType,
-  Route,
-  RouteOptions,
-  RouterConfigurations,
-  UrlMatcher,
+  type NotFoundConfigurations,
+  type ObjectType,
+  type Route,
+  type RouteOptions,
+  type RouterConfigurations,
+  type UrlMatcher,
 } from "./types";
 import { changeLocaleCode } from "./utilities";
+
+/**
+ * Produce a short, non-empty random key suitable for React's
+ * reconciler. `Math.random().toString(36).substring(7)` (the previous
+ * implementation) can return an empty string when the random number's
+ * base-36 representation is fewer than 7 characters — e.g. very small
+ * values like `0.0001`. We compose two random chunks and pad-start to
+ * guarantee at least 6 characters every time.
+ */
+export function generateRouteKey() {
+  const chunk = () =>
+    ((Math.random() * 1e9) | 0).toString(36).padStart(6, "0");
+  return (chunk() + chunk()).slice(0, 8);
+}
 
 export class Router {
   /**
    * Root component
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected rootComponent: React.ComponentType<any> = React.Fragment;
 
   /**
@@ -120,7 +135,7 @@ export class Router {
   /**
    * Params list
    */
-  public params: any = {};
+  public params: Record<string, unknown> = {};
 
   /**
    * Root
@@ -155,7 +170,7 @@ export class Router {
   /**
    * Cached content
    */
-  public cacheContent: any = {};
+  public cacheContent: Record<string, React.ReactNode> = {};
 
   /**
    * Current navigation mode
@@ -184,11 +199,23 @@ export class Router {
   protected currentPageComponentNode?: React.ReactNode;
 
   /**
-   * Constructor
+   * Constructor.
+   *
+   * Historically the constructor attached a `popstate` listener and
+   * subscribed to the navigating event for scroll-to-top. Consumers
+   * rely on those listeners being active at import time (the singleton
+   * is created at the bottom of this module), so we cannot defer them
+   * without changing the public contract. The SSR-unsafe parts are
+   * guarded behind a `typeof window` check so importing the module on
+   * the server side stops being a hard crash.
+   *
+   * See CHANGELOG.md "Notes" for the full discussion.
    */
   public constructor() {
-    this.detectBrowserUrlChange();
-    this.setScrollToTop("smooth");
+    if (typeof window !== "undefined") {
+      this.detectBrowserUrlChange();
+      this.setScrollToTop("smooth");
+    }
   }
 
   public setCurrentPageNode(node: React.ReactNode) {
@@ -235,7 +262,7 @@ export class Router {
    * Whether to auto redirect to the default locale code
    */
   public setAutoRedirectToDefaultLocaleCode(
-    autoRedirectToDefaultLocaleCode: boolean,
+    autoRedirectToDefaultLocaleCode: boolean
   ) {
     this.autoRedirectToDefaultLocaleCode = autoRedirectToDefaultLocaleCode;
 
@@ -243,9 +270,13 @@ export class Router {
   }
 
   /**
-   * Set router matcher
+   * Set router matcher.
+   *
+   * The pattern cache in `matcher.ts` is keyed by the matcher reference,
+   * so swapping in a new matcher implicitly starts with a fresh cache —
+   * old compiled patterns from the previous matcher are not reused.
    */
-  public setMatcher(matcher: any) {
+  public setMatcher(matcher: UrlMatcher) {
     this.matcher = matcher;
 
     return this;
@@ -272,6 +303,7 @@ export class Router {
   /**
    * Set root component
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public setRootComponent(component: React.ComponentType<any>) {
     this.rootComponent = component;
 
@@ -292,7 +324,7 @@ export class Router {
    */
   public getLazyLoadingConfig(
     string: keyof LazyLoadingOptions,
-    defaultValue?: any,
+    defaultValue?: unknown
   ) {
     return this.lazyLoading?.[string] ?? defaultValue;
   }
@@ -314,7 +346,7 @@ export class Router {
   /**
    * Cache route content
    */
-  public cacheRouteContent(route: RouteOptions, content: any) {
+  public cacheRouteContent(route: RouteOptions, content: React.ReactNode) {
     this.cacheContent[this.currentLocaleCode + route.path] = content;
   }
 
@@ -444,7 +476,7 @@ export class Router {
       "navigating",
       this.currentRoute,
       NavigationMode.navigation,
-      "/",
+      "/"
     );
 
     this.render();
@@ -458,10 +490,13 @@ export class Router {
   public add(routeOptions: Route): Router;
   public add(
     path: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     component: React.ComponentType<any>,
     middleware?: Middleware,
-    layout?: React.ComponentType<any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    layout?: React.ComponentType<any>
   ): Router;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public add(...args: any[]) {
     let routeOptions: Route;
     if (args.length === 1) {
@@ -496,7 +531,7 @@ export class Router {
       if (groupOptions.path) {
         finalRouteOptions.path = concatRoute(
           groupOptions.path,
-          routeOptions.path,
+          routeOptions.path
         );
       }
 
@@ -535,8 +570,13 @@ export class Router {
     // find the proper route for the given path
     // also check for dynamic segments and parse it into params object
 
-    const route = this.routesList.find(route => {
-      const [found, params] = matchUrl(route.path, path, this.matcher);
+    const route = this.routesList.find((route) => {
+      // We need to trim out the query string/hash segment from the path for proper path matching
+      const [found, params] = matchUrl(
+        route.path.split("?")[0],
+        path.split("?")[0],
+        this.matcher
+      );
 
       if (params) {
         this.params = params;
@@ -549,7 +589,7 @@ export class Router {
       route.key = concatRoute(
         this.getCurrentLocaleCode(),
         this.currentApp?.path || "/",
-        path,
+        path
       );
     }
 
@@ -563,12 +603,15 @@ export class Router {
     const activeRoute = this.activeRoute;
 
     const internalActiveRoute = this.list().find(
-      route => route.path === activeRoute?.path,
+      (route) => route.path === activeRoute?.path
     );
 
     if (internalActiveRoute) {
-      // generate random key
-      internalActiveRoute.key = Math.random().toString(36).substring(7);
+      // Generate a random key. `Math.random().toString(36).substring(7)`
+      // can return an empty string when the base-36 representation has
+      // fewer than 7 chars before the slice point, which would make React
+      // treat the route as keyless. Pad to a stable length instead.
+      internalActiveRoute.key = generateRouteKey();
     }
   }
 
@@ -584,7 +627,7 @@ export class Router {
    */
   public goTo(
     fullPath: string,
-    navigationMode: NavigationMode = NavigationMode.navigation,
+    navigationMode: NavigationMode = NavigationMode.navigation
   ) {
     fullPath = concatRoute(this.basePath, fullPath);
 
@@ -630,13 +673,13 @@ export class Router {
       "navigating",
       this.currentRoute,
       navigationMode,
-      this.previousRoute,
+      this.previousRoute
     );
 
     triggerEvent(
       "rendering",
       concatRoute(this.currentApp?.path || "/", this.currentRoute),
-      navigationMode,
+      navigationMode
     );
   }
 
@@ -658,12 +701,128 @@ export class Router {
    * Prefetch the given path
    */
   public prefetch(path: string) {
-    const [loaders, callback] = this.getLazyRouter(path) as any;
+    const [loaders, callback] = this.getLazyRouter(path) as [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Promise<any>[],
+      () => void,
+    ];
 
     if (loaders) {
-      Promise.all(loaders).then(() => {
-        callback();
+      Promise.all(loaders)
+        .then(() => {
+          callback();
+        })
+        .catch(error => {
+          this.handleChunkLoadError(error, path);
+        });
+    }
+  }
+
+  /**
+   * Handle chunk load errors
+   * This is called when a lazy-loaded chunk fails to load
+   */
+  public handleChunkLoadError(error: Error, path: string) {
+    // Check if it's a chunk load error
+    const isChunkLoadError =
+      error.name === "ChunkLoadError" ||
+      error.message.includes("Failed to fetch dynamically imported module") ||
+      error.message.includes("Loading chunk") ||
+      error.message.includes("dynamic import") ||
+      error.message.includes("failed to load") ||
+      error.message.includes("Importing a module script failed");
+
+    if (!isChunkLoadError) {
+      console.error("Non-chunk error:", error);
+      return;
+    }
+
+    const strategy =
+      this.lazyLoading?.chunkErrorHandler?.strategy || "reload";
+    const maxAttempts =
+      this.lazyLoading?.chunkErrorHandler?.maxReloadAttempts ?? 1;
+
+    // Check if we've exceeded max attempts (stored in sessionStorage)
+    const storageKey = `mrr_reload_attempt_${path}`;
+    const currentAttempt = parseInt(
+      sessionStorage.getItem(storageKey) || "0",
+      10,
+    );
+
+    if (currentAttempt >= maxAttempts) {
+      console.error(
+        `Max reload attempts (${maxAttempts}) reached for ${path}`,
+      );
+      sessionStorage.removeItem(storageKey);
+
+      // Emit event for developer to handle
+      triggerEvent("chunkLoadError", {
+        error,
+        path,
+        attempt: currentAttempt,
+        maxAttemptsReached: true,
       });
+      return;
+    }
+
+    switch (strategy) {
+      case "reload":
+        console.warn(
+          `Chunk load failed for ${path}. Reloading page... (attempt ${currentAttempt + 1}/${maxAttempts})`,
+        );
+        sessionStorage.setItem(storageKey, String(currentAttempt + 1));
+
+        // Clear the attempt counter after successful reload
+        setTimeout(() => sessionStorage.removeItem(storageKey), 100);
+
+        // Reload to the target path
+        window.location.href = path;
+        break;
+
+      case "custom":
+        if (this.lazyLoading?.chunkErrorHandler?.onChunkLoadError) {
+          const result = this.lazyLoading.chunkErrorHandler.onChunkLoadError(
+            error,
+            path,
+            currentAttempt,
+          );
+
+          // Handle both sync and async custom handlers
+          Promise.resolve(result).then(shouldReload => {
+            if (shouldReload) {
+              sessionStorage.setItem(storageKey, String(currentAttempt + 1));
+              window.location.href = path;
+            }
+          });
+        }
+        break;
+
+      case "notify":
+        // Emit event for developer to handle with custom UI
+        // if there is a component, create it and render it in a portal
+        { const NotificationComponent = this.lazyLoading?.chunkErrorHandler?.notificationComponent;
+        if (NotificationComponent) {
+          let notifyElement = document.getElementById("mrr-cle"); // Mongez React Router - Chunk Load Error
+          if (!notifyElement) {
+            notifyElement = document.createElement("div");
+            notifyElement.id = "mrr-cle";
+            notifyElement.innerHTML = "";
+            // append it to the body
+            document.body.appendChild(notifyElement);
+          } 
+          
+          // Render the component using createRoot instead of createPortal
+          const root = createRoot(notifyElement);
+          root.render(<NotificationComponent />);
+        }
+
+        triggerEvent("chunkLoadError", {
+          error,
+          path,
+          attempt: currentAttempt,
+          maxAttemptsReached: false,
+        });
+        break; }
     }
   }
 
@@ -673,30 +832,30 @@ export class Router {
   public getLazyRouter(route: string) {
     const firstSegment = "/" + route.split("/")[1];
 
-    const appModule = this.currentApp?.modules?.find(module => {
+    const appModule = this.currentApp?.modules?.find((module) => {
       return module.entry.includes(firstSegment);
     });
 
     if (appModule) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const loaders: any[] = [];
 
       if (!this.loadedApps.includes(this.currentApp?.name || "")) {
         loaders.push(
-          this.lazyLoading?.loaders?.app(this.currentApp?.name || ""),
+          this.lazyLoading?.loaders?.app(this.currentApp?.name || "")
         );
       }
 
       if (
         !this.loadedModules.includes(
-          this.currentApp?.name + "_" + appModule.name,
+          this.currentApp?.name + "_" + appModule.name
         )
       ) {
         loaders.push(
           this.lazyLoading?.loaders?.module(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.currentApp!.name!,
-            appModule.name,
-          ),
+            appModule.name
+          )
         );
       }
 
@@ -738,7 +897,7 @@ export class Router {
    */
   public silentNavigation(
     route: string,
-    updateQuerySting?: string | ObjectType,
+    updateQuerySting?: string | ObjectType
   ) {
     const localeCode = shouldAppendLocaleCodeToUrl()
       ? this.currentLocaleCode
@@ -748,7 +907,7 @@ export class Router {
       this.basePath,
       localeCode,
       this.currentApp?.path || "",
-      route,
+      route
     );
 
     if (updateQuerySting) {
@@ -772,7 +931,7 @@ export class Router {
     // current route will be the pathname without the base path and locale code and without the app path
     const path = window.location.pathname.replace(
       new RegExp(`^${this.basePath}`),
-      "",
+      ""
     );
 
     let currentRoute = "/";
@@ -814,21 +973,21 @@ export class Router {
    * Get app by path
    */
   public getAppByPath(path: string) {
-    return this.appsList.find(app => app.path === path);
+    return this.appsList.find((app) => app.path === path);
   }
 
   /**
    * Get app by name
    */
   public getApp(name: string) {
-    return this.appsList.find(app => app.name === name);
+    return this.appsList.find((app) => app.name === name);
   }
 
   /**
    * Detect if the given path is an app
    */
   public isApp(path: string) {
-    return this.appsList.find(app => app.path === "/" + path) !== undefined;
+    return this.appsList.find((app) => app.path === "/" + path) !== undefined;
   }
 }
 

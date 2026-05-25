@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import concatRoute from "@mongez/concat-route";
-import { forwardRef, useEffect, useMemo, useRef, MouseEvent } from "react";
+import {
+  forwardRef,
+  type MouseEvent,
+  type MutableRefObject,
+  type Ref,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { getRouterConfig } from "../../config";
 import { isUrl } from "../../helpers";
 import router from "../../router";
-import { LinkOptions, LinkProps } from "../../types";
+import type { LinkOptions, LinkProps } from "../../types";
 
 let linkOptions: Required<LinkOptions> = {
   component: "a",
@@ -17,7 +25,7 @@ export function setLinkOptions(options: LinkOptions) {
   };
 }
 
-function _Link(
+function InnerLink(
   {
     href,
     onClick: baseOnClick,
@@ -32,7 +40,7 @@ function _Link(
     component: Component = linkOptions.component,
     ...props
   }: LinkProps,
-  ref: any
+  ref: Ref<HTMLAnchorElement>
 ) {
   if (!localeCode && router.hasLocaleCode) {
     localeCode = router.getCurrentLocaleCode();
@@ -64,7 +72,7 @@ function _Link(
   }, [href, to, app, localeCode, email, tel]);
 
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    baseOnClick && baseOnClick(e);
+    baseOnClick?.(e);
 
     if (
       props.target === "_blank" ||
@@ -126,14 +134,17 @@ function _Link(
 
   return (
     <Component
-      ref={(element) => {
-        if (ref) {
-          ref.current = element;
+      ref={(element: HTMLAnchorElement | null) => {
+        // Forward to the parent ref — handle both callback refs and
+        // object refs (the forwardRef typing allows either form).
+        if (typeof ref === "function") {
+          ref(element);
+        } else if (ref) {
+          (ref as MutableRefObject<HTMLAnchorElement | null>).current =
+            element;
         }
 
-        if (linkRef) {
-          linkRef.current = element;
-        }
+        linkRef.current = element;
       }}
       href={path?.startsWith("/") ? concatRoute(router.basePath, path) : path}
       onClick={onClick}
@@ -142,6 +153,12 @@ function _Link(
   );
 }
 
-const Link = forwardRef<LinkProps>(_Link) as React.FC<LinkProps>;
+// `forwardRef<RefType, PropsType>(...)` — the first generic is the ref
+// element type, not the props type. The earlier code passed `LinkProps`
+// as the ref type and hid the mismatch with a `React.FC<LinkProps>`
+// cast, which made consumers pass a ref of type `LinkProps` (wrong).
+// `LinkProps` extends `AnchorHTMLAttributes<HTMLAnchorElement>`, so the
+// underlying element is an anchor by default.
+const Link = forwardRef<HTMLAnchorElement, LinkProps>(InnerLink);
 
 export default Link;

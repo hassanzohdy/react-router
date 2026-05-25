@@ -1,17 +1,35 @@
-import { UrlMatcher } from "./types";
+import type { UrlMatcher } from "./types";
 
-let cache: any = {};
+/**
+ * Per-matcher cache of compiled patterns.
+ *
+ * Keying the cache by the matcher function (instead of a module-level
+ * object) means that swapping the matcher via `router.setMatcher(...)`
+ * automatically starts with a fresh cache — patterns compiled by the
+ * previous matcher are not reused, and the old cache becomes
+ * garbage-collectable along with the old matcher.
+ */
+const matcherCache = new WeakMap<
+  UrlMatcher,
+  Record<string, { regexp: RegExp; keys: { name: string }[] }>
+>();
+
 // creates a matcher function
 export default function matchUrl(
   pattern: any,
   path: string,
   matchMaker: UrlMatcher
 ) {
-  // obtains a cached regexp version of the pattern
-  const getRegexp = (pattern: any) =>
-    cache[pattern] || (cache[pattern] = matchMaker(pattern));
+  let cache = matcherCache.get(matchMaker);
+  if (!cache) {
+    cache = {};
+    matcherCache.set(matchMaker, cache);
+  }
 
-  const { regexp, keys } = getRegexp(pattern || "");
+  // obtains a cached regexp version of the pattern
+  const key = pattern || "";
+  const { regexp, keys } =
+    cache[key] || (cache[key] = matchMaker(key));
 
   const out = regexp.exec(path);
 

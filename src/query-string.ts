@@ -1,5 +1,5 @@
 import { toObjectParser, toStringParser } from "./query-string-parsers";
-import { ObjectType, QueryStringOptions } from "./types";
+import type { ObjectType, QueryStringOptions } from "./types";
 import { refresh } from "./utilities";
 
 let queryStringOptions: Required<QueryStringOptions> = {

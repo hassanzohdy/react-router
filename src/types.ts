@@ -48,15 +48,63 @@ export type NotFoundConfigurations = {
 /**
  * Change languages Mode options
  */
-export enum ChangeLanguageReloadModeOptions {
-  hard = "hard",
-  soft = "soft",
-}
+export const ChangeLanguageReloadModeOptions = {
+  hard: "hard",
+  soft: "soft",
+} as const;
 
 /**
  * Change languages Mode
  */
 export type ChangeLanguageReloadMode = "soft" | "hard";
+
+/**
+ * Chunk error handler strategy
+ */
+export type ChunkErrorStrategy = "reload" | "notify" | "custom";
+
+/**
+ * Chunk error handler configuration
+ */
+export type ChunkErrorHandler = {
+  /**
+   * Strategy to handle chunk load errors
+   * - 'reload': Automatically reload the page (recommended)
+   * - 'notify': Emit event and let developer handle it
+   * - 'custom': Use custom handler function
+   *
+   * @default 'reload'
+   */
+  strategy?: ChunkErrorStrategy;
+
+  /**
+   * Maximum number of automatic reloads before giving up
+   * This prevents infinite reload loops
+   *
+   * @default 1
+   */
+  maxReloadAttempts?: number;
+
+  /**
+   * Custom error handler function
+   * Return true to trigger reload, false to handle manually
+   *
+   * @param error - The error that occurred
+   * @param path - The path that failed to load
+   * @param attempt - Current reload attempt number
+   * @returns boolean or Promise<boolean> - Whether to reload the page
+   */
+  onChunkLoadError?: (
+    error: Error,
+    path: string,
+    attempt: number,
+  ) => boolean | Promise<boolean>;
+
+  /**
+   * Custom notification component for 'notify' strategy
+   */
+  notificationComponent?: Component;
+};
 
 /**
  * Lazy loading options
@@ -78,6 +126,11 @@ export type LazyLoadingOptions = {
    * be applied to the page, you can use this to show a loading screen in your loader
    */
   renderOverPage?: boolean;
+  /**
+   * Chunk error handler configuration
+   * Handles errors when lazy-loaded chunks fail to load (e.g., after deployment)
+   */
+  chunkErrorHandler?: ChunkErrorHandler;
 };
 
 /**
@@ -352,24 +405,30 @@ export type Route = Required<Pick<RouteOptions, "component" | "path">> &
 /**
  * Navigation modes
  */
-export enum NavigationMode {
+export const NavigationMode = {
   /**
    * Triggered when route is changed normally
    */
-  navigation = "navigation",
+  navigation: "navigation",
   /**
    * Triggered when calling the `changeLocaleCode`
    */
-  changeLocaleCode = "changeLocaleCode",
+  changeLocaleCode: "changeLocaleCode",
   /**
    * Triggered when route is changed by history.back() or history.forward()
    */
-  swinging = "swinging",
+  swinging: "swinging",
   /**
    * Triggered when the user navigates to the same route or when calling `refresh` function
    */
-  refresh = "refresh",
-}
+  refresh: "refresh",
+} as const;
+
+/**
+ * Navigation mode type
+ */
+export type NavigationMode =
+  (typeof NavigationMode)[keyof typeof NavigationMode];
 
 export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   /**

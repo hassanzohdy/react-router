@@ -1,0 +1,375 @@
+# @mongez/react-router — full reference
+
+> Configuration-based React router. Routes are data on a singleton; navigation, locale prefixes, lazy-loaded apps/modules, middleware, prefetch-on-hover, and chunk-error recovery all live behind one API surface. This is the concatenated reference; load `llms.txt` for the structured index instead.
+
+## Install
+
+```sh
+yarn add @mongez/react-router
+# peer: react >= 18, react-dom >= 18
+```
+
+## Public exports
+
+```ts
+import router, {
+  // class + named alias
+  Router,
+
+  // components
+  Link,
+
+  // utilities
+  navigateTo,
+  navigateBack,
+  silentNavigation,
+  refresh,
+  changeLocaleCode,
+  currentRoute,
+  previousRoute,
+  currentApp,
+  getHash,
+  setApps,
+  NAVIGATING,
+
+  // config
+  setRouterConfigurations,
+  getRouterConfig,
+  getRouterConfigurations,
+  shouldAppendLocaleCodeToUrl,
+
+  // query string
+  queryString,
+  setQueryStringOptions,
+
+  // events
+  routerEvents,
+
+  // types
+  type Route,
+  type RouteOptions,
+  type RouterConfigurations,
+  type Middleware,
+  type MiddlewareProps,
+  type LinkProps,
+  type LinkOptions,
+  type App,
+  type PublicApp,
+  type Module,
+  type Loaders,
+  type NavigationMode,
+  type ChunkErrorHandler,
+  type ChunkErrorStrategy,
+  type LazyLoadingOptions,
+  type LocalizationOptions,
+  type NotFoundConfigurations,
+  type GroupedRoutesOptions,
+  type QueryStringOptions,
+  type UrlMatcher,
+  type ObjectType,
+  type Component,
+  type LazyLoadingProps,
+  type ChangeLanguageReloadMode,
+} from "@mongez/react-router";
+```
+
+## Mental model
+
+1. You declare routes by calling `router.add(...)` once per route. Each `add` is a pure data registration into `router.list()`.
+2. You optionally configure the router with `setRouterConfigurations({ ... })`.
+3. You call `router.scan()` once at app startup. That mounts a `<RouterWrapper>` into `#root` (via `createRoot` or `hydrateRoot`), parses the initial URL, and renders the matching route.
+4. Navigation (via `<Link>`, `navigateTo`, or `popstate`) calls `router.refresh(mode)`, which fires `"navigating"` and `"rendering"` events. `<RouterWrapper>` listens for `"rendering"` and re-resolves the page.
+5. Components rendered by the router receive `{ params, localeCode }` as props.
+
+## `router.add(...)`
+
+```ts
+router.add(path: string, component: ComponentType<any>, middleware?: Middleware, layout?: ComponentType<any>): Router
+router.add(options: Route): Router
+```
+
+`Route` shape:
+
+```ts
+type Route = {
+  path: string;
+  component: ComponentType<any>;
+  middleware?: Middleware;
+  layout?: ComponentType<any>;
+};
+```
+
+The path may contain dynamic segments:
+
+| Pattern | Means | Example match |
+|---|---|---|
+| `:name` | one required segment | `/users/:id` matches `/users/42` |
+| `:name?` | zero or one segment | `/users/:id?` matches `/users` and `/users/42` |
+| `:name+` | one or more segments | `/files/:path+` matches `/files/a/b/c` |
+| `:name*` | zero or more segments | `/wildcard/:rest*` matches `/wildcard` and `/wildcard/a/b/c` |
+
+Matched values are placed on `router.params` and passed to the rendered component as the `params` prop.
+
+## `router.group(options)`
+
+```ts
+router.group({
+  path?: string,
+  middleware?: Middleware,
+  layout?: Component,
+  routes: Route[],
+});
+```
+
+Each child route inherits the group's `path` prefix, `middleware` (concatenated before per-route middleware), and `layout` (the group layout wins).
+
+## `router.partOf(layout, routes)`
+
+Thin wrapper over `group({ layout, routes })`. Use it when many routes share a layout but nothing else.
+
+## Middleware
+
+```ts
+type MiddlewareProps = {
+  route: RouteOptions;
+  params: ObjectType;
+  localeCode: string;
+};
+
+type Middleware = (
+  | FC<MiddlewareProps>
+  | ((options: MiddlewareProps) => ReactNode)
+)[];
+```
+
+Return values:
+
+- `null` / `false` / `undefined` → run the next middleware, then the page
+- `NAVIGATING` (exported sentinel `<></>`) → don't render — this middleware already navigated
+- Any other `ReactNode` → render that instead of the page (e.g. a "Loading session" splash)
+
+```ts
+import { navigateTo, NAVIGATING } from "@mongez/react-router";
+
+function authMiddleware({ route, params, localeCode }) {
+  if (!user.isLoggedIn()) {
+    navigateTo("/login");
+    return NAVIGATING;
+  }
+  return null;
+}
+
+router.add("/dashboard", DashboardPage, [authMiddleware]);
+```
+
+## `<Link>`
+
+```ts
+type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  to?: string;                          // primary path; relative to current app
+  href?: string;                        // alias of `to`; or an external URL
+  email?: string;                       // renders `mailto:`
+  tel?: string;                         // renders `tel:`
+  localeCode?: string;                  // override the locale prefix
+  app?: string;                         // override the app prefix
+  newTab?: boolean;                     // set target=_blank + rel=noopener,noreferrer
+  silent?: boolean;                     // updates URL without navigating
+  prefetch?: boolean;                   // prefetch lazy module on hover; default from config
+  component?: ComponentType<any> | string;  // render-as; default "a"
+};
+```
+
+Behavior:
+
+- Internal paths (start with `/`) intercept clicks → `router.goTo(path)` (or `router.silentNavigation` when `silent`).
+- External URLs (anything `isUrl` matches), `mailto:`, `tel:`, and `#hash` paths render verbatim and don't intercept.
+- Modifier keys (Ctrl / Meta / Shift / Alt / middle-click) bypass interception so the browser handles them.
+- When `prefetch` is on and the path is internal, mouseover triggers `router.prefetch(path)` once (deduped via a ref).
+- The rendered `href` for internal paths is prefixed with the configured `basePath`.
+
+## Programmatic navigation
+
+```ts
+navigateTo(path: string, localeCode?: string, appName?: string): ReactNode;
+navigateBack(): ReactNode;
+silentNavigation(path: string, querySting?: string | ObjectType): void;
+refresh(): void;
+```
+
+- `navigateTo` returns the `NAVIGATING` sentinel so it can be used as middleware return value.
+- `navigateBack` navigates to `router.getPreviousRoute()` (NOT `history.back()` — it pushes a new entry).
+- `silentNavigation` replaces the URL via `history.replaceState` and updates `router.currentRoute` / `router.previousRoute`, but does NOT trigger the rendering event.
+- `refresh` temporarily flips `forceRefresh` on, refreshes the active route key, fires `"navigating"` and `"rendering"` with `mode: "refresh"`.
+
+## `changeLocaleCode(localeCode, reloadMode?)`
+
+```ts
+changeLocaleCode(localeCode: string, reloadMode?: "soft" | "hard"): void
+```
+
+- `"soft"` (default): fires `localeCodeChanging`, refreshes the active route key, navigates to the same route under the new locale, fires `localeChanged`. No full page reload.
+- `"hard"`: sets `window.location.href` to the locale-prefixed full URL (with query string and hash preserved). Triggers a browser navigation.
+
+## `router.scan()`
+
+Call once at app startup. It:
+
+1. Detects whether to auto-redirect to the default locale (when `localeCodes.length > 1` and `appendLocaleCodeToUrl` is true).
+2. Parses the URL to extract locale code and current app.
+3. Fires `"navigating"` and renders the initial page via `<RouterWrapper>` into `#root`.
+
+## Events (`routerEvents`)
+
+```ts
+routerEvents.onNavigating(callback: (route: string, mode: NavigationMode, previousRoute: string) => void): EventSubscription
+routerEvents.onRendering(callback: (route: string, mode: NavigationMode) => void): EventSubscription
+routerEvents.onPageRendered(callback: (route: string, mode: NavigationMode) => void): EventSubscription
+routerEvents.onLocaleChanging(callback: (next: string, prev: string) => void): EventSubscription
+routerEvents.onLocaleChanged(callback: (next: string, prev: string) => void): EventSubscription
+routerEvents.onDetectingInitialLocaleCode(callback: (localeCode: string) => void): EventSubscription
+routerEvents.onChunkLoadError(callback: (info: { error: Error; path: string; attempt: number; maxAttemptsReached: boolean }) => void): EventSubscription
+```
+
+`NavigationMode` is one of `"navigation" | "changeLocaleCode" | "swinging" | "refresh"`. `"swinging"` is browser back/forward.
+
+All event subscribers return `{ unsubscribe(): void }`.
+
+## Query string
+
+```ts
+queryString.all(): ObjectType;
+queryString.parse(searchParams: string): ObjectType;
+queryString.get(key: string, defaultValue?: any): any;
+queryString.toString(): string;
+queryString.toQueryString(params: ObjectType | string): string;
+queryString.update(params: Record<string, any> | string, reRender?: boolean): void;
+```
+
+Default parser:
+
+- Numeric-looking values come back as numbers
+- `key[]=v1&key[]=v2` becomes `{ key: [v1, v2] }`
+- `key[sub]=v` becomes `{ key: { sub: v } }`
+- Nested-object stringification uses `parent[child]` notation
+
+Swap parsers via:
+
+```ts
+setQueryStringOptions({
+  objectParser: (queryString) => /* … */,
+  stringParser: (queryObject) => /* … */,
+});
+```
+
+## Lazy loading
+
+```ts
+type Loaders = {
+  app:    (app: string) => Promise<any>;
+  module: (app: string, module: string) => Promise<any>;
+};
+```
+
+The `app` loader resolves the per-app provider module (where you call `router.add(...)` for that app's routes). The `module` loader resolves a per-module provider. Module entries are keyed by URL's first segment.
+
+```jsonc
+{
+  "name": "front-office",
+  "path": "/",
+  "modules": [
+    { "entry": ["/"],         "name": "home" },
+    { "entry": ["/account"],  "name": "account" }
+  ]
+}
+```
+
+On first visit to a module entry path, the router fetches both the app and module providers (deduped via internal `loadedApps` / `loadedModules` arrays), then looks up the route and renders.
+
+## Chunk error handler
+
+```ts
+type ChunkErrorHandler = {
+  strategy?: "reload" | "notify" | "custom";
+  maxReloadAttempts?: number;          // default 1
+  onChunkLoadError?: (error: Error, path: string, attempt: number) => boolean | Promise<boolean>;
+  notificationComponent?: Component;   // for "notify" strategy
+};
+```
+
+- `reload` (default): increments per-path counter in `sessionStorage` (key `mrr_reload_attempt_${path}`) and does `window.location.href = path`.
+- `custom`: calls `onChunkLoadError(error, path, attempt)`; if it (or its resolved Promise) returns `true`, reloads.
+- `notify`: fires the `chunkLoadError` event with `{ error, path, attempt, maxAttemptsReached }` and, if a `notificationComponent` is configured, renders it into a `<div id="mrr-cle">` appended to `<body>`.
+
+When `attempt >= maxReloadAttempts`, the router emits the event with `maxAttemptsReached: true` and stops auto-reloading.
+
+## Router configuration
+
+```ts
+type RouterConfigurations = {
+  basePath?: string;                                // "/"
+  forceRefresh?: boolean;                           // true
+  autoRedirectToLocaleCode?: boolean;               // derived
+  appendLocaleCodeToUrl?: boolean;                  // true
+  scrollToTop?: false | "smooth" | "default";       // "smooth"
+  strictMode?: boolean;                             // true
+  localization?: LocalizationOptions;
+  urlMatcher?: UrlMatcher;
+  queryString?: QueryStringOptions;
+  rootComponent?: Component;                        // wraps the whole tree
+  suspenseFallback?: ReactNode;                     // <></>
+  lazyLoading?: LazyLoadingOptions;
+  notFound?: NotFoundConfigurations;
+  link?: LinkOptions;                               // { component }
+  prefetch?: boolean;                               // true
+};
+```
+
+`setRouterConfigurations(config)` is additive — call it many times; later calls override the same keys.
+
+## Not found
+
+```ts
+type NotFoundConfigurations = {
+  mode?: "render" | "redirect";
+  component?: Component;
+  path?: string;       // for redirect mode; default "/404"
+};
+```
+
+`mode: "render"` renders the component in place of the page (URL unchanged). `mode: "redirect"` calls `navigateTo(path || "/404")`.
+
+## URL matcher
+
+```ts
+type UrlMatcher = (pattern: string) => {
+  regexp: RegExp;
+  keys: { name: string }[];
+};
+```
+
+The default matcher handles `:name`, `:name?`, `:name+`, `:name*`. Override it for richer patterns (e.g. `path-to-regexp`). Compiled patterns are memoized in a module-level cache.
+
+## URL shape
+
+```
+/basePath/appPath/(localeCode?)/routePath
+```
+
+Examples (with `basePath: "/"`, app `admin` at `/admin`):
+
+| User-facing URL | Parsed |
+|---|---|
+| `/` | app `/`, route `/` |
+| `/en` | app `/`, route `/`, locale `en` |
+| `/en/contact-us` | app `/`, route `/contact-us`, locale `en` |
+| `/admin` | app `/admin`, route `/` |
+| `/en/admin/customers` | app `/admin`, route `/customers`, locale `en` |
+
+When registering routes via `router.add("/customers", …)` for the admin app, do NOT include the locale or the `/admin` prefix — the router prepends both automatically.
+
+## What this package does NOT do
+
+- React-tree-as-routes (`react-router-dom`-style `<Routes>` / `<Route>` JSX). Routes are registered as data.
+- Server-side rendering of the router itself. SSR your page HTML separately; the router boots in the browser and hydrates `#root` when it contains pre-rendered markup.
+- Loaders / actions / data revalidation (cf. `react-router@6`'s data API). Compose a data layer separately (e.g. `@mongez/atomic-query`).
+- Nested-routes-as-outlets. Use `layout` per route or per group.

@@ -1,4 +1,4 @@
-import events, { EventSubscription } from "@mongez/events";
+import events, { type EventSubscription } from "@mongez/events";
 import { NavigationMode } from "./types";
 export type RouterEvents = {
   /**
@@ -48,6 +48,17 @@ export type RouterEvents = {
   onPageRendered: (
     callback: (route: string, navigationMode: NavigationMode) => void,
   ) => EventSubscription;
+  /**
+   * Triggered when a chunk fails to load
+   */
+  onChunkLoadError: (
+    callback: (data: {
+      error: Error;
+      path: string;
+      attempt: number;
+      maxAttemptsReached: boolean;
+    }) => void,
+  ) => EventSubscription;
 };
 
 const routerEvents: RouterEvents = {
@@ -72,6 +83,9 @@ const routerEvents: RouterEvents = {
   onPageRendered: callback => {
     return events.subscribe(`router.rendered`, callback);
   },
+  onChunkLoadError: callback => {
+    return events.subscribe(`router.chunkLoadError`, callback);
+  },
 };
 
 export type RouterEventType =
@@ -81,7 +95,8 @@ export type RouterEventType =
   | "rendered"
   | "initialLocaleCode"
   | "localeCodeChanging"
-  | "localeChanged";
+  | "localeChanged"
+  | "chunkLoadError";
 
 export function triggerEvent(eventName: RouterEventType, ...args: any[]) {
   events.trigger("router." + eventName, ...args);

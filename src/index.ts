@@ -3,6 +3,7 @@ export * from "./config";
 export { default as routerEvents } from "./events";
 export { default as queryString, setQueryStringOptions } from "./query-string";
 export * from "./types";
+export { NAVIGATING } from "./helpers";
 export * from "./utilities";
 export { Router };
 import router, { Router } from "./router";

@@ -1,0 +1,35 @@
+# @mongez/react-router
+
+> A configuration-based React router. Routes are registered as data on a singleton (`router.add("/users/:id", UserPage)`), then rendered through a single internal wrapper. First-class support for lazy-loaded apps/modules, locale-prefixed URLs (`/en/admin/users`), per-route middleware, prefetch-on-hover, and production chunk-error handling.
+
+Every export ships from the package root. React 18+ required (uses `react-dom/client`'s `createRoot` / `hydrateRoot`).
+
+## Docs
+
+- [Overview](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/overview.md): Pitch, install, mental model.
+- [README](https://raw.githubusercontent.com/hassanzohdy/react-router/main/README.md): Marketing-style index with the configuration table.
+- [Changelog](https://raw.githubusercontent.com/hassanzohdy/react-router/main/CHANGELOG.md): Release notes.
+
+## Reference
+
+- [Routes](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/routes.md): `router.add(path, component, middleware?, layout?)`, the object form, `router.group(...)`, `router.partOf(layout, routes)`, dynamic segments (`:id`, `:id?`, `:id+`, `:id*`), middleware return values (`null`, `NAVIGATING`, `ReactNode`), `MiddlewareProps`.
+- [Navigation](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/navigation.md): `<Link>` (prefetch, locale, app, silent, newTab, email, tel, custom component), `navigateTo`, `navigateBack`, `silentNavigation`, `refresh`, the `NAVIGATING` sentinel.
+- [Params & query string](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/params.md): How `params` is populated, the `urlMatcher` extension point, `queryString.all / get / update / toString / toQueryString`, swapping the parser.
+- [Lazy loading apps & modules](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/lazy-loading.md): `setApps`, the `app` and `module` loaders, `loadingComponent`, `renderOverPage`, the chunk-error handler (`reload` / `notify` / `custom` strategies).
+- [Localization](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/localization.md): `localeCodes`, `defaultLocaleCode`, `changeLocaleCode("fr" | "fr", "hard")`, `appendLocaleCodeToUrl`, `autoRedirectToLocaleCode`, the locale segment placement in the URL.
+- [Recipes](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/recipes.md): Auth-protected routes, locale-aware nav, route-driven analytics, scoping side effects by `NavigationMode`.
+
+## Quick rules
+
+1. **Routes are data, registered on the singleton**: `router.add(...)` adds to an internal list; nothing renders until you call `router.scan()` once at app startup.
+2. **Components receive `{ params, localeCode }` as props** — not via context. Middleware receives `{ route, params, localeCode }`.
+3. **Middleware that redirects must return `NAVIGATING`** so the wrapper bails out of rendering the page. Any other `ReactNode` return value replaces the page component.
+4. **The Link component is locale-, app-, and base-path-aware**. You write `<Link to="/about">`; the rendered `href` becomes `/basePath/appPath/en/about` automatically.
+5. **Lazy loading is keyed by the first segment of the URL** (`/account/orders/3` → module whose `entry` includes `/account`). Don't list deep paths in `entry`.
+6. **Chunk errors get handled centrally** via `lazyLoading.chunkErrorHandler`. `reload` is the default and what most apps want. Pair with `maxReloadAttempts` to guard against infinite loops.
+7. **The router constructor touches the browser globals at import time** (`window.history`, `window.addEventListener("popstate", ...)`). No SSR-safe alternative is provided — render the HTML elsewhere, then call `router.scan()` in the client bundle.
+
+## Optional
+
+- [Full single-file reference (llms-full.txt)](https://raw.githubusercontent.com/hassanzohdy/react-router/main/llms-full.txt): All reference content concatenated.
+- [GitHub repository](https://github.com/hassanzohdy/react-router): Source code, issues, releases.
