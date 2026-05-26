@@ -1,20 +1,78 @@
+<div align="center">
+
 # @mongez/react-router
 
-> A configuration-based React router with lazy-loaded apps/modules, locale-aware URLs, middleware, prefetch-on-hover, and production-ready chunk error handling.
+**Configuration-based React router with lazy-loaded apps/modules, locale-prefixed URLs, per-route middleware, prefetch-on-hover, and production chunk-error recovery.**
 
-Unlike `react-router-dom`'s component-tree-as-routes model, `@mongez/react-router` keeps routes as **data** registered on a singleton (`router.add("/users/:id", UserPage)`) and renders through a single internal `<RouterWrapper>` driven by an event bus. That shape makes lazy-loading whole **apps and modules** declarative, makes locale prefixes (`/en/admin/users`) and base paths first-class, and lets navigation be driven from anywhere — including outside the React tree.
+[![npm](https://img.shields.io/npm/v/@mongez/react-router.svg)](https://www.npmjs.com/package/@mongez/react-router)
+[![license](https://img.shields.io/npm/l/@mongez/react-router.svg)](LICENSE)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@mongez/react-router.svg)](https://bundlephobia.com/package/@mongez/react-router)
+[![downloads](https://img.shields.io/npm/dw/@mongez/react-router.svg)](https://www.npmjs.com/package/@mongez/react-router)
 
-## Install
+</div>
 
-```sh
-yarn add @mongez/react-router
-# peer: react >= 18, react-dom >= 18
-```
+---
 
-## A 30-second tour
+## Why @mongez/react-router?
+
+`react-router-dom` treats routes as a JSX tree, leaves lazy-loading, locale prefixing, and middleware as DIY, and ships a wide surface around loaders and actions that you may not want. `@tanstack/router` is typed but heavily Tanstack-flavored — file conventions, context providers, query integration baked in. Next.js routing is excellent but Next-only; it doesn't help if you're shipping a Vite or CRA SPA. `@mongez/react-router` sits in the middle: opinionated and mid-weight, routes-as-data on a singleton, with first-class lazy-loaded apps/modules, locale-prefixed URLs (`/en/admin/users`), per-route middleware, prefetch-on-hover, and chunk-error recovery after deploys — none of which you have to assemble yourself.
 
 ```tsx
-// src/index.tsx — entry
+import router, { Link, setRouterConfigurations } from "@mongez/react-router";
+
+router.add("/", HomePage);
+router.add("/users/:id", UserPage, [authMiddleware]);
+
+setRouterConfigurations({
+  localization: { defaultLocaleCode: "en", localeCodes: ["en", "fr"] },
+});
+
+router.scan(); // mounts <RouterWrapper> into #root
+
+// In any component:
+<Link to="/users/42">User 42</Link>
+```
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| **Routes as data** | `router.add(path, component, middleware?, layout?)` registers a route on a singleton. Nothing renders until `router.scan()`. |
+| **Groups & shared layouts** | `router.group({ path, middleware, layout, routes })` and `router.partOf(layout, routes)` for prefixed, layout-wrapped sets. |
+| **Per-route middleware** | Array of functions returning `null` (continue), `NAVIGATING` (redirected, skip render), or any `ReactNode` (render instead of page). |
+| **Locale-prefixed URLs** | `/en/admin/users` shape derived from `localeCodes`. Switch with `changeLocaleCode("fr")` — soft re-render or hard reload. |
+| **Lazy-loaded apps & modules** | `setApps([...])` plus `lazyLoading.loaders.{app,module}` code-splits whole feature areas, keyed by the first URL segment. |
+| **Prefetch on hover** | `<Link>` attaches a one-shot `mouseover` listener that calls `router.prefetch(path)`. Opt out per link with `prefetch={false}`. |
+| **Chunk-error recovery** | Built-in strategies (`reload` / `notify` / `custom`) to recover when an old chunk vanishes after a deploy. |
+| **Programmatic navigation** | `navigateTo`, `navigateBack`, `silentNavigation`, `refresh` — usable from anywhere, including outside the React tree. |
+| **Query string helpers** | `queryString.all / get / parse / toString / toQueryString / update` with typed coercion (`"3"` → `3`, `key[]=a&key[]=b` → array). |
+| **Custom URL matcher** | Default supports `:name`, `:name?`, `:name+`, `:name*`. Swap in `path-to-regexp` or anything else via `urlMatcher`. |
+| **SSR-aware renderer** | Detects whether `#root` already has children: `createRoot` for fresh mount, `hydrateRoot` for pre-rendered HTML. |
+| **Event bus** | `routerEvents.onNavigating / onPageRendered / onLocaleChanging / onChunkLoadError / …` for analytics, loading bars, scroll restoration. |
+| **TypeScript-first** | Every public type (`Route`, `Middleware`, `LinkProps`, `App`, `RouterConfigurations`, …) re-exported from the package root. |
+
+---
+
+## Installation
+
+```sh
+npm install @mongez/react-router
+# or
+yarn add @mongez/react-router
+# or
+pnpm add @mongez/react-router
+```
+
+Peer: `react >= 18`, `react-dom >= 18`. The renderer uses `react-dom/client`'s `createRoot` / `hydrateRoot`.
+
+---
+
+## Quick start
+
+```tsx
+// src/index.tsx — entry point
 import router, { setRouterConfigurations } from "@mongez/react-router";
 import "./routes";
 
@@ -24,17 +82,12 @@ setRouterConfigurations({
   localization: { defaultLocaleCode: "en", localeCodes: ["en", "fr"] },
 });
 
-router.scan(); // start the router; mounts into #root
+router.scan(); // parse the URL, render the matching route into #root
 ```
 
 ```tsx
-// src/routes.tsx
+// src/routes.tsx — registered route table
 import router, { Link, navigateTo } from "@mongez/react-router";
-import HomePage from "./pages/HomePage";
-import UserPage from "./pages/UserPage";
-
-router.add("/", HomePage);
-router.add("/users/:id", UserPage);
 
 function HomePage() {
   return (
@@ -45,60 +98,31 @@ function HomePage() {
   );
 }
 
-function UserPage({ params, localeCode }: { params: { id: string }; localeCode: string }) {
+function UserPage({ params, localeCode }: {
+  params: { id: string };
+  localeCode: string;
+}) {
   return <h1>User {params.id} ({localeCode})</h1>;
 }
-```
 
-That's it: every component receives `params` and `localeCode`, navigation happens via `<Link>` or `navigateTo()`, and the router scans your `add()` calls when you call `scan()`.
-
-## What's in the box
-
-| Export | Purpose |
-|---|---|
-| `router` (default export) | The singleton `Router` instance. Holds the route table, locale, current app, events. |
-| `Router` | The class itself. You almost never instantiate it directly. |
-| `Link` | Anchor-replacement with prefetch-on-hover, locale awareness, and silent navigation. |
-| `routerEvents` | `onNavigating`, `onPageRendered`, `onLocaleChanging`, `onLocaleChanged`, `onChunkLoadError`, … |
-| `queryString` | `.all()`, `.get(key)`, `.update(...)`, `.toQueryString(obj)`. |
-| `navigateTo`, `navigateBack`, `silentNavigation`, `refresh` | Programmatic navigation. |
-| `currentRoute`, `previousRoute`, `getHash`, `currentApp` | Reads of router state. |
-| `changeLocaleCode` | Switch locale (soft re-render or hard reload). |
-| `setApps`, `setRouterConfigurations`, `getRouterConfig`, `getRouterConfigurations` | One-call configuration of every router feature. |
-| `NAVIGATING` | Sentinel return value for middleware that has redirected. |
-
-## Route registration
-
-### Basic
-
-```tsx
 router.add("/", HomePage);
-router.add("/about", AboutPage);
-```
-
-### Dynamic segments
-
-```tsx
 router.add("/users/:id", UserPage);
-router.add("/posts/:slug?", PostPage);          // optional segment
-router.add("/files/:path+", FilePage);          // one-or-more
-router.add("/wildcards/:rest*", WildcardPage);  // zero-or-more
 ```
 
-Components receive `params` and `localeCode`:
+That's the entire happy path. Every page receives `{ params, localeCode }` as props, navigation flows through `<Link>` or `navigateTo`, and the singleton scans your `add()` calls when you boot. The rest of this README is depth on the same surface.
 
-```tsx
-function UserPage({ params, localeCode }) {
-  return <span>User {params.id} ({localeCode})</span>;
-}
-```
+---
 
-### With middleware and layout
+## Defining routes
 
-```tsx
+`router.add(...)` takes either positional args or an object — identical semantics:
+
+```ts
+router.add("/", HomePage);
+router.add("/users/:id", UserPage);
 router.add("/dashboard", DashboardPage, [authMiddleware], AdminLayout);
 
-// or object form
+// Or:
 router.add({
   path: "/dashboard",
   component: DashboardPage,
@@ -107,55 +131,93 @@ router.add({
 });
 ```
 
+### Dynamic segments
+
+The built-in matcher handles four modifiers (same conventions as `path-to-regexp` v3):
+
+| Pattern | Means | Example match |
+|---|---|---|
+| `:name` | one required segment | `/users/:id` → `/users/42` |
+| `:name?` | zero or one segment | `/users/:id?` → `/users` and `/users/42` |
+| `:name+` | one or more segments | `/files/:path+` → `/files/a/b/c` |
+| `:name*` | zero or more segments | `/wildcard/:rest*` → `/wildcard` and `/wildcard/a/b/c` |
+
+Multi-segment captures (`:path+`, `:path*`) come back as the joined string (`"a/b/c"`), not an array.
+
 ### Groups
 
-```tsx
+`router.group(...)` prefixes a set of routes with a common path, layout, and middleware:
+
+```ts
 router.group({
   path: "/account",
   middleware: [authMiddleware],
   layout: AccountLayout,
   routes: [
-    { path: "/", component: AccountDashboard },
-    { path: "/profile", component: EditProfile },
-    { path: "/orders/:id", component: OrderDetails },
+    { path: "/",          component: AccountDashboard },
+    { path: "/profile",   component: EditProfile },
+    { path: "/orders/:id", component: OrderDetails, middleware: [paymentVerified] },
   ],
 });
 ```
 
-### Shared layout for many routes
+- The group `path` is concatenated into each child path (`/account/profile`).
+- The group `middleware` runs **before** any per-route middleware.
+- The group `layout` wins over per-route `layout` (last-write semantics in the merge).
 
-```tsx
+### Shared layout (`partOf`)
+
+```ts
 router.partOf(BaseLayout, [
-  { path: "/", component: HomePage },
+  { path: "/",      component: HomePage },
   { path: "/about", component: AboutPage },
 ]);
 ```
 
-`partOf` is a thin wrapper over `group({ layout, routes })`.
+A thin wrapper over `group({ layout, routes })` when you don't need a common path or middleware.
 
-## Middleware
+### Middleware
 
-```tsx
+```ts
 import { navigateTo, NAVIGATING } from "@mongez/react-router";
+import type { MiddlewareProps } from "@mongez/react-router";
 
-function authMiddleware({ route, params, localeCode }) {
+function authMiddleware({ route, params, localeCode }: MiddlewareProps) {
   if (!user.isLoggedIn()) {
     navigateTo("/login");
-    return NAVIGATING; // stop rendering the page
+    return NAVIGATING; // bail — middleware redirected
   }
-  return null;         // continue
+  return null;         // continue to next middleware / the page
 }
-
-router.add("/dashboard", DashboardPage, [authMiddleware]);
 ```
 
-Return values:
+| Return | Effect |
+|---|---|
+| `null` / `false` / `undefined` | Run the next middleware, then the page component. |
+| `NAVIGATING` (re-exported empty fragment sentinel) | The middleware redirected — the wrapper skips rendering the page. |
+| Any other `ReactNode` | Render that instead of the page component (e.g. a loading splash). |
 
-- `null` / `false` / `undefined` — continue to the next middleware or the page component
-- `NAVIGATING` — the middleware called `navigateTo(...)` and the wrapper should not render
-- Any other `ReactNode` — render that instead of the page (e.g. a "Loading session" splash)
+> `NAVIGATING` is sentinel-by-identity. The wrapper checks `output === NAVIGATING`. Don't reuse it for empty content — return a real empty element instead.
 
-## `<Link>`
+### Not-found
+
+```ts
+setRouterConfigurations({
+  notFound: {
+    mode: "render",        // or "redirect"
+    component: NotFoundPage,
+    // path: "/404",         // for redirect mode; route must be registered
+  },
+});
+```
+
+`render` mounts the component in place (URL unchanged); `redirect` calls `navigateTo(path || "/404")`.
+
+---
+
+## Navigation
+
+### `<Link>` — declarative
 
 ```tsx
 import { Link } from "@mongez/react-router";
@@ -165,25 +227,29 @@ import { Link } from "@mongez/react-router";
 <Link to="/terms" newTab>Terms</Link>
 <Link to="/admin/users" app="admin">Admin Users</Link>
 <Link to="/about" localeCode="fr">À propos</Link>
+<Link to="/tasks/1" silent>Open task (no navigate)</Link>
 <Link href="https://example.com">External</Link>
 <Link email="hello@example.com">Email us</Link>
 <Link tel="+1234567890">Call us</Link>
-<Link to="/tasks/1" silent>Open task (no navigate)</Link>
 <Link to="/account" component={CustomLink}>Account</Link>
 ```
 
-The component automatically:
+| Prop | Behavior |
+|---|---|
+| `to` / `href` | Internal path; prepended with `basePath`, current `app`, and `localeCode`. Full URLs, `mailto:`, `tel:`, and `#hash` pass through verbatim. |
+| `email`, `tel` | Force `mailto:` / `tel:` links. |
+| `localeCode` | Override the current locale (use with relative `to` only). |
+| `app` | Override the current app prefix. |
+| `newTab` | Sets `target="_blank"` and `rel="noopener noreferrer"`. |
+| `silent` | Click triggers `router.silentNavigation(path)` — URL updates, no render. |
+| `prefetch` | Prefetch the lazy module on mouseover (default from `config.prefetch`, which is `true`). |
+| `component` | Render-as; default `"a"` or `config.link.component`. |
 
-- prepends the current locale code when one is active and `localeCode` is not provided
-- prepends the current/specified app path
-- prepends the configured base path to the rendered `href`
-- prefetches on hover when `prefetch` is `true` (default; see configuration)
-- preserves modifier-key / middle-click behavior (opens in a new tab without intercepting)
-- adds `target="_blank"` and `rel="noopener noreferrer"` when `newTab` is set
+Click interception only fires when the resolved path starts with `/`, no modifier key is held (Ctrl / Meta / Shift / Alt), it isn't a middle-click, and `target` is not `_blank`. So Ctrl+Click / Cmd+Click still opens in a new tab as expected.
 
-## Programmatic navigation
+### Imperative helpers
 
-```tsx
+```ts
 import {
   navigateTo,
   navigateBack,
@@ -192,43 +258,110 @@ import {
 } from "@mongez/react-router";
 
 navigateTo("/about");
-navigateTo("/about", "en");                  // with locale
-navigateTo("/dashboard", "en", "admin");     // with locale + app
+navigateTo("/about", "en");                  // + locale
+navigateTo("/dashboard", "en", "admin");     // + locale + app
 
-navigateBack();                              // re-navigates to previousRoute
-silentNavigation("/home");                   // updates URL only; no re-render
+navigateBack();                              // → navigateTo(previousRoute)
+silentNavigation("/home");                   // updates URL only, no render
 silentNavigation("/home", { name: "John" }); // with query string
+silentNavigation("/home", "name=John");      // raw query also accepted
 refresh();                                   // force re-render of current route
 ```
 
-`navigateTo` returns the `NAVIGATING` sentinel so middleware can `return navigateTo(...)`.
+`navigateTo` returns the `NAVIGATING` sentinel so middleware can short-form `return navigateTo(...)`:
 
-## Localization
+```ts
+function authMiddleware({ route }: MiddlewareProps) {
+  if (!user.isLoggedIn()) return navigateTo("/login");
+  return null;
+}
+```
+
+> `navigateBack()` is **not** `history.back()`. It calls `navigateTo(router.getPreviousRoute())`, which pushes a new history entry. Browser back/forward buttons fire `popstate` and run with `NavigationMode.swinging`.
+
+### State readers
+
+```ts
+import { currentRoute, previousRoute, currentApp, getHash } from "@mongez/react-router";
+
+currentRoute();     // "/users/42"
+previousRoute();    // "/users"
+currentApp();       // App object or undefined
+getHash();          // location.hash without the leading "#"
+```
+
+---
+
+## Params & query string
+
+`params` flows in as a prop on every page component (and every middleware via `MiddlewareProps`). It's also kept on `router.params` for code outside the React tree.
 
 ```tsx
+router.add("/users/:id", UserPage);
+
+function UserPage({ params }: { params: { id: string } }) {
+  return <p>User {params.id}</p>;
+}
+```
+
+### Query string API
+
+```ts
+import queryString from "@mongez/react-router";
+
+queryString.all();                          // { page: 2, sort: "name" }
+queryString.get("page", 1);                 // single key, with default
+queryString.parse("?page=2&sort=name");     // explicit string
+queryString.toString();                     // raw current query, no leading "?"
+
+queryString.update({ page: 2, sort: "date" });        // replaceState, no render
+queryString.update({ page: 2 }, true);                // also calls refresh()
+queryString.update("page=2&sort=date");               // raw string accepted
+
+queryString.toQueryString({ a: 1, b: [2, 3], nested: { x: 1 } });
+// → "a=1&b[]=2&b[]=3&nested[x]=1"
+```
+
+Numeric-looking values come back as `number`s. Arrays use `key[]=v1&key[]=v2`. Nested objects use `key[subkey]=v` (composable: `a[b][c]=v`).
+
+> `queryString.update(...)` **replaces** the entire query string, not merges. Pass the full object you want represented.
+
+Swap parsers for a different convention:
+
+```ts
+import qs from "qs";
+
 setRouterConfigurations({
-  localization: {
-    defaultLocaleCode: "en",
-    localeCodes: ["en", "fr", "es"],
-    changeLanguageReloadMode: "soft",
+  queryString: {
+    objectParser: (search) => qs.parse(search),
+    stringParser: (obj) => qs.stringify(obj),
   },
-  appendLocaleCodeToUrl: true,
-  autoRedirectToLocaleCode: true,
 });
 ```
 
-```tsx
-import { changeLocaleCode } from "@mongez/react-router";
+### Custom URL matcher
 
-changeLocaleCode("fr");          // soft — re-render
-changeLocaleCode("fr", "hard");  // hard — full window.location reload
+```ts
+import { pathToRegexp } from "path-to-regexp";
+
+setRouterConfigurations({
+  urlMatcher: (pattern) => {
+    const keys: Array<{ name: string }> = [];
+    const regexp = pathToRegexp(pattern, keys);
+    return { regexp, keys };
+  },
+});
 ```
 
-URL shape (full): `/basePath/appPath/(localeCode?)/routePath`. The locale segment is added/removed automatically based on `appendLocaleCodeToUrl`; when you `router.add("/about", ...)`, you write the route **without** the locale and app prefix.
+Pattern results are memoized per matcher in a `WeakMap` — swapping the matcher implicitly resets the cache.
 
-## Lazy loading apps and modules
+---
 
-For larger projects, partition routes into **apps** (a top-level prefix like `/admin`) and **modules** (a feature like `account`, `products`, `checkout`). Each module's routes load on demand the first time the user visits an entry path.
+## Lazy-loading apps and modules
+
+For larger projects, split routes into **apps** (a top-level prefix like `/admin`, `/`) and **modules** (a feature like `account`, `products`, `checkout`). Each module's routes are fetched the first time the user visits an entry path.
+
+### Manifest
 
 ```jsonc
 // src/apps/front-office/front-office-modules.json
@@ -242,8 +375,12 @@ For larger projects, partition routes into **apps** (a top-level prefix like `/a
 }
 ```
 
-```tsx
-// src/index.tsx
+`entry` lists only the **first segment** of each route under that module. `entry: ["/account"]` matches `/account`, `/account/orders`, `/account/orders/42`. Listing deeper paths (`["/account/orders"]`) never matches — the router only looks at the first segment.
+
+### Wire-up
+
+```ts
+// src/index.ts
 import { setApps, setRouterConfigurations } from "@mongez/react-router";
 import frontOfficeApp from "./apps/front-office/front-office-modules.json";
 
@@ -259,181 +396,306 @@ setRouterConfigurations({
     renderOverPage: true,
   },
 });
+
+import router from "@mongez/react-router";
+router.scan();
 ```
 
-The `entry` array lists only the **first segment** of each route under that module — the router uses it to decide which module to fetch when a route isn't yet in the table.
+Each `provider.ts` imports its own `routes.ts`, which calls `router.add(...)` to register that module's routes. After the provider runs, the wrapper retries `getRouteByPath(...)`. `renderOverPage: true` (default) renders `loadingComponent` over the previous page inside `<div id="__preloader__">`; `false` unmounts the previous page first.
 
-## Chunk error handling (production)
+### Chunk-error handler
 
-Old chunks get deleted on every deploy. A user who loaded the app before a deploy will see "Failed to fetch dynamically imported module" the first time they navigate. Configure a strategy:
+Old chunks vanish on every deploy. A client with the pre-deploy JS in memory will see `"Failed to fetch dynamically imported module"` on the next lazy navigation.
 
-```tsx
+```ts
 setRouterConfigurations({
   lazyLoading: {
     loaders: { /* … */ },
     chunkErrorHandler: {
-      strategy: "reload",     // "reload" | "notify" | "custom"
-      maxReloadAttempts: 1,   // guard against infinite reload loops
+      strategy: "reload",   // "reload" | "notify" | "custom"
+      maxReloadAttempts: 1, // guards against infinite reload loops
     },
   },
 });
 ```
 
-Strategies:
+| Strategy | What it does |
+|---|---|
+| `"reload"` (default) | `window.location.href = path`. Reload counter kept in `sessionStorage`, keyed by path. After `maxReloadAttempts`, fires `chunkLoadError` with `maxAttemptsReached: true` and stops. |
+| `"custom"` | Calls `onChunkLoadError(error, path, attempt)`. Returning `true` (or a Promise resolving to `true`) reloads; anything else hands off. |
+| `"notify"` | Fires the `chunkLoadError` event. If `notificationComponent` is set, the router renders it into a sidecar `<div id="mrr-cle">` appended to `<body>`. |
 
-- `reload` — `window.location.href = path`; reload counter is kept in `sessionStorage` keyed by path.
-- `notify` — fires `router.events.onChunkLoadError(...)` for your app to handle; optionally renders a `notificationComponent` in a sidecar `<div id="mrr-cle">`.
-- `custom` — calls `onChunkLoadError(error, path, attempt)`; if it (or its resolved Promise) returns `true`, the router reloads.
-
-```tsx
+```ts
 router.events.onChunkLoadError(({ error, path, attempt, maxAttemptsReached }) => {
   if (maxAttemptsReached) showRefreshModal();
 });
 ```
 
-## Query string
+---
 
-```tsx
-import queryString from "@mongez/react-router";
+## Localization (locale prefixes)
 
-queryString.all();                          // { page: 1, sort: "name" }
-queryString.get("page", 1);                 // single key, with default
-queryString.toString();                     // "page=1&sort=name"
-queryString.update({ page: 2, sort: "date" });
-queryString.update({ page: 2 }, true);      // also re-render
-queryString.toQueryString({ a: 1, b: [2, 3], nested: { x: 1 } });
-// → "a=1&b[]=2&b[]=3&nested[x]=1"
-```
-
-Numeric-looking values come back as `number`s; arrays use `key[]=v1&key[]=v2`; nested objects use `key[subkey]=v`.
-
-Override with your own parser if you want a different convention:
-
-```tsx
+```ts
 setRouterConfigurations({
-  queryString: {
-    objectParser: (search) => qs.parse(search),
-    stringParser: (obj) => qs.stringify(obj),
+  localization: {
+    defaultLocaleCode: "en",
+    localeCodes: ["en", "fr", "es", "ar"],
+    changeLanguageReloadMode: "soft", // "soft" | "hard"
   },
+  appendLocaleCodeToUrl: true,        // default true
+  autoRedirectToLocaleCode: true,     // default: localeCodes.length > 1
 });
 ```
 
-## Router events
+URL shape: `/basePath/(localeCode?)/appPath/routePath`. When you call `router.add("/customers", …)` from an `/admin` app, write the route **without** the locale or `/admin` prefix — both are prepended automatically based on the active app and locale.
+
+| URL | Parsed |
+|---|---|
+| `/` | locale unset, app `/`, route `/` |
+| `/en` | locale `en`, app `/`, route `/` |
+| `/en/contact-us` | locale `en`, app `/`, route `/contact-us` |
+| `/en/admin/customers` | locale `en`, app `/admin`, route `/customers` |
+
+### Switching at runtime
+
+```ts
+import { changeLocaleCode, routerEvents } from "@mongez/react-router";
+
+changeLocaleCode("fr");          // soft — re-render, fires localeChanged
+changeLocaleCode("fr", "hard");  // hard — window.location.href = …
+
+routerEvents.onDetectingInitialLocaleCode((localeCode) => {
+  // Boot-time hook: load translations, set <html lang>, …
+});
+```
+
+Soft mode fires `localeCodeChanging`, refreshes the active route's key (so the page remounts), navigates to the new locale-prefixed URL with mode `changeLocaleCode`, then fires `localeChanged`. Hard mode builds the full URL with query string and hash preserved, then does `window.location.href = …` — useful when third-party scripts cache locale state on init.
+
+---
+
+## Recipes
+
+### Add a protected route gated by auth middleware
+
+Reach for this when a section of the app requires login — `/account`, `/admin`, anything behind a check.
+
+```tsx
+import router, { navigateTo, NAVIGATING } from "@mongez/react-router";
+import type { MiddlewareProps } from "@mongez/react-router";
+
+function authMiddleware({ route }: MiddlewareProps) {
+  if (!user.isLoggedIn()) {
+    navigateTo("/login");
+    return NAVIGATING; // wrapper bails out of rendering the page
+  }
+  return null;
+}
+
+router.group({
+  path: "/account",
+  middleware: [authMiddleware],
+  layout: AccountLayout,
+  routes: [
+    { path: "/",        component: AccountDashboard },
+    { path: "/profile", component: EditProfile },
+    { path: "/orders",  component: Orders },
+  ],
+});
+```
+
+The `NAVIGATING` return value tells the wrapper "I redirected, don't render". For a return-to flow, encode the current path into the redirect target:
+
+```ts
+import { currentRoute, navigateTo, NAVIGATING } from "@mongez/react-router";
+import queryString from "@mongez/react-router";
+
+function authMiddleware({ route }: MiddlewareProps) {
+  if (!user.isLoggedIn()) {
+    const returnTo = encodeURIComponent(currentRoute());
+    navigateTo(`/login?returnTo=${returnTo}`);
+    return NAVIGATING;
+  }
+  return null;
+}
+
+// After successful login:
+function onLogin() {
+  const returnTo = queryString.get("returnTo", "/");
+  navigateTo(decodeURIComponent(returnTo));
+}
+```
+
+### Lazy-load a feature module with React.lazy
+
+Reach for this when you want a single heavy page (chart library, rich text editor) deferred — without setting up the full apps/modules manifest.
+
+```tsx
+import { lazy } from "react";
+import router, { setRouterConfigurations } from "@mongez/react-router";
+
+const HeavyChart = lazy(() => import("./pages/HeavyChart"));
+
+setRouterConfigurations({
+  suspenseFallback: <Spinner />,
+});
+
+router.add("/dashboard", HeavyChart);
+```
+
+The wrapper already wraps every page in `<Suspense>` with the configured fallback. `React.lazy` works without any further setup — the chart bundle only loads when the user visits `/dashboard`.
+
+For larger code-splitting (a whole `/admin` app, multiple feature modules), use `setApps([...])` and `lazyLoading.loaders` — see the [Lazy-loading](#lazy-loading-apps-and-modules) section.
+
+### Build a language switcher
+
+Reach for this when the app supports multiple locales and you need an in-page control to switch them.
+
+```tsx
+import { changeLocaleCode, Link } from "@mongez/react-router";
+
+// As a select control — soft re-render:
+function LanguageSwitcher() {
+  return (
+    <select onChange={(e) => changeLocaleCode(e.target.value)}>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+    </select>
+  );
+}
+
+// As locale-pinned links to the same logical page:
+<Link to="/about" localeCode="en">EN</Link>
+<Link to="/about" localeCode="fr">FR</Link>
+<Link to="/about" localeCode="es">ES</Link>
+```
+
+Listen for `localeChanged` to refresh locale-dependent data:
+
+```ts
+routerEvents.onLocaleChanged((next, prev) => {
+  i18n.load(next).then(refresh);
+});
+```
+
+### Track pageviews on every navigation
+
+Reach for this when you want analytics that runs after the page is on screen — not on `navigating` (which fires before render).
+
+```ts
+import { routerEvents } from "@mongez/react-router";
+
+routerEvents.onPageRendered((route, mode) => {
+  if (mode === "swinging") return; // skip browser back/forward, optional
+  analytics.pageview({ path: route, mode });
+});
+```
+
+`mode` is one of `"navigation" | "changeLocaleCode" | "swinging" | "refresh"` (browser back/forward is `"swinging"`). Scope side effects accordingly.
+
+### Show a loading bar between navigations
+
+Reach for this when long lazy-module loads need a top-of-page progress indicator. The 300ms debounce avoids flashing the bar on instant same-bundle transitions.
 
 ```tsx
 import { routerEvents } from "@mongez/react-router";
 
-const sub = routerEvents.onNavigating((route, mode, previousRoute) => {
-  console.log("→", route, "from", previousRoute, "via", mode);
-});
-sub.unsubscribe();
+let timer: ReturnType<typeof setTimeout> | null = null;
 
-routerEvents.onPageRendered((route, mode) => /* … */);
-routerEvents.onLocaleChanging((next, prev) => /* … */);
-routerEvents.onLocaleChanged((next, prev) => /* … */);
-routerEvents.onDetectingInitialLocaleCode((locale) => /* … */);
-routerEvents.onChunkLoadError(({ error, path, attempt, maxAttemptsReached }) => /* … */);
+routerEvents.onNavigating(() => {
+  timer = setTimeout(() => loadingBar.start(), 300);
+});
+
+routerEvents.onPageRendered(() => {
+  if (timer) { clearTimeout(timer); timer = null; }
+  loadingBar.stop();
+});
 ```
 
-`mode` is one of `"navigation" | "changeLocaleCode" | "swinging" | "refresh"` (browser back/forward is `"swinging"`).
+### Drive a filter UI from the query string
 
-## Custom URL matcher
-
-The built-in matcher handles `:name`, `:name?`, `:name+`, `:name*`. Plug in `path-to-regexp` (or anything else) if you need richer patterns:
+Reach for this when filters / sort / pagination should be shareable and survive reloads — bookmarkable URLs, no Redux needed.
 
 ```tsx
-import { pathToRegexp } from "path-to-regexp";
+import queryString from "@mongez/react-router";
 
+function ProductsList() {
+  const { sort = "name", page = 1 } = queryString.all() as {
+    sort?: string;
+    page?: number;
+  };
+
+  return (
+    <>
+      <button onClick={() => queryString.update({ sort: "price", page: 1 }, true)}>
+        Sort by price
+      </button>
+      <Pager
+        page={page}
+        onChange={(next) => queryString.update({ sort, page: next }, true)}
+      />
+      <ul>…</ul>
+    </>
+  );
+}
+```
+
+The `true` second arg to `update` triggers `refresh()` so the component re-runs with the new params. Drop it to update the URL silently (e.g. while typing in a search input — only re-render when the user pauses).
+
+### Recover from chunk-load errors after a deploy
+
+Reach for this in production. The default `"reload"` strategy is what most apps want; pair with `maxReloadAttempts: 1` to prevent infinite loops if the new chunk also fails.
+
+```ts
 setRouterConfigurations({
-  urlMatcher: (pattern) => {
-    const keys: Array<{ name: string }> = [];
-    const regexp = pathToRegexp(pattern, keys);
-    return { regexp, keys };
+  lazyLoading: {
+    loaders: { /* … */ },
+    chunkErrorHandler: {
+      strategy: "reload",
+      maxReloadAttempts: 1,
+    },
   },
 });
 ```
 
-## SSR / hydration
-
-The renderer auto-detects whether `#root` already has children:
-
-- empty → `createRoot` + `root.render(...)`
-- pre-rendered → `hydrateRoot(rootElement, ...)`
-
-This means an HTML payload generated with `renderToString` will hydrate in place. The router itself is browser-only — `window.history`, `window.location`, and `window.addEventListener("popstate")` are touched in the constructor.
-
-## Configuration reference
-
-| Option | Type | Default |
-|---|---|---|
-| `basePath` | `string` | `"/"` |
-| `strictMode` | `boolean` | `true` |
-| `forceRefresh` | `boolean` | `true` (when calling `goTo` to the current route; see below) |
-| `scrollToTop` | `false \| "smooth" \| "default"` | `"smooth"` |
-| `localization.defaultLocaleCode` | `string` | `"en"` |
-| `localization.localeCodes` | `string[]` | `["en"]` |
-| `localization.changeLanguageReloadMode` | `"soft" \| "hard"` | `"soft"` |
-| `appendLocaleCodeToUrl` | `boolean` | `true` |
-| `autoRedirectToLocaleCode` | `boolean` | derived: `localeCodes.length > 1` |
-| `lazyLoading.loaders` | `{ app, module }` | — |
-| `lazyLoading.loadingComponent` | `Component` | — |
-| `lazyLoading.renderOverPage` | `boolean` | `true` |
-| `lazyLoading.chunkErrorHandler` | `ChunkErrorHandler` | — |
-| `notFound.mode` | `"render" \| "redirect"` | `"render"` |
-| `notFound.component` | `Component` | built-in `<h1>Not Found Page</h1>` |
-| `notFound.path` | `string` | `"/404"` |
-| `rootComponent` | `Component` | `React.Fragment` |
-| `suspenseFallback` | `ReactNode` | `<></>` |
-| `urlMatcher` | `UrlMatcher` | built-in `:name` matcher |
-| `queryString.objectParser` | `(qs: string) => object` | built-in |
-| `queryString.stringParser` | `(obj: object) => string` | built-in |
-| `link.component` | `Component \| string` | `"a"` |
-| `prefetch` | `boolean` | `true` |
-
-`forceRefresh: false` means `navigateTo("/current")` is a no-op when the URL hasn't changed; with `forceRefresh: true` it re-renders.
-
-## TypeScript
-
-Public types ship from the package root:
+For a custom toast / modal flow, use `"notify"` and listen for the event:
 
 ```ts
-import type {
-  Route,
-  RouteOptions,
-  RouterConfigurations,
-  Middleware,
-  MiddlewareProps,
-  LinkProps,
-  LinkOptions,
-  App,
-  PublicApp,
-  Module,
-  Loaders,
-  NavigationMode,
-  ChunkErrorHandler,
-  ChunkErrorStrategy,
-  LazyLoadingOptions,
-  LocalizationOptions,
-  NotFoundConfigurations,
-  GroupedRoutesOptions,
-  QueryStringOptions,
-  UrlMatcher,
-  ObjectType,
-  Component,
-} from "@mongez/react-router";
+setRouterConfigurations({
+  lazyLoading: {
+    loaders: { /* … */ },
+    chunkErrorHandler: { strategy: "notify" },
+  },
+});
+
+router.events.onChunkLoadError(({ error, path, attempt, maxAttemptsReached }) => {
+  if (maxAttemptsReached) {
+    showRefreshModal({ message: "App was updated — please reload." });
+  } else {
+    toast.info("New version available", { action: () => window.location.reload() });
+  }
+});
 ```
+
+---
 
 ## Related packages
 
-| Package | Purpose |
+| Package | Use when you need |
 |---|---|
-| [`@mongez/concat-route`](https://github.com/hassanzohdy/mongez-concat-route) | The tiny path joiner used internally. |
-| [`@mongez/events`](https://github.com/hassanzohdy/events) | The event bus that powers `routerEvents`. |
-| [`@mongez/react-atom`](https://github.com/hassanzohdy/mongez-react-atom) | State management; pairs well with this router for route-driven state. |
+| [`@mongez/concat-route`](https://github.com/hassanzohdy/mongez-concat-route) | The tiny path joiner used internally to compose `basePath` + `app.path` + `localeCode` + route — also useful for building URLs at call sites without `string +` gymnastics. |
+| [`@mongez/events`](https://github.com/hassanzohdy/events) | The event bus that powers `routerEvents`. Sister package, identical conventions — use directly for app-level pub/sub alongside the router. |
+| [`@mongez/localization`](https://github.com/hassanzohdy/mongez-localization) | Translation messages + locale-aware formatters. Pairs naturally with `appendLocaleCodeToUrl` and the `localeChanged` event for loading translation catalogues. |
 
-## React version
+---
 
-React **18 or newer**. The renderer uses `react-dom/client`'s `createRoot` / `hydrateRoot`. Version 1.x supports React 17 and earlier ([version-1 branch](https://github.com/hassanzohdy/react-router/tree/version-1)).
+## Further reading
+
+- [`llms-full.txt`](./llms-full.txt) — exhaustive single-file API surface for tool-assisted development.
+- [`llms.txt`](./llms.txt) — short index with deep-link references into the docs.
+- [`skills/`](./skills) — per-topic deep-dives. [`CHANGELOG.md`](./CHANGELOG.md) — release notes.
+
+---
 
 ## License
 
