@@ -1,6 +1,6 @@
 {
   "name": "@mongez/react-router",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "description": "A configuration-based React router with lazy-loaded apps/modules, locale-aware routing, middleware, prefetch-on-hover, and production-ready chunk error handling.",
   "main": "src/index.ts",
   "sideEffects": false,
@@ -9,8 +9,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@mongez/concat-route": "^1.0.0",
-    "@mongez/events": "^2.1.0"
+    "@mongez/concat-route": "^1.1.0",
+    "@mongez/events": "^2.2.0"
   },
   "repository": {
     "type": "git",
