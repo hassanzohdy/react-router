@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-recipes
-description: End-to-end recipes combining multiple @mongez/react-router features: auth guards, return-to redirects, language switchers, analytics, scroll restoration, loading bars, URL-driven filters, Suspense, and atom-based state.
-when_to_use: User is implementing auth-gated routes, a login redirect with return-to, a language switcher, page analytics via routerEvents, scroll restoration, a navigation loading bar, URL-driven pagination/filtering, per-route Suspense fallbacks, or pairing the router with @mongez/react-atom for route-driven data fetching.
+description: |
+  End-to-end recipes composing multiple @mongez/react-router features: auth guards, return-to redirects, language switchers, analytics, scroll restoration, loading bars, URL-driven filters, per-route Suspense, and route-driven data with `@mongez/react-atom`.
+  TRIGGER when: code wires `routerEvents.onNavigating` / `.onPageRendered` for analytics, scroll restoration, or a loading bar; uses `currentRoute`, `previousRoute`, `NavigationMode` to scope side effects; combines `navigateTo` + `NAVIGATING` + `queryString.get` for an auth `return-to` redirect; sets `suspenseFallback`; pairs the router with `fetchingAtom` from `@mongez/react-atom`; user asks "auth-gate a section", "track pageviews", "URL-driven pagination", "keep scroll on back/forward".
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the project uses `react-router-dom` loaders/`useNavigation`; single-concept questions answered by another skill — locale switching → `mongez-react-router-localization`, `<Link>` props → `mongez-react-router-navigation`, raw `queryString` API → `mongez-react-router-params`.
 ---
 
 # Recipes

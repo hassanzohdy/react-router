@@ -1,6 +1,6 @@
 {
   "name": "@mongez/react-router",
-  "version": "2.6.0",
+  "version": "2.7.1",
   "description": "A configuration-based React router with lazy-loaded apps/modules, locale-aware routing, middleware, prefetch-on-hover, and production-ready chunk error handling.",
   "main": "src/index.ts",
   "sideEffects": false,

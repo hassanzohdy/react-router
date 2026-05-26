@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-lazy-loading
-description: Code-splitting via apps and modules, module manifests, loader wiring, loading UI, and chunk-error recovery in @mongez/react-router.
-when_to_use: User calls setApps(), configures lazyLoading loaders, writes a *-modules.json manifest, asks about loadingComponent, renderOverPage, chunk errors after deploys, or the chunkErrorHandler strategies.
+description: |
+  Code-splitting via apps and modules, module manifests, loader wiring, loading UI, and chunk-error recovery in @mongez/react-router.
+  TRIGGER when: code calls `setApps`, configures `lazyLoading` (`loaders.app` / `loaders.module`, `loadingComponent`, `renderOverPage`, `chunkErrorHandler`) via `setRouterConfigurations`, references `App`, `PublicApp`, `Module`, `Loaders`, `LazyLoadingOptions`, `LazyLoadingProps`, `ChunkErrorHandler`, or `ChunkErrorStrategy`, writes a `*-modules.json` manifest, or listens to `routerEvents.onChunkLoadError`; user asks "how do I lazy-load modules", "configure app/module loaders", "show a loading spinner over the previous page", "recover from chunk-load errors after a deploy".
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file uses bare `React.lazy` + `<Suspense>` without `@mongez/react-router` apps/modules, or `react-router`'s `loader`/`lazy` route options; registering individual routes — use `mongez-react-router-routes`; per-route `suspenseFallback` and Suspense recipe — use `mongez-react-router-recipes`.
 ---
 
 # Lazy loading apps & modules

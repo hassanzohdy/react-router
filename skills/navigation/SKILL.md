@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-navigation
-description: Declarative <Link> component and imperative navigation functions (navigateTo, navigateBack, silentNavigation, refresh) in @mongez/react-router.
-when_to_use: User uses <Link> from @mongez/react-router, calls navigateTo(), navigateBack(), silentNavigation(), or refresh(). User asks about click interception, prefetch on hover, the NAVIGATING sentinel, newTab links, or the difference between navigateBack and history.back().
+description: |
+  Declarative `<Link>` and imperative helpers (`navigateTo`, `navigateBack`, `silentNavigation`, `refresh`) in @mongez/react-router, plus prefetch-on-hover, click interception, and the `NAVIGATING` sentinel.
+  TRIGGER when: code imports `Link`, `navigateTo`, `navigateBack`, `silentNavigation`, `refresh`, `NAVIGATING`, `currentRoute`, `previousRoute`, `currentApp`, `getHash`, `LinkProps`, or `LinkOptions` from `@mongez/react-router`; user asks "how do I link/navigate", "how does prefetch on hover work", "what does `silent` do", "open a Link in a new tab", "how is navigateBack different from `history.back()`", "what is `NAVIGATING` for"; JSX uses `<Link to=...>` from `@mongez/react-router`.
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file uses `<Link>`/`useNavigate` from `react-router-dom` or `next/link`; registering routes/middleware — use `mongez-react-router-routes`; locale-prefixed paths and `changeLocaleCode` — use `mongez-react-router-localization`; query string updates via `queryString.update` — use `mongez-react-router-params`.
 ---
 
 # Navigation

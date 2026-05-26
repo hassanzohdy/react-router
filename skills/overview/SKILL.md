@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-overview
-description: High-level mental model, install, import pattern, and feature scope of @mongez/react-router.
-when_to_use: User is new to @mongez/react-router and asks how it works, what it offers, or how it compares to react-router-dom or @tanstack/router. User asks about the singleton router, router.scan(), setRouterConfigurations(), or the general architecture.
+description: |
+  High-level mental model, install, import pattern, and feature scope of @mongez/react-router — a configuration-based singleton router (routes as data, one wrapper render path).
+  TRIGGER when: code imports `router`, `Router`, `Link`, `navigateTo`, `setApps`, `setRouterConfigurations`, `routerEvents`, `queryString`, or `NAVIGATING` from `@mongez/react-router`; user asks "how does @mongez/react-router work", "how do I set up the router", "what's router.scan", "how does this compare to react-router-dom or @tanstack/router"; `import router from "@mongez/react-router"` or `import { ... } from "@mongez/react-router"`.
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file imports from `react-router`, `react-router-dom`, `@tanstack/router`, or Next.js routing; specific topics (route registration, link/navigation, params, locale, lazy-loading, recipes) — use the matching `mongez-react-router-*` skill instead.
 ---
 
 # Overview

@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-params
-description: URL parameter extraction, the query string API, custom URL matchers, and query string parser swapping in @mongez/react-router.
-when_to_use: User accesses route params (params.id), uses queryString.get(), queryString.update(), queryString.all(), configures a custom urlMatcher, or swaps the query string parser via setRouterConfigurations({ queryString: { objectParser, stringParser } }).
+description: |
+  URL parameter extraction, the `queryString` API, custom `urlMatcher`, and swapping the query string parser in @mongez/react-router.
+  TRIGGER when: code imports `queryString`, `setQueryStringOptions`, `UrlMatcher`, or `QueryStringOptions` from `@mongez/react-router`, reads `router.params` / `params.id` in a page or middleware, calls `queryString.all`, `queryString.parse`, `queryString.get`, `queryString.toString`, `queryString.toQueryString`, or `queryString.update`, or sets `urlMatcher` / `queryString` keys via `setRouterConfigurations`; user asks "how do I read route params", "how do I read/update the query string", "how do I plug in `qs` or `path-to-regexp`"; `import queryString from "@mongez/react-router"`.
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file uses `useParams` / `useSearchParams` from `react-router-dom`; registering paths with dynamic segments — use `mongez-react-router-routes`; locale segment parsing — use `mongez-react-router-localization`; native `URLSearchParams` usage without `@mongez/react-router` imports.
 ---
 
 # Params & query string

@@ -7,17 +7,24 @@ Every export ships from the package root. React 18+ required (uses `react-dom/cl
 ## Docs
 
 - [Overview](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/overview.md): Pitch, install, mental model.
+  - *Auto-trigger:* Importing `router` / `setRouterConfigurations` / `router.scan` from `@mongez/react-router` for the first time, or comparing it to other React routers.
 - [README](https://raw.githubusercontent.com/hassanzohdy/react-router/main/README.md): Marketing-style index with the configuration table.
 - [Changelog](https://raw.githubusercontent.com/hassanzohdy/react-router/main/CHANGELOG.md): Release notes.
 
 ## Reference
 
 - [Routes](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/routes.md): `router.add(path, component, middleware?, layout?)`, the object form, `router.group(...)`, `router.partOf(layout, routes)`, dynamic segments (`:id`, `:id?`, `:id+`, `:id*`), middleware return values (`null`, `NAVIGATING`, `ReactNode`), `MiddlewareProps`.
+  - *Auto-trigger:* Calling `router.add` / `router.group` / `router.partOf`, writing middleware, or configuring not-found rendering/redirect.
 - [Navigation](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/navigation.md): `<Link>` (prefetch, locale, app, silent, newTab, email, tel, custom component), `navigateTo`, `navigateBack`, `silentNavigation`, `refresh`, the `NAVIGATING` sentinel.
+  - *Auto-trigger:* Rendering `<Link>` or calling `navigateTo` / `navigateBack` / `silentNavigation` / `refresh` from `@mongez/react-router`.
 - [Params & query string](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/params.md): How `params` is populated, the `urlMatcher` extension point, `queryString.all / get / update / toString / toQueryString`, swapping the parser.
+  - *Auto-trigger:* Reading route `params`, calling the `queryString` API, or swapping `urlMatcher` / query-string parsers.
 - [Lazy loading apps & modules](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/lazy-loading.md): `setApps`, the `app` and `module` loaders, `loadingComponent`, `renderOverPage`, the chunk-error handler (`reload` / `notify` / `custom` strategies).
+  - *Auto-trigger:* Calling `setApps`, wiring `lazyLoading.loaders`, writing a `*-modules.json` manifest, or handling chunk-load errors.
 - [Localization](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/localization.md): `localeCodes`, `defaultLocaleCode`, `changeLocaleCode("fr" | "fr", "hard")`, `appendLocaleCodeToUrl`, `autoRedirectToLocaleCode`, the locale segment placement in the URL.
+  - *Auto-trigger:* Configuring `localization`, calling `changeLocaleCode`, or rendering a locale-aware `<Link>` / language switcher.
 - [Recipes](https://raw.githubusercontent.com/hassanzohdy/react-router/main/skills/recipes.md): Auth-protected routes, locale-aware nav, route-driven analytics, scoping side effects by `NavigationMode`.
+  - *Auto-trigger:* Composing multi-feature flows — auth guards, return-to redirects, page analytics, scroll restoration, URL-driven filters, or atom-based data.
 
 ## Quick rules
 

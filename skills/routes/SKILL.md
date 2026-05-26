@@ -1,7 +1,9 @@
 ---
 name: mongez-react-router-routes
-description: Registering routes, dynamic segments, groups, layouts, middleware, and not-found handling in @mongez/react-router.
-when_to_use: User calls router.add(), router.group(), or router.partOf(). User asks about dynamic route patterns (:id, :id?, :path+, :path*), route middleware, shared layouts, or not-found configuration.
+description: |
+  Registering routes, dynamic segments, groups, layouts, middleware, and not-found handling in @mongez/react-router.
+  TRIGGER when: code calls `router.add`, `router.group`, `router.partOf`, `router.list`, references `Route`, `RouteOptions`, `GroupedRoutesOptions`, `Middleware`, `MiddlewareProps`, `NAVIGATING`, or configures `notFound` via `setRouterConfigurations`; user asks "how do I register a route", "how do I add middleware", "how do dynamic segments work (`:id`, `:id?`, `:path+`, `:path*`)", "how do I share a layout across routes", "how do I handle 404s"; `import router from "@mongez/react-router"` followed by `router.add(...)`.
+  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file uses `<Route>`/`<Routes>` JSX from `react-router-dom`; `<Link>`, `navigateTo`, prefetch, and imperative navigation — use `mongez-react-router-navigation` instead; locale prefixing — use `mongez-react-router-localization`; lazy-loaded module providers — use `mongez-react-router-lazy-loading`.
 ---
 
 # Routes
