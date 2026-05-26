@@ -137,7 +137,7 @@ The 300ms debounce avoids flashing the bar for fast same-bundle transitions.
 ## URL-driven filters
 
 ```tsx
-import queryString from "@mongez/react-router";
+import { queryString } from "@mongez/react-router";
 
 function ProductsList() {
   const { sort = "name", page = 1 } = queryString.all() as { sort?: string; page?: number };

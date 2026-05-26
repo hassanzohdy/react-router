@@ -52,12 +52,12 @@ setRouterConfigurations({
 });
 ```
 
-The matcher is called once per route per pattern; results are memoized in a module-level cache keyed by pattern string.
+The matcher is called once per route per pattern; results are memoized in a `WeakMap` keyed by the matcher function reference (so swapping the matcher via `setRouterConfigurations({ urlMatcher: ... })` starts with a fresh cache).
 
 ## Query string
 
 ```ts
-import queryString from "@mongez/react-router";
+import { queryString } from "@mongez/react-router";
 
 queryString.all();
 queryString.parse(searchParams: string);  // explicit query string
