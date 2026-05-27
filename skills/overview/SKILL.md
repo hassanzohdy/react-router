@@ -13,8 +13,36 @@ description: |
 ## Install
 
 ```sh
+# npm
+npm install @mongez/react-router
+
+# yarn
 yarn add @mongez/react-router
-# peer: react >= 18, react-dom >= 18
+
+# pnpm
+pnpm add @mongez/react-router
+```
+
+Peer deps: `react >= 18`, `react-dom >= 18`.
+
+## Quick example
+
+Register routes as data on the singleton, configure locale-prefixed URLs, then call `router.scan()` to mount the renderer:
+
+```tsx
+import router, { Link, setRouterConfigurations } from "@mongez/react-router";
+
+router.add("/", HomePage);
+router.add("/users/:id", UserPage, [authMiddleware]);
+
+setRouterConfigurations({
+  localization: { defaultLocaleCode: "en", localeCodes: ["en", "fr"] },
+});
+
+router.scan(); // mounts <RouterWrapper> into #root
+
+// In any component:
+<Link to="/users/42">User 42</Link>
 ```
 
 ## Import pattern
