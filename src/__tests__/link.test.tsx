@@ -117,6 +117,28 @@ describe("<Link> — rendering", () => {
     );
   });
 
+  it("strips backslashes from an internal path (open-redirect guard)", () => {
+    const { container } = render(<Link to="\\evil.com">x</Link>);
+    const href = container.querySelector("a")!.getAttribute("href")!;
+    expect(href).not.toContain("\\");
+    expect(href.startsWith("/")).toBe(true);
+    expect(href).not.toMatch(/^\/\//);
+  });
+
+  it("strips backslashes from a /\\host-style path (open-redirect guard)", () => {
+    const { container } = render(<Link to="/\evil.com">x</Link>);
+    const href = container.querySelector("a")!.getAttribute("href")!;
+    expect(href).not.toContain("\\");
+    expect(href).not.toMatch(/^\/\//);
+  });
+
+  it("still navigates to legitimate internal routes", () => {
+    const { container } = render(<Link to="/dashboard/settings">x</Link>);
+    expect(container.querySelector("a")!.getAttribute("href")).toBe(
+      "/dashboard/settings",
+    );
+  });
+
   it("renders a #hash link verbatim", () => {
     const { container } = render(<Link to="#section">hash</Link>);
     expect(container.querySelector("a")!.getAttribute("href")).toBe(
@@ -215,6 +237,17 @@ describe("<Link> — click interception", () => {
     const { container } = render(<Link href="https://example.com">x</Link>);
     fireEvent.click(container.querySelector("a")!);
     expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("intercepts a backslash-smuggled target as a plain internal route, never as a cross-origin navigation", () => {
+    const spy = vi.spyOn(router, "goTo").mockImplementation(() => {});
+    const { container } = render(<Link to="\\evil.com">x</Link>);
+    fireEvent.click(container.querySelector("a")!);
+    expect(spy).toHaveBeenCalledOnce();
+    const calledWith = spy.mock.calls[0][0] as string;
+    expect(calledWith).not.toContain("\\");
+    expect(calledWith).not.toMatch(/^\/\//);
     spy.mockRestore();
   });
 

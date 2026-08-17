@@ -45,6 +45,29 @@ describe("queryString.all()", () => {
     window.history.replaceState({}, "", "/page?filter[name]=John&filter[age]=30");
     expect(queryString.all()).toEqual({ filter: { name: "John", age: 30 } });
   });
+
+  it("does not pollute Object.prototype via __proto__[key]=value", () => {
+    window.history.replaceState({}, "", "/page?__proto__[polluted]=1");
+    queryString.all();
+    expect(({} as any).polluted).toBeUndefined();
+    expect(Object.prototype).not.toHaveProperty("polluted");
+  });
+
+  it("does not pollute Object.prototype via constructor[prototype][key]=value", () => {
+    window.history.replaceState({}, "", "/page?constructor[prototype][polluted]=1");
+    queryString.all();
+    expect(({} as any).polluted).toBeUndefined();
+    expect(Object.prototype).not.toHaveProperty("polluted");
+  });
+
+  it("does not assign a __proto__ own key on the parsed result", () => {
+    window.history.replaceState({}, "", "/page?__proto__[polluted]=1&safe=1");
+    const result = queryString.all();
+    expect(Object.prototype.hasOwnProperty.call(result, "__proto__")).toBe(
+      false,
+    );
+    expect(result).toEqual({ safe: 1 });
+  });
 });
 
 describe("queryString.parse(searchParams)", () => {

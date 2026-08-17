@@ -1,6 +1,11 @@
 import { isNumeric } from "./helpers";
 import type { ObjectType } from "./types";
 
+// Keys that would otherwise let an attacker reach `Object.prototype` (or any
+// other object's prototype) through bracket-notation query keys, e.g.
+// `?__proto__[polluted]=1` or `?constructor[prototype][x]=1`.
+const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 export function toObjectParser(query: string) {
   const vars = query.split("&");
   const result: ObjectType = {};
@@ -19,6 +24,10 @@ export function toObjectParser(query: string) {
     }
 
     const keys = key.split("[");
+
+    if (keys.some((rawKey) => FORBIDDEN_KEYS.has(rawKey.replace("]", "")))) {
+      continue;
+    }
 
     let currentObj = result;
     for (let j = 0; j < keys.length; j++) {

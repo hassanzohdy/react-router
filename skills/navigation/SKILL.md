@@ -2,8 +2,6 @@
 name: mongez-react-router-navigation
 description: |
   Declarative `<Link>` and imperative helpers (`navigateTo`, `navigateBack`, `silentNavigation`, `refresh`) in @mongez/react-router, plus prefetch-on-hover, click interception, and the `NAVIGATING` sentinel.
-  TRIGGER when: code imports `Link`, `navigateTo`, `navigateBack`, `silentNavigation`, `refresh`, `NAVIGATING`, `currentRoute`, `previousRoute`, `currentApp`, `getHash`, `LinkProps`, or `LinkOptions` from `@mongez/react-router`; user asks "how do I link/navigate", "how does prefetch on hover work", "what does `silent` do", "open a Link in a new tab", "how is navigateBack different from `history.back()`", "what is `NAVIGATING` for"; JSX uses `<Link to=...>` from `@mongez/react-router`.
-  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the file uses `<Link>`/`useNavigate` from `react-router-dom` or `next/link`; registering routes/middleware — use `mongez-react-router-routes`; locale-prefixed paths and `changeLocaleCode` — use `mongez-react-router-localization`; query string updates via `queryString.update` — use `mongez-react-router-params`.
 ---
 
 # Navigation
@@ -44,7 +42,9 @@ import { Link } from "@mongez/react-router";
 
 `<Link>` intercepts the click and calls `router.goTo(path)` **only** when:
 
-- the resolved path starts with `/`, AND
+- the resolved path is internal — it starts with `/`, is not protocol-relative (`//host`),
+  and contains no backslash. `/\evil.com` and `//evil.com` both start with `/` but resolve
+  to a foreign origin, so they are treated as external and left to the browser, AND
 - no modifier key is held (Ctrl / Meta / Shift / Alt), AND
 - it isn't a middle-click (`e.button === 1`), AND
 - `target` is not `"_blank"`.

@@ -1,5 +1,18 @@
 # Changelog — @mongez/react-router
 
+## [2.8.0] — 2026-08-17
+
+Security release. The two fixes below are both reachable from attacker-controlled URLs — a link a user clicks is enough — so they apply to every browser consumer.
+
+### Security
+
+- **Prototype pollution through bracket-notation query keys** (`src/query-string-parsers.ts`). The object parser walked `key[sub][deep]` segments by assigning into a plain `{}` accumulator, so `?__proto__[isAdmin]=1` or `?constructor[prototype][isAdmin]=1` wrote through to `Object.prototype` — after which *every* object in the page reads `isAdmin` as `"1"`, including ones used for authorization decisions in consuming apps. `__proto__`, `constructor` and `prototype` are now rejected as key segments, and every accumulator the parser builds is created with `Object.create(null)`, so a nesting level can never resolve to a prototype in the first place. Legitimate keys are unaffected.
+- **Open redirect in `<Link>`** (`src/helpers.tsx`, `src/components/Link/Link.tsx`). Internal-vs-external routing was decided by "does the path start with `/`", which is not sufficient: browsers treat `\` as equivalent to `/` for special schemes, so `/\evil.com` and the protocol-relative `//evil.com` both start with `/` yet resolve to a *foreign origin*. Such a path was routed through the client-side router as if it were a local route. `isInternalPath()` now additionally rejects protocol-relative (`//…`) targets and any path containing a backslash; those values fall through to normal anchor behaviour instead of being treated as internal routes. If you were relying on `<Link>` to navigate to `//cdn.example.com/…`, pass an explicit absolute URL (`https://cdn.example.com/…`).
+
+### Changed
+
+- **`react` / `react-dom` peer range capped at `>=18 <20`** (`package.json`). Was `>=18`, which advertised support for majors that do not exist yet and cannot have been tested. The upper bound is lifted deliberately, per major, after the matrix runs green.
+
 ## [2.7.4] — 2026-05-26
 
 ### Fixed

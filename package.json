@@ -1,6 +1,6 @@
 {
   "name": "@mongez/react-router",
-  "version": "2.7.4",
+  "version": "2.8.0",
   "description": "A configuration-based React router with lazy-loaded apps/modules, locale-aware routing, middleware, prefetch-on-hover, and production-ready chunk error handling.",
   "main": "src/index.ts",
   "sideEffects": false,
@@ -17,8 +17,8 @@
     "url": "https://github.com/hassanzohdy/react-router"
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

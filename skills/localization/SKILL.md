@@ -2,8 +2,6 @@
 name: mongez-react-router-localization
 description: |
   Locale-prefixed URLs (`/en/admin/users`), runtime language switching, and locale-detection configuration in @mongez/react-router.
-  TRIGGER when: code imports `changeLocaleCode`, `shouldAppendLocaleCodeToUrl`, `LocalizationOptions`, or `ChangeLanguageReloadMode` from `@mongez/react-router`, sets `localization` (`defaultLocaleCode`, `localeCodes`, `changeLanguageReloadMode`), `appendLocaleCodeToUrl`, or `autoRedirectToLocaleCode` via `setRouterConfigurations`, reads `router.getCurrentLocaleCode()` or the `localeCode` prop, renders `<Link localeCode=...>`, or listens to `routerEvents.onLocaleChanging` / `.onLocaleChanged` / `.onDetectingInitialLocaleCode`; user asks "how do I add a language prefix to URLs", "how do I switch language at runtime", "soft vs hard locale reload".
-  SKIP: this is @mongez's router, distinct from upstream `react-router-dom` — skip when the project uses `react-i18next` / `next-intl` routing without `@mongez/react-router`; translation message catalogs (this skill only covers URL/locale plumbing, not translation strings); base `<Link>` props unrelated to locale — use `mongez-react-router-navigation`.
 ---
 
 # Localization

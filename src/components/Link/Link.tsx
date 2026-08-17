@@ -10,7 +10,7 @@ import {
   useRef,
 } from "react";
 import { getRouterConfig } from "../../config";
-import { isUrl } from "../../helpers";
+import { isInternalPath, isUrl } from "../../helpers";
 import router from "../../router";
 import type { LinkOptions, LinkProps } from "../../types";
 
@@ -62,6 +62,13 @@ function InnerLink(
 
     if (isUrl(path)) return path;
 
+    // Backslashes are treated as "/" by browsers when resolving a URL with a
+    // special scheme, so a value like "\evil.com" can slip past `isUrl` and
+    // still resolve to a cross-origin address once concatenated into a path
+    // that "looks" relative (e.g. "/\evil.com"). Strip them before treating
+    // the value as an internal route so it can never smuggle a host.
+    path = path.replace(/\\/g, "");
+
     const appName = app || (router.getCurrentApp()?.name as string);
 
     const appPath = router.getApp(appName)?.path as string;
@@ -86,7 +93,7 @@ function InnerLink(
       return;
     }
 
-    if (path.startsWith("/")) {
+    if (isInternalPath(path)) {
       e.preventDefault();
 
       if (silent === true) {
@@ -108,7 +115,7 @@ function InnerLink(
 
   useEffect(() => {
     if (!prefetch) return;
-    if (!path.startsWith("/")) return;
+    if (!isInternalPath(path)) return;
     if (isPrefetchedRef.current) return;
     const element = linkRef?.current;
 
@@ -146,7 +153,11 @@ function InnerLink(
 
         linkRef.current = element;
       }}
-      href={path?.startsWith("/") ? concatRoute(router.basePath, path) : path}
+      href={
+        path && isInternalPath(path)
+          ? concatRoute(router.basePath, path)
+          : path
+      }
       onClick={onClick}
       {...props}
     />
