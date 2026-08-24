@@ -1,9 +1,16 @@
 import concatRoute from "@mongez/concat-route";
 import type { EventSubscription } from "@mongez/events";
 import React from "react";
-import ReactDOM, { createRoot } from "react-dom/client";
+// Type-only: erased at compile time, so it costs nothing at runtime.
+// `createRoot` is loaded on demand in `handleChunkLoadError` instead of
+// being imported here — a module-scope `react-dom/client` import made
+// every consumer of `Link` (which imports this module) pull `react-dom`
+// into its graph, which is what stopped the router being importable on
+// a server.
+import type { Root } from "react-dom/client";
 import { shouldAppendLocaleCodeToUrl } from "./config";
 import routerEvents, { triggerEvent } from "./events";
+import { getHistory } from "./history";
 import matchUrl, { urlPatternMatcher } from "./matcher";
 import queryString from "./query-string";
 import { renderer } from "./renderer";
@@ -140,7 +147,7 @@ export class Router {
   /**
    * Root
    */
-  protected root?: ReactDOM.Root;
+  protected root?: Root;
 
   /**
    * Determine if the router has locale code in the url
@@ -645,7 +652,7 @@ export class Router {
     }
 
     // update the current route for browser
-    window.history.pushState(null, "", fullPath);
+    getHistory().pushState(null, "", fullPath);
 
     this.refresh(navigationMode);
   }
@@ -654,8 +661,10 @@ export class Router {
    * Detect browser url change
    */
   protected detectBrowserUrlChange() {
-    // detect when the browser url changes using the popstate event
-    window.addEventListener("popstate", () => {
+    // detect when the browser url changes using the popstate event.
+    // The returned unsubscribe is intentionally discarded: the listener
+    // lives for the lifetime of the page, exactly as before.
+    getHistory().onPopState(() => {
       this.parseLocation();
 
       this.refresh(NavigationMode.swinging);
@@ -694,7 +703,14 @@ export class Router {
    * Render content
    */
   protected render() {
-    this.root = renderer(this.rootComponent, this._strictMode);
+    // `renderer` now resolves `react-dom/client` on demand, so the root
+    // arrives a microtask later. Nothing reads `this.root`, and the
+    // caller (`scan()`) never used the return value, so the observable
+    // behaviour is unchanged — a missing `#root` still throws
+    // synchronously out of `renderer` before the dynamic import.
+    renderer(this.rootComponent, this._strictMode).then(root => {
+      this.root = root;
+    });
   }
 
   /**
@@ -811,9 +827,17 @@ export class Router {
             document.body.appendChild(notifyElement);
           } 
           
-          // Render the component using createRoot instead of createPortal
-          const root = createRoot(notifyElement);
-          root.render(<NotificationComponent />);
+          // Render the component using createRoot instead of createPortal.
+          // `react-dom/client` is pulled in on demand so it stays out of
+          // this module's graph. The element is still created and attached
+          // synchronously; only the React mount is deferred by a microtask,
+          // and `root.render` was already asynchronous anyway — React
+          // schedules the commit rather than performing it inline.
+          const mountPoint = notifyElement;
+          import("react-dom/client").then(({ createRoot }) => {
+            const root = createRoot(mountPoint);
+            root.render(<NotificationComponent />);
+          });
         }
 
         triggerEvent("chunkLoadError", {
@@ -915,7 +939,7 @@ export class Router {
     }
 
     // update the current route for browser
-    window.history.replaceState({}, document.title, url);
+    getHistory().replaceState({}, document.title, url);
 
     this.previousRoute = this.currentRoute;
     this.currentRoute = route;

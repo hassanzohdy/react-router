@@ -290,6 +290,32 @@ currentApp();       // App object or undefined
 getHash();          // location.hash without the leading "#"
 ```
 
+### `@mongez/react-router/navigation` — the history seam
+
+A separate, deliberately tiny entry point for hosts that own routing themselves — an SSR framework whose own server router already decided which page renders, and which mounts `#root` itself. Such a host doesn't want this package's matcher or renderer in its bundle; it only needs `<Link>` clicks and `router.goTo` to go through *its* navigation instead of `window.history`.
+
+```ts
+import { setHistory, resetHistory } from "@mongez/react-router/navigation";
+
+setHistory({
+  pushState: (state, title, url) => host.push(url),
+  replaceState: (state, title, url) => host.replace(url),
+  onPopState: callback => host.subscribe(callback), // returns an unsubscribe fn
+});
+
+resetHistory(); // back to window.history
+```
+
+| Export | Type | Purpose |
+|---|---|---|
+| `setHistory` | `(history: RouterHistory) => void` | Install a history implementation. Do it before any navigation. |
+| `getHistory` | `() => RouterHistory` | Read the current implementation. |
+| `resetHistory` | `() => void` | Restore `browserHistory`. |
+| `browserHistory` | `RouterHistory` | The default — plain `window.history` + a `popstate` listener. |
+| `RouterHistory` | type | `pushState` / `replaceState` / `onPopState`. |
+
+This subpath imports nothing else in the package, so it pulls in neither the router singleton, the matcher, the renderer, nor React. Everything else — `<Link>`, `navigateTo`, `router` — stays on the root entry, which reaches `router.tsx` and therefore does pull the matcher and renderer in.
+
 ---
 
 ## Params & query string

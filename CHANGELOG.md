@@ -1,5 +1,12 @@
 # Changelog — @mongez/react-router
 
+## [Unreleased]
+
+### Added
+
+- **`exports` map, pointing at TypeScript source** (`package.json`). The package previously declared only `main: "src/index.ts"` and no `exports`, so subpath imports were impossible and the entry shape depended on the consumer's resolver. `main` / `module` / `types` now all point at `./src/index.ts`, and an `exports` map declares `.`, `./navigation` and `./package.json`. The root entry's resolution and its exported surface are unchanged. Note that adding `exports` also *closes* the package: deep paths such as `@mongez/react-router/src/utilities` no longer resolve. Nothing in the documented API ever required one.
+- **`@mongez/react-router/navigation` subpath — the client navigation seam** (`src/navigation.ts`). Exposes `setHistory`, `getHistory`, `resetHistory`, `browserHistory` and the `RouterHistory` type; `setHistory` was previously marked internal and unannounced. This is for hosts that own routing and mounting themselves (an SSR framework whose server router already picked the page and mounts `#root`) and need `<Link>` clicks and `router.goTo` to route through their navigation rather than `window.history`. The entry re-exports `src/history.ts`, which imports nothing, so the module graph reachable from it contains neither the router singleton, the matcher, the renderer, nor React — verified by bundling a consumer and inspecting the resolved inputs. Everything else stays on the root entry on purpose: `<Link>`, `navigateTo`, `router` and friends all reach `src/router.tsx`, which statically imports `./matcher` and `./renderer`, and `./renderer` mounts `#root` itself.
+
 ## [2.8.0] — 2026-08-17
 
 Security release. The two fixes below are both reachable from attacker-controlled URLs — a link a user clicks is enough — so they apply to every browser consumer.
