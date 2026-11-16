@@ -1,5 +1,12 @@
 # Changelog — @mongez/react-router
 
+## [2.8.2] — 2026-11-16
+
+### Fixed
+
+- The query-string parser no longer throws on malformed percent-encoding (`%`, `%ZZ`, truncated UTF-8) or on a scalar mixed with an array or object under one key; same rules as `@mongez/query-string` 1.2.6.
+- `?toString[]=1` (or any other inherited `Object.prototype` name used as an array key) no longer puts the built-in function into the parsed array; only own entries count as an earlier value.
+
 ## [2.8.1] — 2026-09-25
 
 ### Changed

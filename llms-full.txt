@@ -254,6 +254,7 @@ Default parser:
 - Numeric-looking values come back as numbers
 - `key[]=v1&key[]=v2` becomes `{ key: [v1, v2] }`
 - `key[sub]=v` becomes `{ key: { sub: v } }`
+- Parsing never throws on bad input: malformed percent-encoding (`?a=%`, `?a=%ZZ`) keeps the raw text, and mixed shapes under one key (`a=x&a[]=y`) give `{ a: ["x", "y"] }` (a scalar before `key[]` joins the array; otherwise the later shape wins). Same rules as `@mongez/query-string`
 - Nested-object stringification uses `parent[child]` notation
 
 Swap parsers via:

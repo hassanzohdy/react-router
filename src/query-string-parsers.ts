@@ -6,6 +6,23 @@ import type { ObjectType } from "./types";
 // `?__proto__[polluted]=1` or `?constructor[prototype][x]=1`.
 const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
+// Malformed percent-encoding (`%`, `%ZZ`, a truncated UTF-8 sequence) makes
+// `decodeURIComponent` throw a URIError. Keep the raw text instead of throwing.
+const safeDecode = (value: any): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return String(value);
+  }
+};
+
+const isContainer = (value: any) => typeof value === "object" && value !== null;
+
+// The result is a plain `{}`, so read only own entries: an inherited member
+// such as `toString` must not count as a value seen earlier under that key.
+const ownValue = (object: ObjectType, key: string) =>
+  Object.prototype.hasOwnProperty.call(object, key) ? object[key] : undefined;
+
 export function toObjectParser(query: string) {
   const vars = query.split("&");
   const result: ObjectType = {};
@@ -20,7 +37,7 @@ export function toObjectParser(query: string) {
     if (isNumeric(value)) {
       value = Number(value);
     } else {
-      value = decodeURIComponent(value);
+      value = safeDecode(value);
     }
 
     const keys = key.split("[");
@@ -34,15 +51,23 @@ export function toObjectParser(query: string) {
       const currentKey = keys[j].replace("]", "");
       if (j === keys.length - 1) {
         if (isArrayKey) {
-          if (!currentObj[currentKey]) {
-            currentObj[currentKey] = [];
+          const existing = ownValue(currentObj, currentKey);
+          if (Array.isArray(existing)) {
+            existing.push(value);
+          } else if (existing === undefined || isContainer(existing)) {
+            // nothing yet, or an object: the array replaces it
+            currentObj[currentKey] = [value];
+          } else {
+            // a scalar seen earlier under the same key joins the array
+            currentObj[currentKey] = [existing, value];
           }
-          currentObj[currentKey].push(value);
         } else {
           currentObj[currentKey] = value;
         }
       } else {
-        if (!currentObj[currentKey]) {
+        // a scalar or an array under the same key is replaced by the object
+        const existing = ownValue(currentObj, currentKey);
+        if (!isContainer(existing) || Array.isArray(existing)) {
           currentObj[currentKey] = {};
         }
         currentObj = currentObj[currentKey];

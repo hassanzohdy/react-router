@@ -72,6 +72,7 @@ queryString.parse("page=2&sort=name&tags[]=a&tags[]=b&nested[k]=v");
 // → { page: 2, sort: "name", tags: ["a", "b"], nested: { k: "v" } }
 ```
 
+- Malformed percent-encoding (`?a=%`, `?a=%ZZ`) never throws; the raw text is kept. Mixed shapes under one key never throw: a scalar before `key[]` joins the array (`a=x&a[]=y` → `{ a: ["x", "y"] }`), otherwise the later shape wins.
 - Numeric-looking values come back as `number` (e.g. `page=2` → `page: 2`).
 - `key[]=v1&key[]=v2` becomes `{ key: ["v1", "v2"] }`. With a single occurrence, it's still an array (`{ key: ["v1"] }`).
 - `key[sub]=v` becomes `{ key: { sub: "v" } }`. Nested objects compose: `a[b][c]=v` → `{ a: { b: { c: "v" } } }`.

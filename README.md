@@ -348,6 +348,8 @@ queryString.toQueryString({ a: 1, b: [2, 3], nested: { x: 1 } });
 // → "a=1&b[]=2&b[]=3&nested[x]=1"
 ```
 
+Parsing never throws on bad input: malformed percent-encoding (`?a=%`, `?a=%ZZ`) keeps the raw text, and mixed shapes under one key (`a=x&a[]=y`) give `{ a: ["x", "y"] }` (a scalar before `key[]` joins the array; otherwise the later shape wins).
+
 Numeric-looking values come back as `number`s. Arrays use `key[]=v1&key[]=v2`. Nested objects use `key[subkey]=v` (composable: `a[b][c]=v`).
 
 > `queryString.update(...)` **replaces** the entire query string, not merges. Pass the full object you want represented.
